@@ -285,6 +285,7 @@ class _MovieDetailState extends State<MovieDetail>
             key: const Key('scrollable'),
             onNotification: (notification) {
               if (notification is ScrollUpdateNotification) {
+                print(pageCategories[0].currentContext!.size!.height);
                 if (notification.metrics.pixels >= 800 &&
                     notification.metrics.pixels <= 1600) {
                   _tabController.animateTo(1);
@@ -303,6 +304,7 @@ class _MovieDetailState extends State<MovieDetail>
                   Container(
                     key: pageCategories[0],
                     height: 1000,
+                    // padding: const EdgeInsets.all(20),
                     color: Colors.red,
                   ),
                   Container(
