@@ -16,6 +16,7 @@ class _MovieDetailState extends State<MovieDetail>
   final ScrollController _scrollController2 = ScrollController();
   late ScrollNotification notification;
   bool isAtTop = true;
+  bool isAtPage = true;
 
   final List<GlobalKey> pageCategories = [
     GlobalKey(),
@@ -28,15 +29,35 @@ class _MovieDetailState extends State<MovieDetail>
     super.initState();
     _scrollController.addListener(_checkIfAtTop);
     _tabController = TabController(length: 3, vsync: this);
+    _scrollController2.addListener(() {
+      print(_scrollController2.position.pixels);
+      var position = _scrollController2.position;
+      if (position.pixels == 0) {
+        setState(() {
+          isAtPage = true;
+        });
+      } else {
+        setState(() {
+          isAtPage = false;
+        });
+      }
+    });
   }
 
   void _checkIfAtTop() {
     if (_scrollController.hasClients) {
       final position = _scrollController.position;
       if (position.pixels >= position.maxScrollExtent / 2) {
-        setState(() => isAtTop = false);
+        setState(() {
+          isAtTop = false;
+          isAtPage = false;
+        });
       } else {
-        setState(() => isAtTop = true);
+        print('at top');
+        setState(() {
+          isAtTop = true;
+          isAtPage = true;
+        });
       }
     }
   }
@@ -212,7 +233,41 @@ class _MovieDetailState extends State<MovieDetail>
                 delegate: _SliverAppBarDelegate(
                   TabBar(
                     controller: _tabController,
-                    onTap: (index) {},
+                    onTap: (index) async {
+                      var maxScroll =
+                          _scrollController.position.maxScrollExtent;
+                      _scrollController.animateTo(
+                        maxScroll,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                      setState(() {
+                        isAtPage = false;
+                      });
+                      if (!isAtPage) {
+                        print('scrolling');
+                        await Future.delayed(const Duration(milliseconds: 300));
+                        if (index == 0) {
+                          _scrollController2.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        } else if (index == 1) {
+                          _scrollController2.animateTo(
+                            900,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        } else {
+                          _scrollController2.animateTo(
+                            2000,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      }
+                    },
                     tabs: const [
                       Tab(text: 'Overview'),
                       Tab(text: 'Episodes'),
@@ -242,6 +297,7 @@ class _MovieDetailState extends State<MovieDetail>
               return true;
             },
             child: SingleChildScrollView(
+              controller: !isAtPage ? _scrollController2 : null,
               child: Column(
                 children: [
                   Container(
