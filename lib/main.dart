@@ -1,6 +1,8 @@
+import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
 import 'package:bloctest/pages/home_page.dart';
+import 'package:bloctest/pages/main.page.dart';
 import 'package:bloctest/pages/movie_home.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +24,6 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -32,6 +33,9 @@ class MyApp extends StatelessWidget {
               UserBloc(userRepository: UserRepository())..add(LoadUser()),
         ),
         BlocProvider<VisibilityBloc>(create: (context) => VisibilityBloc()),
+        BlocProvider<PageBloc>(
+            create: (context) =>
+                PageBloc()..add(PageScroll(isScrolling: true))),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -39,7 +43,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const MovieHome(),
+        home: const Mainpage(),
       ),
     );
   }
