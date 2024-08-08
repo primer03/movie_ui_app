@@ -13,21 +13,15 @@ class SearchPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(20),
               child: Theme(
-                data: ThemeData(
-                  primaryColor: Colors.grey,
-                  inputDecorationTheme: InputDecorationTheme(
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color:
-                              Colors.blue), // เปลี่ยนสีของ border เมื่อ focus
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.grey), // สีของ border เมื่อไม่ได้ focus
-                    ),
+                data: Theme.of(context).copyWith(
+                  colorScheme: ColorScheme.fromSwatch(
+                    primarySwatch: Colors.blue,
                   ),
+                  textSelectionTheme:
+                      TextSelectionThemeData(cursorColor: Colors.blue),
                 ),
                 child: TextField(
+                  cursorColor: Colors.blue,
                   decoration: InputDecoration(
                     hintText: 'Search',
                     prefixIcon: Icon(Icons.search),
