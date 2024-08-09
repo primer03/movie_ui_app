@@ -68,8 +68,7 @@ class OnboardThreePage extends StatelessWidget {
           const SizedBox(height: 50),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Mainpage()));
+              navigateWithAnimation(context, const Mainpage());
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
@@ -106,4 +105,41 @@ class OnboardThreePage extends StatelessWidget {
       ),
     );
   }
+}
+
+void navigateWithAnimation(BuildContext context, Widget page) {
+  // ลบทุกหน้าที่อยู่ใน stack และเพิ่มหน้าใหม่เข้าไป
+  Navigator.of(context).pushAndRemoveUntil(
+    PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // Adjust the duration and curve for a smoother transition
+        const begin = Offset(1.0, 0.0); // Slide in from right
+        const end = Offset.zero;
+        const curve = Curves.easeInOut; // Smooth in and out
+
+        // Create a tween for the slide transition
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        // Apply a fade-in effect combined with the slide transition
+        var fadeAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Interval(0.0, 0.5, curve: Curves.easeInOut),
+        );
+
+        return FadeTransition(
+          opacity: fadeAnimation,
+          child: SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          ),
+        );
+      },
+      transitionDuration:
+          const Duration(milliseconds: 600), // Adjusted duration
+    ),
+    (route) => false,
+  );
 }

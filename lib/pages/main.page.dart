@@ -1,4 +1,5 @@
 import 'package:bloctest/bloc/page/page_bloc.dart';
+import 'package:bloctest/pages/explore_page.dart';
 import 'package:bloctest/pages/movie_home.dart';
 import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/IconBottombar.dart';
@@ -97,9 +98,8 @@ class Mainpage extends StatelessWidget {
                   index: state.tabIndex,
                   children: const [
                     MovieHome(),
-                    Center(
-                      child: Text('Download'),
-                    ),
+                    // MovieHome(),
+                    ExplorePage(),
                     Center(
                       child: Text('Profile'),
                     ),

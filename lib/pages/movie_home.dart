@@ -1,12 +1,12 @@
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/pages/home_page.dart';
+import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/AnimatedVisibilityWidget.dart';
 import 'package:bloctest/widgets/AnimeCard.dart';
 import 'package:bloctest/widgets/CarouselAnime.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,7 +31,6 @@ class _MovieHomeState extends State<MovieHome> {
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      // check up or down
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
         print('down');
@@ -60,66 +59,6 @@ class _MovieHomeState extends State<MovieHome> {
         padding: const EdgeInsets.symmetric(horizontal: 0),
         child: Column(
           children: [
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 20),
-            //   child: Row(
-            //     crossAxisAlignment: CrossAxisAlignment.center,
-            //     children: [
-            //       const CircleAvatar(
-            //         radius: 30,
-            //         backgroundColor: Colors.grey,
-            //         backgroundImage:
-            //             NetworkImage('https://avatar.iran.liara.run/public'),
-            //       ),
-            //       const SizedBox(width: 10),
-            //       const Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Text(
-            //             'Hi, John Doe',
-            //             style: TextStyle(
-            //               fontSize: 15,
-            //               fontWeight: FontWeight.bold,
-            //             ),
-            //           ),
-            //           SizedBox(height: 5),
-            //           Text(
-            //             'Let\'s find a movie',
-            //             style: TextStyle(fontSize: 12, color: Colors.grey),
-            //           ),
-            //         ],
-            //       ),
-            //       const Spacer(),
-            //       IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-            //       IconButton(
-            //         onPressed: () {},
-            //         icon: Stack(
-            //           children: [
-            //             const Icon(Icons.notifications_none),
-            //             Positioned(
-            //               right: 0,
-            //               top: 0,
-            //               child: Container(
-            //                 padding: const EdgeInsets.all(2),
-            //                 decoration: const BoxDecoration(
-            //                   color: Colors.red,
-            //                   shape: BoxShape.circle,
-            //                 ),
-            //                 child: const Text(
-            //                   '1',
-            //                   style: TextStyle(
-            //                     color: Colors.white,
-            //                     fontSize: 10,
-            //                   ),
-            //                 ),
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             const SizedBox(height: 20),
             const CarouselAnime(),
             const SizedBox(height: 20),
@@ -173,7 +112,12 @@ class _MovieHomeState extends State<MovieHome> {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return const SearchPage();
+                    }));
+                  },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,

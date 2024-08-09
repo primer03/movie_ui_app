@@ -23,9 +23,7 @@ class IconBottombar extends StatelessWidget {
         IconButton(
           onPressed: () {
             context.read<PageBloc>().add(PageChanged(tabIndex: tabIndex));
-            if (tabIndex == 0) {
-              context.read<PageBloc>().add(PageScroll(isScrolling: true));
-            }
+            context.read<PageBloc>().add(const PageScroll(isScrolling: true));
           },
           style: ButtonStyle(
             padding: MaterialStateProperty.all(const EdgeInsets.all(17)),
