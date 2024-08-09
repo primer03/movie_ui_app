@@ -1,9 +1,11 @@
+import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
 import 'package:bloctest/pages/home_page.dart';
 import 'package:bloctest/pages/main.page.dart';
 import 'package:bloctest/pages/movie_home.dart';
+import 'package:bloctest/pages/onboarding_page.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,6 +38,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<PageBloc>(
             create: (context) =>
                 PageBloc()..add(PageScroll(isScrolling: true))),
+        BlocProvider<OnboardingBloc>(
+          create: (context) => OnboardingBloc(),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -43,7 +48,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const Mainpage(),
+        home: const Onboarding(),
       ),
     );
   }
