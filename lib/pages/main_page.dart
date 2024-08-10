@@ -95,7 +95,19 @@ class Mainpage extends StatelessWidget {
               ];
             },
             body: SingleChildScrollView(
-              child: _getPage(state.tabIndex),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: _getPage(state.tabIndex),
+              ),
             ),
           ),
           bottomNavigationBar: Container(
