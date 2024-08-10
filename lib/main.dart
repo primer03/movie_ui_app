@@ -3,7 +3,7 @@ import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
 import 'package:bloctest/pages/home_page.dart';
-import 'package:bloctest/pages/main.page.dart';
+import 'package:bloctest/pages/main_page.dart';
 import 'package:bloctest/pages/movie_home.dart';
 import 'package:bloctest/pages/onboarding_page.dart';
 import 'package:bloctest/repositories/user_repository.dart';

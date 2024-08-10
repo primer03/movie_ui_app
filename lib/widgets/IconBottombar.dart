@@ -32,9 +32,7 @@ class IconBottombar extends StatelessWidget {
             icon,
             width: 24,
             height: 24,
-            color: state.tabIndex == tabIndex
-                ? const Color(0xFF6C5ECF)
-                : Colors.grey,
+            color: state.tabIndex == tabIndex ? Colors.black : Colors.grey,
           ),
         ),
         Positioned(
@@ -46,7 +44,7 @@ class IconBottombar extends StatelessWidget {
             height: 4,
             decoration: BoxDecoration(
               color: state.tabIndex == tabIndex
-                  ? const Color(0xFF6C5ECF)
+                  ? Colors.black
                   : Colors.transparent,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),

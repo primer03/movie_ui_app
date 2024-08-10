@@ -1,15 +1,9 @@
-import 'package:bloctest/bloc/page/page_bloc.dart';
-import 'package:bloctest/pages/home_page.dart';
-import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/AnimatedVisibilityWidget.dart';
 import 'package:bloctest/widgets/AnimeCard.dart';
-import 'package:bloctest/widgets/CarouselAnime.dart';
 import 'package:bloctest/widgets/CarouselExplore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -26,27 +20,20 @@ class _ExplorePageState extends State<ExplorePage> {
     "https://i.imgur.com/p2xwVIC.jpeg",
     "https://i.imgur.com/jHmdK55.jpeg"
   ];
+  final List<String> _categories = [
+    'ทั้งหมด',
+    'โรแมนติก',
+    'แฟนตาซี',
+    'ย้อนยุค จีนโบราณ',
+    'กำลังภายใน',
+    'แนวระบบ',
+    'ผจญภัย',
+  ];
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.addListener(() {
-        if (_scrollController.position.userScrollDirection ==
-            ScrollDirection.reverse) {
-          print('down');
-          context.read<PageBloc>().add(const PageScroll(isScrolling: false));
-        } else {
-          print('up');
-          context.read<PageBloc>().add(const PageScroll(isScrolling: true));
-        }
-        if (_scrollController.offset <= 0) {
-          print('top');
-          context.read<PageBloc>().add(const PageScroll(isScrolling: true));
-        }
-      });
-    });
   }
 
   @override
@@ -55,7 +42,6 @@ class _ExplorePageState extends State<ExplorePage> {
       statusBarColor: Colors.white, // สีของ status bar
       statusBarIconBrightness: Brightness.dark, // สี icon ของ status bar
     ));
-    print('ExplorePage');
     return SingleChildScrollView(
       controller: _scrollController,
       child: Column(
@@ -102,14 +88,16 @@ class _ExplorePageState extends State<ExplorePage> {
             ),
           ),
           // const SizedBox(height: 20),
-          const CarouselExplore(),
+          const CarouselExplore().animate().fadeIn(
+                delay: 100.ms,
+              ),
           const SizedBox(height: 20),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Categories',
+                'หมวดหมู่',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -122,23 +110,35 @@ class _ExplorePageState extends State<ExplorePage> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                SizedBox(width: 20),
-                ...List.generate(10, (context) {
-                  return ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
+                const SizedBox(width: 20),
+                ..._categories.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String e = entry.value;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: AnimatedVisibilityWidget(
+                      key: ValueKey(e),
+                      beforeChild: const SizedBox(
+                        width: 100,
+                        height: 45,
                       ),
+                      child: Chip(
+                        label: Text(
+                          e,
+                          style: TextStyle(
+                            color: index == 0 ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        backgroundColor:
+                            index == 0 ? Colors.black : Colors.white,
+                        side: BorderSide.none,
+                      ).animate().fadeIn(
+                            delay: 200.ms,
+                          ),
                     ),
-                    child: const Text('All'),
                   );
-                }).expand((element) => [
-                      element,
-                      const SizedBox(width: 10),
-                    ]),
+                }),
               ],
             ),
           ),
@@ -157,7 +157,9 @@ class _ExplorePageState extends State<ExplorePage> {
             ),
           ),
           const SizedBox(height: 10),
-          AnimeCard(items: _items),
+          AnimeCard(items: _items).animate().fadeIn(
+                delay: 500.ms,
+              ),
           const SizedBox(height: 100),
         ],
       ),

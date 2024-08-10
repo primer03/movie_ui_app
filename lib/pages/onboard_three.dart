@@ -1,6 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
-import 'package:bloctest/pages/main.page.dart';
+import 'package:bloctest/pages/main_page.dart';
 import 'package:bloctest/pages/movie_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

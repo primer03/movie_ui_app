@@ -1,14 +1,11 @@
-import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/pages/home_page.dart';
 import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/AnimatedVisibilityWidget.dart';
 import 'package:bloctest/widgets/AnimeCard.dart';
 import 'package:bloctest/widgets/CarouselAnime.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MovieHome extends StatefulWidget {
   const MovieHome({super.key});
@@ -30,20 +27,20 @@ class _MovieHomeState extends State<MovieHome> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.reverse) {
-        print('down');
-        context.read<PageBloc>().add(const PageScroll(isScrolling: false));
-      } else {
-        print('up');
-        context.read<PageBloc>().add(const PageScroll(isScrolling: true));
-      }
-      if (_scrollController.offset <= 0) {
-        print('top');
-        context.read<PageBloc>().add(const PageScroll(isScrolling: true));
-      }
-    });
+    // _scrollController.addListener(() {
+    //   if (_scrollController.position.userScrollDirection ==
+    //       ScrollDirection.reverse) {
+    //     print('down');
+    //     context.read<PageBloc>().add(const PageScroll(isScrolling: false));
+    //   } else {
+    //     print('up');
+    //     context.read<PageBloc>().add(const PageScroll(isScrolling: true));
+    //   }
+    //   if (_scrollController.offset <= 0) {
+    //     print('top');
+    //     context.read<PageBloc>().add(const PageScroll(isScrolling: true));
+    //   }
+    // });
   }
 
   @override
@@ -52,7 +49,7 @@ class _MovieHomeState extends State<MovieHome> {
       statusBarColor: Colors.white, // สีของ status bar
       statusBarIconBrightness: Brightness.dark, // สี icon ของ status bar
     ));
-    print('MovieHome');
+
     return SingleChildScrollView(
       controller: _scrollController,
       child: Padding(
