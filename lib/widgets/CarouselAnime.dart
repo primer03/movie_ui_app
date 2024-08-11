@@ -13,7 +13,9 @@ class CarouselAnime extends StatefulWidget {
 
 class _CarouselAnimeState extends State<CarouselAnime> {
   int _currentIndex = 0;
-  final CarouselController _carouselController = CarouselController();
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
+
   @override
   Widget build(BuildContext context) {
     return Column(

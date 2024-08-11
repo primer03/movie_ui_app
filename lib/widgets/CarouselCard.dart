@@ -10,7 +10,8 @@ class CarouselCard extends StatefulWidget {
 }
 
 class _CarouselCardState extends State<CarouselCard> {
-  final CarouselController _carouselController = CarouselController();
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
   int _currentIndex = 0;
 
   @override

@@ -13,7 +13,8 @@ class CarouselExplore extends StatefulWidget {
 
 class _CarouselExploreState extends State<CarouselExplore> {
   int _currentIndex = 0;
-  final CarouselController _carouselController = CarouselController();
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
   @override
   Widget build(BuildContext context) {
     return Column(
