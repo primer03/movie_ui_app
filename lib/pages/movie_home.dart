@@ -1,11 +1,15 @@
 import 'package:bloctest/pages/home_page.dart';
+import 'package:bloctest/pages/movie_detail.dart';
 import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/AnimatedVisibilityWidget.dart';
 import 'package:bloctest/widgets/AnimeCard.dart';
 import 'package:bloctest/widgets/CarouselAnime.dart';
+import 'package:bloctest/widgets/NovelCard.dart';
+import 'package:bloctest/widgets/ToptenNovel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MovieHome extends StatefulWidget {
   const MovieHome({super.key});
@@ -21,6 +25,62 @@ class _MovieHomeState extends State<MovieHome> {
     "https://i.imgur.com/Yx9dcco.jpeg",
     "https://i.imgur.com/p2xwVIC.jpeg",
     "https://i.imgur.com/jHmdK55.jpeg"
+  ];
+  final List<Map<String, dynamic>> _items2 = [
+    {
+      'image':
+          'https://www.saiumporn5.com/buffet-api/20230913045243.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image':
+          'https://admin.buffetebook.com/images/novel/20240526233131.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image':
+          'https://admin.buffetebook.com/images/novel/20240404012824.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image':
+          'https://admin.buffetebook.com/images/novel/20240611231729.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
   ];
   final ScrollController _scrollController = ScrollController();
 
@@ -64,7 +124,7 @@ class _MovieHomeState extends State<MovieHome> {
               child: Row(
                 children: [
                   const Text(
-                    'Recommended for you',
+                    'นิยายแนะนำ',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -79,13 +139,13 @@ class _MovieHomeState extends State<MovieHome> {
                         vertical: 5,
                       ),
                       minimumSize: const Size(0, 0),
-                      overlayColor: const Color(0xFF685CF0).withOpacity(0.1),
+                      overlayColor: Colors.black.withOpacity(0.1),
                     ),
                     child: const Text(
-                      "See All",
+                      "ดูทั้งหมด",
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF685CF0),
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -93,46 +153,26 @@ class _MovieHomeState extends State<MovieHome> {
               ),
             ),
             const SizedBox(height: 5),
-            AnimeCard(items: _items).animate().fadeIn(
+            Novelcard(items: _items2).animate().fadeIn(
                   duration: 500.ms,
                 ),
             const SizedBox(height: 20),
-            Row(
-              children: [
-                const SizedBox(width: 20),
-                const Text(
-                  'Top Searches',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
+            HeaderNovel(
+              title: '10 นิยายยอดนิยม',
+              route: MaterialPageRoute(builder: (context) {
+                return const SearchPage();
+              }),
+            ),
+            const SizedBox(height: 5),
+            ToptenNovel(items: _items2).animate().fadeIn(
+                  duration: 500.ms,
                 ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return const SearchPage();
-                    }));
-                  },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    minimumSize: const Size(0, 0),
-                    overlayColor: const Color(0xFF685CF0).withOpacity(0.1),
-                  ),
-                  child: const Text(
-                    "See All",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF685CF0),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20),
-              ],
+            const SizedBox(height: 20),
+            HeaderNovel(
+              title: 'Top Searches',
+              route: MaterialPageRoute(builder: (context) {
+                return const SearchPage();
+              }),
             ),
             // const SizedBox(height: 5),
             Container(
@@ -213,6 +253,52 @@ class _MovieHomeState extends State<MovieHome> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class HeaderNovel extends StatelessWidget {
+  final String title;
+  // route
+  final MaterialPageRoute route;
+  const HeaderNovel({super.key, required this.title, required this.route});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const SizedBox(width: 20),
+        Text(
+          title,
+          style: GoogleFonts.athiti(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Spacer(),
+        TextButton(
+          onPressed: () {
+            Navigator.push(context, route);
+          },
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            minimumSize: const Size(0, 0),
+            overlayColor: Colors.black.withOpacity(0.1),
+          ),
+          child: Text(
+            "ดูทั้งหมด",
+            style: GoogleFonts.athiti(
+              fontSize: 13,
+              color: Colors.black54,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(width: 20),
+      ],
     );
   }
 }

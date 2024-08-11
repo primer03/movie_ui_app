@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MovieDetail extends StatefulWidget {
   const MovieDetail({super.key});
@@ -86,7 +87,14 @@ class _MovieDetailState extends State<MovieDetail>
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.share),
-                    onPressed: () {},
+                    onPressed: () async {
+                      var result = await Share.share(
+                          'https://bookfet.com/noveldetail/MTIz_%E0%B9%80%E0%B8%82%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2%E0%B8%AB%E0%B8%B1%E0%B8%A7%E0%B9%83%E0%B8%88%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B9%80%E0%B8%94%E0%B8%B4%E0%B8%A1',
+                          subject: 'Check out this movie');
+                      if (result.status == ShareResultStatus.success) {
+                        print('Thank you for sharing my website!');
+                      }
+                    },
                   ),
                   IconButton(
                     icon: const Icon(Icons.favorite_border),
