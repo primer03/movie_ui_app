@@ -267,15 +267,15 @@ class _NovelDetailState extends State<NovelDetail>
             ];
           },
           body: PageView(
+            controller: _pageController,
             onPageChanged: (index) {
               _tabController.animateTo(index);
             },
-            controller: _pageController,
             children: [
               Container(
                 color: Colors.white,
-                child: const Padding(
-                  padding: EdgeInsets.all(10),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -283,17 +283,18 @@ class _NovelDetailState extends State<NovelDetail>
                           initiallyExpanded: true,
                           index: 0,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         ExpansionTileEpisode(
                           index: 1,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                       ],
                     ),
                   ),
                 ),
               ),
               Container(
+                key: const PageStorageKey<String>('novel_recommend'),
                 color: Colors.white,
                 child: SingleChildScrollView(
                   child: Column(
@@ -317,28 +318,28 @@ class _NovelDetailState extends State<NovelDetail>
               Container(
                 color: Colors.white,
                 child: Padding(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const textAbout(
+                        const TextAbout(
                             title:
                                 'เกิดใหม่เป็นภรรยาอ้วนของหัวหน้ากองพันสุดฮอต ยุค 80'),
-                        const textAbout(title: '重生八零嫁给全军第一硬汉'),
-                        const textAbout(
+                        const TextAbout(title: '重生八零嫁给全军第一硬汉'),
+                        const TextAbout(
                             title:
                                 '*** ลิขสิทธิ์ถูกต้องภายใต้บริษัท โอลลี่บุ๊คส์ จำกัด ***'),
-                        const textAbout(
+                        const TextAbout(
                             title:
                                 'ได้รับลิขสิทธิ์ออนไลน์ (Digital license) สำหรับแปลขายลงบนเว็บไซต์ได้อย่างถูกลิขสิทธิ์ 100%'),
-                        const textAbout(title: 'สงวนลิขสิทธิ์'),
-                        const textAbout(
+                        const TextAbout(title: 'สงวนลิขสิทธิ์'),
+                        const TextAbout(
                             title: 'ผู้แต่ง : 九羊猪猪   ผู้แปล : ทีมงาน onlybook'),
                         const SizedBox(height: 10),
-                        const textAbout(title: 'เรื่องย่อ'),
-                        const textAbout(
+                        const TextAbout(title: 'เรื่องย่อ'),
+                        const TextAbout(
                             title:
                                 'โดนคนรักที่กำลังแต่งงานไปนอกใจกับเพื่อนรักและโยนลงจากชั้น 14 แต่กลับมาเกิดใหม่เป็นหญิงอ้วนหนักกว่า 150 กิโลกรัม ที่พาลูกเลี้ยงของสามีไปขายแลกหนี้ จนสามีรู้เข้าจะหย่ากับเธอภายในเจ็ดเดือน แบบนี้ ‘เจียงหว่าน’ จะอยู่ยังไงเมื่อเจ้าของร่างเดิมแสนโฉดชั่วไปทำเรื่องให้คนขุ่นเคืองใจมากมาย แต่สามีที่กำลังจะหย่ากลับยื่นมือเข้ามาช่วยเสมอ อย่ามาทำแบบนี้นะรู้ไหมมัน น่ากิน... เอ้ย หวั่นไหว!'),
                       ]
@@ -359,9 +360,9 @@ class _NovelDetailState extends State<NovelDetail>
   }
 }
 
-class textAbout extends StatelessWidget {
+class TextAbout extends StatelessWidget {
   final String title;
-  const textAbout({super.key, required this.title});
+  const TextAbout({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
