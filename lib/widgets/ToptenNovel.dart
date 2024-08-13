@@ -147,7 +147,7 @@ class ToptenNovel extends StatelessWidget {
                                     ),
                                     SizedBox(width: 10),
                                     Icon(
-                                      Icons.favorite,
+                                      Icons.list,
                                       size: 15,
                                     ),
                                     SizedBox(width: 5),
