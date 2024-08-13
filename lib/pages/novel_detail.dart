@@ -1,3 +1,5 @@
+import 'package:bloctest/pages/movie_home.dart';
+import 'package:bloctest/widgets/NovelCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,6 +19,63 @@ class _NovelDetailState extends State<NovelDetail>
   late final TabController _tabController;
   final PageController _pageController = PageController();
   bool isAtTop = true;
+  final List<Map<String, dynamic>> _items2 = [
+    {
+      'image':
+          'https://www.saiumporn5.com/buffet-api/20230913045243.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description':
+          'ฉินจิ่นแพทย์หญิงจากศตวรรษที่ 21 ขับรถชนรถสิบล้อ แล้วทะลุเข้ามายังร่างของสาวนาตัวน้อยที่กระโดดน้ำตาย สาเหตุนะเหรอ เรื่องนี้คงต้องเล่ากันยาว เริ่มจาก นางมีฉายา คร่า สามี 7 ศพ ! เพราะอะไรน่ะเหรอ ฉินจิ่นถูกขายให้เป็นสะใภ้ของ 7 ครอบครัว พอตกลงที่จะแต่งงาน เจ้าบ่าวของฉินจิ่นก็จะต้องมีเหตุต้องตาย ทุกสารพัดวิธี',
+    },
+    {
+      'image':
+          'https://admin.buffetebook.com/images/novel/20240526233131.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image':
+          'https://admin.buffetebook.com/images/novel/20240404012824.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image':
+          'https://admin.buffetebook.com/images/novel/20240611231729.jpg?w=128&q=100?webp',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+    {
+      'image': 'https://i.imgur.com/jHmdK55.jpeg',
+      'title': 'Kimi to Boku no Saigo no Senjou',
+      'description': 'Action, Adventure, Fantasy',
+    },
+  ];
 
   @override
   void initState() {
@@ -220,9 +279,14 @@ class _NovelDetailState extends State<NovelDetail>
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        ExpansionTileEpisode(initiallyExpanded: true),
+                        ExpansionTileEpisode(
+                          initiallyExpanded: true,
+                          index: 0,
+                        ),
                         SizedBox(height: 10),
-                        ExpansionTileEpisode(),
+                        ExpansionTileEpisode(
+                          index: 1,
+                        ),
                         SizedBox(height: 10),
                       ],
                     ),
@@ -231,26 +295,58 @@ class _NovelDetailState extends State<NovelDetail>
               ),
               Container(
                 color: Colors.white,
-                child: const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    'Episodes',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      HeaderNovel(
+                          title: 'แนะนำสำหรับคุณ',
+                          route: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MovieHome(),
+                              ),
+                            );
+                          }),
+                      const SizedBox(height: 10),
+                      Novelcard(items: _items2),
+                    ],
                   ),
                 ),
               ),
               Container(
                 color: Colors.white,
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.all(20),
-                  child: Text(
-                    'Reviews',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const textAbout(
+                            title:
+                                'เกิดใหม่เป็นภรรยาอ้วนของหัวหน้ากองพันสุดฮอต ยุค 80'),
+                        const textAbout(title: '重生八零嫁给全军第一硬汉'),
+                        const textAbout(
+                            title:
+                                '*** ลิขสิทธิ์ถูกต้องภายใต้บริษัท โอลลี่บุ๊คส์ จำกัด ***'),
+                        const textAbout(
+                            title:
+                                'ได้รับลิขสิทธิ์ออนไลน์ (Digital license) สำหรับแปลขายลงบนเว็บไซต์ได้อย่างถูกลิขสิทธิ์ 100%'),
+                        const textAbout(title: 'สงวนลิขสิทธิ์'),
+                        const textAbout(
+                            title: 'ผู้แต่ง : 九羊猪猪   ผู้แปล : ทีมงาน onlybook'),
+                        const SizedBox(height: 10),
+                        const textAbout(title: 'เรื่องย่อ'),
+                        const textAbout(
+                            title:
+                                'โดนคนรักที่กำลังแต่งงานไปนอกใจกับเพื่อนรักและโยนลงจากชั้น 14 แต่กลับมาเกิดใหม่เป็นหญิงอ้วนหนักกว่า 150 กิโลกรัม ที่พาลูกเลี้ยงของสามีไปขายแลกหนี้ จนสามีรู้เข้าจะหย่ากับเธอภายในเจ็ดเดือน แบบนี้ ‘เจียงหว่าน’ จะอยู่ยังไงเมื่อเจ้าของร่างเดิมแสนโฉดชั่วไปทำเรื่องให้คนขุ่นเคืองใจมากมาย แต่สามีที่กำลังจะหย่ากลับยื่นมือเข้ามาช่วยเสมอ อย่ามาทำแบบนี้นะรู้ไหมมัน น่ากิน... เอ้ย หวั่นไหว!'),
+                      ]
+                          .expand((element) => [
+                                const SizedBox(height: 10),
+                                element,
+                              ])
+                          .toList(),
                     ),
                   ),
                 ),
@@ -263,9 +359,29 @@ class _NovelDetailState extends State<NovelDetail>
   }
 }
 
+class textAbout extends StatelessWidget {
+  final String title;
+  const textAbout({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      textAlign: TextAlign.center,
+      style: GoogleFonts.athiti(
+        color: Colors.black,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+}
+
 class ExpansionTileEpisode extends StatefulWidget {
   final bool initiallyExpanded;
-  const ExpansionTileEpisode({super.key, this.initiallyExpanded = false});
+  final int index;
+  const ExpansionTileEpisode(
+      {super.key, this.initiallyExpanded = false, required this.index});
 
   @override
   _ExpansionTileEpisodeState createState() => _ExpansionTileEpisodeState();
@@ -292,6 +408,7 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
         key: const PageStorageKey<String>('expansion_tile_key'),
         initiallyExpanded: _isExpanded,
         onExpansionChanged: (bool expanded) {
+          print(widget.index);
           setState(() {
             _isExpanded = expanded;
           });
