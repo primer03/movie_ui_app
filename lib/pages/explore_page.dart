@@ -133,9 +133,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         backgroundColor:
                             index == 0 ? Colors.black : Colors.white,
                         side: BorderSide.none,
-                      ).animate().fadeIn(
-                            delay: 200.ms,
-                          ),
+                      ).animate().fadeIn(delay: 200.ms),
                     ),
                   );
                 }),
