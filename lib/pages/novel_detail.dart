@@ -252,6 +252,10 @@ class _NovelDetailState extends State<NovelDetail>
                         curve: Curves.easeInOut,
                       );
                     },
+                    labelStyle: GoogleFonts.athiti(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                     tabs: const [
                       Tab(text: 'ตอน'),
                       Tab(text: 'นิยายแนะนำ'),
@@ -274,8 +278,8 @@ class _NovelDetailState extends State<NovelDetail>
             children: [
               Container(
                 color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
+                child: const Padding(
+                  padding: EdgeInsets.all(10),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -283,11 +287,11 @@ class _NovelDetailState extends State<NovelDetail>
                           initiallyExpanded: true,
                           index: 0,
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         ExpansionTileEpisode(
                           index: 1,
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                       ],
                     ),
                   ),
@@ -298,18 +302,20 @@ class _NovelDetailState extends State<NovelDetail>
                 color: Colors.white,
                 child: SingleChildScrollView(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      HeaderNovel(
-                          title: 'แนะนำสำหรับคุณ',
-                          route: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MovieHome(),
-                              ),
-                            );
-                          }),
-                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        width: double.infinity,
+                        child: Text(
+                          'นิยายแนะนำ',
+                          style: GoogleFonts.athiti(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                       Novelcard(items: _items2),
                     ],
                   ),
