@@ -1,16 +1,27 @@
 import 'package:bloctest/pages/movie_detail.dart';
+import 'package:bloctest/pages/novel_detail.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Novelcard extends StatelessWidget {
   final List<dynamic> items;
-  const Novelcard({Key? key, required this.items}) : super(key: key);
-
+  final int? maxLine;
+  final bool isshowepisode;
+  final bool isshowviewInimage;
+  const Novelcard({
+    super.key,
+    required this.items,
+    this.maxLine,
+    this.isshowepisode = true,
+    this.isshowviewInimage = true,
+  });
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -22,7 +33,7 @@ class Novelcard extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const MovieDetail();
+                    return const NovelDetail();
                   }));
                 },
                 child: Container(
@@ -45,6 +56,43 @@ class Novelcard extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            !isshowviewInimage
+                                ? Positioned(
+                                    top: 10,
+                                    right: 10,
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: 65,
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.5),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons.remove_red_eye_rounded,
+                                            size: 12,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            '123.2k',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.athiti(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
                             Positioned(
                               top: 10,
                               left: -25,
@@ -74,19 +122,19 @@ class Novelcard extends StatelessWidget {
                       const SizedBox(height: 10),
                       Text(
                         item['title'],
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 1),
                       Text(
                         item['description'],
-                        maxLines: 1,
+                        maxLines: maxLine ?? 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           color: Colors.grey,
                         ),
@@ -96,32 +144,40 @@ class Novelcard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Icon(
-                            Icons.remove_red_eye_rounded,
-                            size: 15,
-                          ),
-                          const SizedBox(width: 5),
-                          const Text(
-                            '1.2k',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          isshowviewInimage
+                              ? const Icon(
+                                  Icons.remove_red_eye_rounded,
+                                  size: 15,
+                                )
+                              : Container(),
+                          SizedBox(width: isshowviewInimage ? 5 : 0),
+                          isshowviewInimage
+                              ? Text(
+                                  '1.2k',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : Container(),
                           // const Spacer(),
-                          const SizedBox(width: 10),
-                          const Icon(
-                            Icons.list,
-                            size: 15,
-                          ),
-                          const SizedBox(width: 5),
-                          const Text(
-                            '12 ตอน',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          SizedBox(width: isshowviewInimage ? 10 : 0),
+                          isshowepisode
+                              ? Icon(
+                                  Icons.list,
+                                  size: 15,
+                                )
+                              : Container(),
+                          SizedBox(width: 5),
+                          isshowepisode
+                              ? Text(
+                                  '12 ตอน',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : Container(),
                         ],
                       ),
                     ],
