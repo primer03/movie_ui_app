@@ -147,7 +147,7 @@ class Mainpage extends StatelessWidget {
                   IconBottombar(
                     state: state,
                     tabIndex: 2,
-                    icon: 'assets/svg/arrow-square-down.svg',
+                    icon: 'assets/svg/library-book-svgrepo-com.svg',
                   ),
                   IconBottombar(
                     state: state,
