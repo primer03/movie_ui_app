@@ -1,14 +1,18 @@
-import 'package:bloctest/pages/movie_detail.dart';
+import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/pages/novel_detail.dart';
+import 'package:bloctest/widgets/ContainerSkeltion.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
-class Novelcard extends StatelessWidget {
-  final List<dynamic> items;
+class Novelcardhit extends StatelessWidget {
+  final List<HitNovel> items;
   final int? maxLine;
   final bool isshowepisode;
   final bool isshowviewInimage;
-  const Novelcard({
+  const Novelcardhit({
     super.key,
     required this.items,
     this.maxLine,
@@ -27,9 +31,7 @@ class Novelcard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(width: 20),
-            ...items.asMap().entries.map((e) {
-              final int index = e.key;
-              final dynamic item = e.value;
+            ...items.map((HitNovel item) {
               return GestureDetector(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -47,12 +49,29 @@ class Novelcard extends StatelessWidget {
                         child: Stack(
                           children: [
                             Container(
-                              height: 200,
+                              height: 220,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                image: DecorationImage(
-                                  image: NetworkImage(item['image']),
-                                  fit: BoxFit.cover,
+                                // image: DecorationImage(
+                                //   image: NetworkImage(item.img),
+                                //   fit: BoxFit.fill,
+                                // ),
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl: item.img,
+                                fit: BoxFit.fill,
+                                height: double.infinity,
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                  baseColor: Colors.grey[400]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  period: const Duration(milliseconds: 1000),
+                                  child: const ContainerSkeltion(
+                                    height: double.infinity,
+                                    width: double.infinity,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                  ),
                                 ),
                               ),
                             ),
@@ -79,7 +98,7 @@ class Novelcard extends StatelessWidget {
                                           ),
                                           const SizedBox(width: 5),
                                           Text(
-                                            '123.2k',
+                                            abbreviateNumber(item.view),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: GoogleFonts.athiti(
@@ -93,49 +112,52 @@ class Novelcard extends StatelessWidget {
                                     ),
                                   )
                                 : Container(),
-                            Positioned(
-                              top: 10,
-                              left: -25,
-                              child: Transform.rotate(
-                                  angle: -0.8,
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    width: 90,
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red[700],
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: const Text(
-                                      'จบแล้ว',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  )),
-                            ),
+                            item.end.name == 'END'
+                                ? Positioned(
+                                    top: 10,
+                                    left: -25,
+                                    child: Transform.rotate(
+                                        angle: -0.8,
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: 90,
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red[700],
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          child: Text(
+                                            'จบแล้ว',
+                                            style: GoogleFonts.athiti(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        )),
+                                  )
+                                : Container(),
                           ],
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        item['title'],
-                        maxLines: 2,
+                        item.name,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13,
+                        style: GoogleFonts.athiti(
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        item['description'],
+                        item.title,
                         maxLines: maxLine ?? 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 11,
+                        style: GoogleFonts.athiti(
+                          fontSize: 12,
                           color: Colors.grey,
                         ),
                       ),
@@ -153,9 +175,9 @@ class Novelcard extends StatelessWidget {
                           SizedBox(width: isshowviewInimage ? 5 : 0),
                           isshowviewInimage
                               ? Text(
-                                  '1.2k',
-                                  style: TextStyle(
-                                    fontSize: 12,
+                                  abbreviateNumber(item.view),
+                                  style: GoogleFonts.athiti(
+                                    fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
@@ -163,17 +185,17 @@ class Novelcard extends StatelessWidget {
                           // const Spacer(),
                           SizedBox(width: isshowviewInimage ? 10 : 0),
                           isshowepisode
-                              ? Icon(
+                              ? const Icon(
                                   Icons.list,
                                   size: 15,
                                 )
                               : Container(),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           isshowepisode
                               ? Text(
-                                  '12 ตอน',
-                                  style: TextStyle(
-                                    fontSize: 12,
+                                  abbreviateNumber(item.allep ?? 0),
+                                  style: GoogleFonts.athiti(
+                                    fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )

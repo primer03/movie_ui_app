@@ -1,10 +1,15 @@
+import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/models/novel_model.dart';
+import 'package:bloctest/widgets/ContainerSkeltion.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Toptennovelnew extends StatelessWidget {
-  final List<Map<String, dynamic>> items;
+  final List<HitNovel> items;
   const Toptennovelnew({super.key, required this.items});
 
   @override
@@ -14,7 +19,7 @@ class Toptennovelnew extends StatelessWidget {
       child: CarouselSlider(
         items: items.asMap().entries.map((e) {
           final int index = e.key;
-          final Map<String, dynamic> item = e.value;
+          final HitNovel item = e.value;
           return Container(
             // margin: const EdgeInsets.only(right: 20),
             child: Column(
@@ -120,68 +125,94 @@ class Toptennovelnew extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                                 child: Stack(
                                   children: [
-                                    Image.network(
-                                      item['image'],
-                                      fit: BoxFit.cover,
-                                      width: 120,
-                                    ),
-                                    Positioned(
-                                      top: 10,
-                                      left: -25,
-                                      child: Transform.rotate(
-                                        angle: -0.8,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: 80,
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red[700],
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: const Text(
-                                            'จบแล้ว',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
+                                    // Image.network(
+                                    //   item.img,
+                                    //   fit: BoxFit.cover,
+                                    //   width: 120,
+                                    // ),
+                                    CachedNetworkImage(
+                                        imageUrl: item.img,
+                                        fit: BoxFit.cover,
+                                        width: 120,
+                                        placeholder: (context, url) =>
+                                            Shimmer.fromColors(
+                                              baseColor: Colors.grey[400]!,
+                                              highlightColor: Colors.grey[100]!,
+                                              period: const Duration(
+                                                  milliseconds: 1000),
+                                              child: const ContainerSkeltion(
+                                                height: 170,
+                                                width: 120,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                              ),
+                                            )),
+                                    item.end.name == 'END'
+                                        ? Positioned(
+                                            top: 10,
+                                            left: -25,
+                                            child: Transform.rotate(
+                                              angle: -0.8,
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                width: 80,
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red[700],
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
+                                                child: const Text(
+                                                  'จบแล้ว',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                          )
+                                        : const SizedBox(),
                                   ],
                                 ),
                               ),
                             ),
                             const SizedBox(height: 5),
-                            const Row(
+                            Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.remove_red_eye,
                                   size: 15,
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
-                                  '1.2k',
-                                  style: TextStyle(
-                                    fontSize: 12,
+                                  abbreviateNumber(item.view),
+                                  style: GoogleFonts.athiti(
+                                    fontSize: 13,
                                     color: Colors.grey,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                SizedBox(width: 10),
-                                Icon(
-                                  Icons.list,
-                                  size: 15,
-                                ),
-                                SizedBox(width: 5),
-                                Text(
-                                  '1.2k',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
+                                const SizedBox(width: 10),
+                                item.allep != null
+                                    ? const Icon(
+                                        Icons.list,
+                                        size: 15,
+                                      )
+                                    : const SizedBox(),
+                                const SizedBox(width: 5),
+                                item.allep != null
+                                    ? Text(
+                                        abbreviateNumber(item.allep!),
+                                        style: GoogleFonts.athiti(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                    : const SizedBox(),
                               ],
                             ),
                           ],
