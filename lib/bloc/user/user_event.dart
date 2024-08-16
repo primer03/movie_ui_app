@@ -19,29 +19,50 @@ class AddUser extends UserEvent {
   List<Object> get props => [name, email];
 }
 
-class UpdateUser extends UserEvent {
+class LoginUser extends UserEvent {
+  final String email;
+  final String password;
+  final String identifier;
+
+  const LoginUser(
+      {required this.email, required this.password, required this.identifier});
+
+  @override
+  List<Object> get props => [email, password, identifier];
+}
+
+class UserLoginremember extends UserEvent {
   final User user;
 
-  UpdateUser({required this.user});
+  const UserLoginremember({required this.user});
 
   @override
   List<Object> get props => [user];
 }
 
-class DeleteUser extends UserEvent {
-  final User user;
+// class UpdateUser extends UserEvent {
+//   final User user;
 
-  DeleteUser({required this.user});
+//   UpdateUser({required this.user});
 
-  @override
-  List<Object> get props => [user];
-}
+//   @override
+//   List<Object> get props => [user];
+// }
 
-class SearchUser extends UserEvent {
-  final String query;
+// class DeleteUser extends UserEvent {
+//   final User user;
 
-  const SearchUser({required this.query});
+//   DeleteUser({required this.user});
 
-  @override
-  List<Object> get props => [query];
-}
+//   @override
+//   List<Object> get props => [user];
+// }
+
+// class SearchUser extends UserEvent {
+//   final String query;
+
+//   const SearchUser({required this.query});
+
+//   @override
+//   List<Object> get props => [query];
+// }

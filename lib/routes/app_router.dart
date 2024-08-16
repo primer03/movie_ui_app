@@ -2,6 +2,7 @@ import 'package:bloctest/pages/login_page.dart';
 import 'package:bloctest/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bloctest/pages/main_page.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 // นำเข้าหน้าอื่นๆ ที่คุณต้องการใช้ route ด้วย
 
 class AppRouter {
@@ -11,10 +12,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const LoginPage());
       case '/register':
         return MaterialPageRoute(builder: (_) => const RegisterPage());
-
-      // เพิ่ม case สำหรับหน้าอื่นๆ ที่นี่
-      // case '/secondPage':
-      //   return MaterialPageRoute(builder: (_) => const SecondPage());
+      case '/main':
+        return MaterialPageRoute(builder: (_) => const Mainpage());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

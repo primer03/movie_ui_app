@@ -33,7 +33,7 @@ class Novelcardnew extends StatelessWidget {
           children: [
             const SizedBox(width: 20),
             ...items.map((Recomnovel item) {
-              print(item.id);
+              // print(item.id);
               return GestureDetector(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {

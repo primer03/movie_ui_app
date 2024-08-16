@@ -42,13 +42,15 @@ class OnboardTwoPage extends StatelessWidget {
           AnimatedTextKit(
             totalRepeatCount: 1,
             onFinished: () {
-              context
-                  .read<OnboardingBloc>()
-                  .add(const OnboardingCompleted(isCompleted: [
-                    true,
-                    true,
-                    false,
-                  ]));
+              context.read<OnboardingBloc>().add(
+                    const OnboardingCompleted(
+                      isCompleted: [
+                        true,
+                        true,
+                        false,
+                      ],
+                    ),
+                  );
             },
             animatedTexts: [
               TyperAnimatedText(

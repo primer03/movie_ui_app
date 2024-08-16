@@ -30,17 +30,17 @@ class _MovieHomeSkeletonState extends State<MovieHomeSkeleton> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ContainerSkeltion(
-                  height: 165,
+                  height: 150,
                   width: double.infinity,
                   borderRadius: BorderRadius.circular(10)),
             ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
+              children: List.generate(10, (index) {
                 return ContainerSkeltion(
-                  height: 10,
-                  width: 10,
+                  height: 8,
+                  width: index == 0 ? 40 : 8,
                   borderRadius: BorderRadius.circular(100),
                 );
               })

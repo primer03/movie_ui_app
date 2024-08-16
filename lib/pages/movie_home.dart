@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:bloctest/Skeleton/movie_home_skeleton.dart';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/models/novel_model.dart';
@@ -65,6 +64,7 @@ class _MovieHomeState extends State<MovieHome> {
       if (state is NovelLoading) {
         return const MovieHomeSkeleton();
       } else if (state is NovelLoaded) {
+        print('loaded');
         // print(state.novels.newnovelupdate.upnovel.runtimeType);
         return SingleChildScrollView(
           controller: _scrollController,
@@ -201,10 +201,10 @@ class _MovieHomeState extends State<MovieHome> {
                 HeaderNovel(
                   title: 'นิยายอัปเดตล่าสุด',
                   route: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return const MyHomePage();
-                    }));
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (context) {
+                    //   return const MyHomePage();
+                    // }));
                   },
                 ),
                 const SizedBox(height: 5),
@@ -315,9 +315,7 @@ class _MovieHomeState extends State<MovieHome> {
               ],
             ),
           ),
-        ).animate().fadeIn(
-              duration: 700.ms,
-            );
+        );
       } else if (state is NovelError) {
         return Center(
           child: Text(state.message),

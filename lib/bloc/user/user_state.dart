@@ -20,6 +20,26 @@ class UserLoaded extends UserState {
   List<Object> get props => [users];
 }
 
+class UserLoginSuccess extends UserState {
+  final User user;
+  final DateTime timestamp;
+
+  UserLoginSuccess(this.user) : timestamp = DateTime.now();
+
+  @override
+  List<Object> get props => [user, timestamp];
+}
+
+class UserLoginFailed extends UserState {
+  final String message;
+  final DateTime timestamp;
+
+  UserLoginFailed(this.message) : timestamp = DateTime.now();
+
+  @override
+  List<Object> get props => [message, timestamp];
+}
+
 class UserNoData extends UserState {}
 
 class UserError extends UserState {
@@ -29,4 +49,13 @@ class UserError extends UserState {
 
   @override
   List<Object> get props => [message];
+}
+
+class UserLoginrememberSate extends UserState {
+  final User user;
+
+  const UserLoginrememberSate(this.user);
+
+  @override
+  List<Object> get props => [user];
 }
