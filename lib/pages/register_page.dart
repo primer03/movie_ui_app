@@ -268,32 +268,6 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ),
                         ),
-                        BlocListener<UserBloc, UserState>(
-                          listener: (context, state) {
-                            if (state is RegisterLoading) {
-                              showLoadingDialog(context);
-                            } else if (state is RegisterUserSuccess) {
-                              showToastification(
-                                context: context,
-                                message: 'สมัครสมาชิกสำเร็จ',
-                                type: ToastificationType.success,
-                              );
-                              Navigator.pop(context);
-                              Navigator.pushNamed(context, '/');
-                            } else if (state is RegisterUserFailed) {
-                              print('error: ${state.message}');
-                              showToastification(
-                                context: context,
-                                message: state.message.split(' ')[2],
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.flat,
-                                icon: Icon(Icons.error, color: Colors.red[800]),
-                              );
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: const SizedBox.shrink(),
-                        ),
                       ],
                     ),
                   ),

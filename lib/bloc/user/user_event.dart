@@ -59,6 +59,10 @@ class RegisterUser extends UserEvent {
   List<Object> get props => [username, email, password, date, gender];
 }
 
+class ResetStateEvent extends UserEvent {
+  const ResetStateEvent();
+}
+
 
 // class UpdateUser extends UserEvent {
 //   final User user;

@@ -10,33 +10,31 @@ part 'user_state.dart';
 class UserBloc extends Bloc<UserEvent, UserState> {
   final UserRepository userRepository;
   UserBloc({required this.userRepository}) : super(UserInitial()) {
-    // on<LoadUser>(_onLoadUser);
-    // on<AddUser>(_onAddUser);
-    // on<UpdateUser>(_onUpdateUser);
-    // on<DeleteUser>(_onDeleteUser);
-    // on<SearchUser>(_onSearchUser);
     on<LoginUser>(_onLoginUser);
     on<UserLoginremember>(_onLoginSuccess);
     on<RegisterUser>(_onRegister);
+    on<ResetStateEvent>(_onResetState);
+  }
+
+  void _onResetState(ResetStateEvent event, Emitter<UserState> emit) {
+    emit(UserInitial());
   }
 
   void _onLoginUser(LoginUser event, Emitter<UserState> emit) async {
     emit(UserLoading());
     try {
       User user = await userRepository.loginUser(
-          email: event.email,
-          password: event.password,
-          identifier: event.identifier);
-      print('login success');
+        email: event.email,
+        password: event.password,
+        identifier: event.identifier,
+      );
       emit(UserLoginSuccess(user));
     } catch (e) {
-      print('error: ${e.toString()}');
       emit(UserLoginFailed(e.toString()));
     }
   }
 
   void _onLoginSuccess(UserLoginremember event, Emitter<UserState> emit) async {
-    emit(UserLoading());
     try {
       User user = event.user;
       User userlogin;
@@ -66,74 +64,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       );
       emit(RegisterUserSuccess());
     } catch (e) {
-      print('error: ${e.toString()}');
       emit(RegisterUserFailed(e.toString()));
     }
   }
-
-  // void _onLoadUser(LoadUser event, Emitter<UserState> emit) async {
-  //   emit(UserLoading());
-  //   try {
-  //     final users = await userRepository.getUsers();
-  //     checkNoData(users, emit);
-  //   } catch (e) {
-  //     emit(UserError(e.toString()));
-  //   }
-  // }
-
-  // void _onAddUser(AddUser event, Emitter<UserState> emit) async {
-  //   emit(UserLoading());
-  //   try {
-  //     await userRepository.createUser(name: event.name, email: event.email);
-  //     final users = await getUser();
-  //     checkNoData(users, emit);
-  //   } catch (e) {
-  //     emit(UserError(e.toString()));
-  //   }
-  // }
-
-  // void _onUpdateUser(UpdateUser event, Emitter<UserState> emit) async {
-  //   emit(UserLoading());
-  //   try {
-  //     await userRepository.updateUser(event.user);
-  //     final users = await getUser();
-  //     checkNoData(users, emit);
-  //   } catch (e) {
-  //     emit(UserError(e.toString()));
-  //   }
-  // }
-
-  // void _onDeleteUser(DeleteUser event, Emitter<UserState> emit) async {
-  //   emit(UserLoading());
-  //   try {
-  //     await userRepository.deleteUser(event.user);
-  //     final users = await getUser();
-  //     checkNoData(users, emit);
-  //   } catch (e) {
-  //     emit(UserError(e.toString()));
-  //   }
-  // }
-
-  // void _onSearchUser(SearchUser event, Emitter<UserState> emit) async {
-  //   emit(UserLoading());
-  //   try {
-  //     final users = await userRepository.searchUsers(event.query);
-  //     checkNoData(users, emit);
-  //   } catch (e) {
-  //     emit(UserError(e.toString()));
-  //   }
-  // }
-
-  // void checkNoData(List<User> users, Emitter<UserState> emit) {
-  //   if (users.isEmpty) {
-  //     emit(UserNoData());
-  //   } else {
-  //     emit(UserLoaded(users));
-  //   }
-  // }
-
-  // Future<List<User>> getUser() async {
-  //   final users = await userRepository.getUsers();
-  //   return users;
-  // }
 }

@@ -28,9 +28,20 @@ class UserRepository {
 
       if (res['status'] == 'error') throw Exception(res['message']);
       print('datatype: ${res['data'].runtimeType}');
-      final tokenData = res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่'
-          ? json.decode(res['data'])['token']
-          : json.decode(res['data'])['token'];
+      final tokenData;
+      if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
+        if (res['data'].runtimeType == String) {
+          tokenData = json.decode(res['data'])['token'];
+        } else {
+          tokenData = res['data']['token'];
+        }
+      } else {
+        if (res['data'].runtimeType == String) {
+          tokenData = json.decode(res['data'])['token'];
+        } else {
+          tokenData = res['data']['token'];
+        }
+      }
 
       final decodedToken = JwtDecoder.decode(tokenData);
       Logger().i(decodedToken);

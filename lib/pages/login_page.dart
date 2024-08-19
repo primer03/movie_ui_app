@@ -82,6 +82,22 @@ class _LoginPageState extends State<LoginPage> {
           _handleLoginSuccess(ctx, state);
         } else if (state is UserLoginFailed) {
           _handleLoginFailed(ctx, state);
+        } else if (state is RegisterLoading) {
+          showLoadingDialog(context);
+        } else if (state is RegisterUserSuccess) {
+          Navigator.pop(context);
+          showToastification(
+            context: ctx,
+            message: 'สมัครสมาชิกสำเร็จ',
+            type: ToastificationType.success,
+          );
+          Navigator.pop(context);
+        } else if (state is RegisterUserFailed) {
+          showToastification(
+            context: ctx,
+            message: 'สมัครสมาชิกล้มเหลว',
+            type: ToastificationType.error,
+          );
         }
       },
       child: const SizedBox.shrink(),

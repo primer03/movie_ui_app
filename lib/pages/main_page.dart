@@ -68,7 +68,7 @@ class _MainpageState extends State<Mainpage> {
                       if (state is UserLoginrememberSate) {
                         if (closeloading) {
                           closeloading = false;
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
                         }
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
