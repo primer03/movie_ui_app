@@ -1,7 +1,6 @@
 import 'dart:convert';
-
-import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
+import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +14,7 @@ import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:bloctest/main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
-import 'package:shimmer/shimmer.dart'; // ตรวจสอบให้แน่ใจว่า path ถูกต้อง
+import 'package:shimmer/shimmer.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -25,19 +24,22 @@ class Mainpage extends StatefulWidget {
 }
 
 class _MainpageState extends State<Mainpage> {
+  bool closeloading = true;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // print(novelBox.get('user'));
     getUser();
   }
 
   void getUser() async {
-    String userstr = novelBox.get('user');
-    User user = User.fromJson(jsonDecode(userstr));
-    print(user.username);
-    BlocProvider.of<UserBloc>(context).add(UserLoginremember(user: user));
+    final userstr = novelBox.get('user');
+    final logintype = await novelBox.get('loginType');
+    if (userstr == null) return;
+    final user = User.fromJson(jsonDecode(userstr));
+    final password = logintype == 'remember' ? await getPassword() : null;
+    // ignore: use_build_context_synchronously
+    BlocProvider.of<UserBloc>(context)
+        .add(UserLoginremember(user: user, password: password));
   }
 
   @override
@@ -64,6 +66,10 @@ class _MainpageState extends State<Mainpage> {
                   title: BlocBuilder<UserBloc, UserState>(
                     builder: (context, state) {
                       if (state is UserLoginrememberSate) {
+                        if (closeloading) {
+                          closeloading = false;
+                          Navigator.pop(context);
+                        }
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -236,6 +242,7 @@ class _MainpageState extends State<Mainpage> {
             onPressed: () async {
               // ลบข้อมูลจาก Hive
               String token = novelBox.get('usertoken');
+              await deletePassword();
               print(token);
               await novelBox.clear();
 

@@ -33,12 +33,32 @@ class LoginUser extends UserEvent {
 
 class UserLoginremember extends UserEvent {
   final User user;
+  final String? password;
 
-  const UserLoginremember({required this.user});
+  const UserLoginremember({required this.user, this.password});
 
   @override
-  List<Object> get props => [user];
+  List<Object> get props => [user, if (password != null) password!];
 }
+
+class RegisterUser extends UserEvent {
+  final String username;
+  final String email;
+  final String password;
+  final String date;
+  final String gender;
+
+  const RegisterUser(
+      {required this.username,
+      required this.email,
+      required this.password,
+      required this.date,
+      required this.gender});
+
+  @override
+  List<Object> get props => [username, email, password, date, gender];
+}
+
 
 // class UpdateUser extends UserEvent {
 //   final User user;

@@ -350,6 +350,8 @@ class Promote {
   PromoteType type;
   String dataVal;
   DateTime updateAt;
+  String? imgApp;
+  int allep;
 
   Promote({
     required this.id,
@@ -357,6 +359,8 @@ class Promote {
     required this.type,
     required this.dataVal,
     required this.updateAt,
+    required this.imgApp,
+    required this.allep,
   });
 
   factory Promote.fromJson(Map<String, dynamic> json) => Promote(
@@ -365,6 +369,8 @@ class Promote {
         type: promoteTypeValues.map[json["type"]]!,
         dataVal: json["data_val"],
         updateAt: DateTime.parse(json["update_at"]),
+        imgApp: json["img_app"],
+        allep: json["Allep"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -373,6 +379,8 @@ class Promote {
         "type": promoteTypeValues.reverse[type],
         "data_val": dataVal,
         "update_at": updateAt.toIso8601String(),
+        "img_app": imgApp,
+        "Allep": allep,
       };
 }
 

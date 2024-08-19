@@ -82,11 +82,14 @@ class _CarouselnovelState extends State<Carouselnovel> {
                                       children: [
                                         ElevatedButton(
                                           onPressed: () {
-                                            Navigator.push(
+                                            print(promote.dataVal);
+                                            Navigator.pushNamed(
                                               context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const NovelDetail()),
+                                              '/noveldetail',
+                                              arguments: {
+                                                'novelId': promote.id,
+                                                'allep': promote.allep,
+                                              },
                                             );
                                           },
                                           style: ElevatedButton.styleFrom(
@@ -116,11 +119,13 @@ class _CarouselnovelState extends State<Carouselnovel> {
                                         const SizedBox(width: 10),
                                         ElevatedButton(
                                           onPressed: () {
-                                            Navigator.push(
+                                            Navigator.pushNamed(
                                               context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const NovelDetail()),
+                                              '/noveldetail',
+                                              arguments: {
+                                                'novelId': promote.id,
+                                                'allep': promote.allep,
+                                              },
                                             );
                                           },
                                           style: ElevatedButton.styleFrom(

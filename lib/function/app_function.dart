@@ -4,6 +4,22 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:toastification/toastification.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+const storage = FlutterSecureStorage();
+
+Future<void> savePassword(String password) async {
+  await storage.write(key: 'password', value: password);
+}
+
+Future<String?> getPassword() async {
+  return await storage.read(key: 'password');
+}
+
+Future<void> deletePassword() async {
+  await storage.delete(key: 'password');
+}
 
 String abbreviateNumber(num number) {
   if (number.abs() < 1000) return number.toInt().toString();
@@ -35,6 +51,9 @@ void showToastification({
   Alignment alignment = Alignment.topCenter,
   bool showProgressBar = false,
   Widget? icon,
+  Color? backgroundColor,
+  Color? textColor,
+  double? borderRadius,
 }) {
   toastification.show(
     context: context,
@@ -43,6 +62,7 @@ void showToastification({
       style: GoogleFonts.athiti(
         fontSize: 18,
         fontWeight: FontWeight.w800,
+        // color: textColor ?? Colors.white,
       ),
     ),
     autoCloseDuration: autoCloseDuration,
@@ -51,6 +71,8 @@ void showToastification({
     style: style,
     showProgressBar: showProgressBar,
     icon: icon,
+    backgroundColor: backgroundColor,
+    // borderRadius: BorderRadius.circular(borderRadius ?? 10),
   );
 }
 
@@ -83,4 +105,72 @@ void showLoadingDialog(BuildContext context) {
       statusBarIconBrightness: Brightness.dark, // Reset status bar icon color
     ));
   });
+}
+
+String convertThaiDateToISO(String thaiDate) {
+  final monthMap = {
+    'มกราคม': 1,
+    'กุมภาพันธ์': 2,
+    'มีนาคม': 3,
+    'เมษายน': 4,
+    'พฤษภาคม': 5,
+    'มิถุนายน': 6,
+    'กรกฎาคม': 7,
+    'สิงหาคม': 8,
+    'กันยายน': 9,
+    'ตุลาคม': 10,
+    'พฤศจิกายน': 11,
+    'ธันวาคม': 12,
+  };
+
+  final parts = thaiDate.split(' ');
+  if (parts.length != 3) {
+    throw const FormatException('Invalid date format');
+  }
+
+  final day = int.parse(parts[0]);
+  final monthName = parts[1];
+  final buddhistYear = int.parse(parts[2]);
+
+  final month = monthMap[monthName];
+  if (month == null) {
+    throw const FormatException('Invalid month name');
+  }
+
+  final gregorianYear = buddhistYear - 543;
+
+  final date = DateTime(gregorianYear, month, day);
+
+  final dateFormatter = DateFormat('yyyy-MM-dd');
+  return dateFormatter.format(date);
+}
+
+String convertISOToThaiDate(String isoDate) {
+  final monthMap = {
+    1: 'มกราคม',
+    2: 'กุมภาพันธ์',
+    3: 'มีนาคม',
+    4: 'เมษายน',
+    5: 'พฤษภาคม',
+    6: 'มิถุนายน',
+    7: 'กรกฎาคม',
+    8: 'สิงหาคม',
+    9: 'กันยายน',
+    10: 'ตุลาคม',
+    11: 'พฤศจิกายน',
+    12: 'ธันวาคม',
+  };
+
+  final date = DateTime.parse(isoDate);
+  final day = date.day;
+  final month = date.month;
+  final gregorianYear = date.year;
+
+  final buddhistYear = gregorianYear + 543;
+
+  final monthName = monthMap[month];
+  if (monthName == null) {
+    throw const FormatException('Invalid month number');
+  }
+  return '$day $monthName $buddhistYear';
 }

@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/web.dart';
 import 'package:share_plus/share_plus.dart';
 
 class NovelDetail extends StatefulWidget {
-  const NovelDetail({super.key});
+  const NovelDetail({super.key, required this.novelId, required this.allep});
+  final int novelId;
+  final int allep;
 
   @override
   State<NovelDetail> createState() => _NovelDetailState();
@@ -76,12 +79,31 @@ class _NovelDetailState extends State<NovelDetail>
       'description': 'Action, Adventure, Fantasy',
     },
   ];
-
+  List<int> epList = [];
+  List<String> groupList = [];
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_checkIfAtTop);
     _tabController = TabController(length: 3, vsync: this);
+    print(widget.allep);
+    epList = List.generate(widget.allep, (index) => index + 1);
+    int groupEp = (epList.length / 100).ceil();
+    for (var i = 0; i < groupEp; i++) {
+      if (i == groupEp - 1) {
+        groupList.add('ตอนที่ ${epList[i * 100]} - ตอนที่ ${epList.last}');
+      } else {
+        groupList.add(
+            'ตอนที่ ${epList[i * 100]} - ตอนที่ ${epList[(i + 1) * 100 - 1]}');
+      }
+    }
+    Logger().i(groupList);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    print('close page');
   }
 
   void _checkIfAtTop() {
@@ -278,21 +300,22 @@ class _NovelDetailState extends State<NovelDetail>
             children: [
               Container(
                 color: Colors.white,
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.all(10),
                   child: SingleChildScrollView(
                     child: Column(
-                      children: [
-                        ExpansionTileEpisode(
-                          initiallyExpanded: true,
-                          index: 0,
-                        ),
-                        SizedBox(height: 10),
-                        ExpansionTileEpisode(
-                          index: 1,
-                        ),
-                        SizedBox(height: 10),
-                      ],
+                      children: groupList
+                          .map((e) => ExpansionTileEpisode(
+                                title: e,
+                                index: groupList.indexOf(e),
+                                initiallyExpanded: groupList.indexOf(e) == 0,
+                              ))
+                          .toList()
+                          .expand((element) => [
+                                element,
+                                const SizedBox(height: 10),
+                              ])
+                          .toList(),
                     ),
                   ),
                 ),
@@ -387,8 +410,12 @@ class TextAbout extends StatelessWidget {
 class ExpansionTileEpisode extends StatefulWidget {
   final bool initiallyExpanded;
   final int index;
+  final String title;
   const ExpansionTileEpisode(
-      {super.key, this.initiallyExpanded = false, required this.index});
+      {super.key,
+      this.initiallyExpanded = false,
+      required this.index,
+      required this.title});
 
   @override
   _ExpansionTileEpisodeState createState() => _ExpansionTileEpisodeState();
@@ -415,13 +442,13 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
         key: const PageStorageKey<String>('expansion_tile_key'),
         initiallyExpanded: _isExpanded,
         onExpansionChanged: (bool expanded) {
-          print(widget.index);
+          print('index : ${widget.index} expanded : $expanded');
           setState(() {
             _isExpanded = expanded;
           });
         },
         title: Text(
-          'ตอนที่ 1 - ตอนที่ 10',
+          widget.title,
           style: GoogleFonts.athiti(
             fontWeight: FontWeight.w700,
           ),

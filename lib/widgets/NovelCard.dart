@@ -32,9 +32,14 @@ class Novelcard extends StatelessWidget {
               final dynamic item = e.value;
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const NovelDetail();
-                  }));
+                  Navigator.pushNamed(
+                    context,
+                    '/noveldetail',
+                    arguments: {
+                      'novelId': 12345, // Replace with actual novel ID
+                      'allep': 50, // Replace with the actual number of episodes
+                    },
+                  );
                 },
                 child: Container(
                   width: 150,

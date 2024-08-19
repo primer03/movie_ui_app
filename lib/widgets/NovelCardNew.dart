@@ -36,9 +36,14 @@ class Novelcardnew extends StatelessWidget {
               // print(item.id);
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const NovelDetail();
-                  }));
+                  Navigator.pushNamed(
+                    context,
+                    '/noveldetail',
+                    arguments: {
+                      'novelId': item.id,
+                      'allep': item.allep,
+                    },
+                  );
                 },
                 child: Container(
                   width: 150,

@@ -1,9 +1,14 @@
+import 'package:bloctest/bloc/user/user_bloc.dart';
+import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/widgets/InputForm.dart';
 import 'package:bloctest/widgets/InputThem.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
+import 'package:toastification/toastification.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -23,6 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
     FocusNode(),
     FocusNode(),
   ];
+  String _selectedGender = '';
   final List<String> gender = ['ชาย', 'หญิง'];
   final _formKey = GlobalKey<FormState>();
   @override
@@ -169,8 +175,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                     value: item,
                                     child: Text(
                                       item,
-                                      style: const TextStyle(
-                                        fontSize: 14,
+                                      style: GoogleFonts.athiti(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
                                   ))
@@ -184,9 +191,15 @@ class _RegisterPageState extends State<RegisterPage> {
                           onChanged: (value) {
                             //Do something when selected item is changed.
                             print(value);
+                            setState(() {
+                              _selectedGender = value.toString();
+                            });
                           },
                           onSaved: (value) {
                             // selectedValue = value.toString();
+                            setState(() {
+                              _selectedGender = value.toString();
+                            });
                           },
                           buttonStyleData: const ButtonStyleData(
                             padding: EdgeInsets.only(right: 8),
@@ -221,6 +234,22 @@ class _RegisterPageState extends State<RegisterPage> {
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               print('สมัครสมาชิก');
+                              print('ชื่อผู้ใช้: ${_usernamecontroller.text}');
+                              print('อีเมล: ${_emailcontroller.text}');
+                              print('รหัสผ่าน: ${_passwordcontroller.text}');
+                              print(
+                                  'วันเดือนปีเกิด: ${convertThaiDateToISO(_datecontroller.text)}');
+                              print('เพศ: $_selectedGender');
+                              BlocProvider.of<UserBloc>(context).add(
+                                RegisterUser(
+                                  username: _usernamecontroller.text,
+                                  email: _emailcontroller.text,
+                                  password: _passwordcontroller.text,
+                                  date: convertThaiDateToISO(
+                                      _datecontroller.text),
+                                  gender: _selectedGender,
+                                ),
+                              );
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -238,6 +267,32 @@ class _RegisterPageState extends State<RegisterPage> {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
+                        ),
+                        BlocListener<UserBloc, UserState>(
+                          listener: (context, state) {
+                            if (state is RegisterLoading) {
+                              showLoadingDialog(context);
+                            } else if (state is RegisterUserSuccess) {
+                              showToastification(
+                                context: context,
+                                message: 'สมัครสมาชิกสำเร็จ',
+                                type: ToastificationType.success,
+                              );
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/');
+                            } else if (state is RegisterUserFailed) {
+                              print('error: ${state.message}');
+                              showToastification(
+                                context: context,
+                                message: state.message.split(' ')[2],
+                                type: ToastificationType.error,
+                                style: ToastificationStyle.flat,
+                                icon: Icon(Icons.error, color: Colors.red[800]),
+                              );
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: const SizedBox.shrink(),
                         ),
                       ],
                     ),

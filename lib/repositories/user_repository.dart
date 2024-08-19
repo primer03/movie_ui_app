@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:ffi';
+import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/user_model.dart';
 import 'package:http/http.dart' as http;
@@ -34,8 +36,56 @@ class UserRepository {
       Logger().i(decodedToken);
 
       novelBox.put('usertoken', tokenData);
+      savePassword(password);
       return User.fromJson(decodedToken);
     } catch (e) {
+      print('error: ${e.toString()}');
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<bool> registerUser({
+    required String username,
+    required String email,
+    required String password,
+    required String date,
+    required String gender,
+  }) async {
+    final urlx = Uri.parse('${url}create/member');
+    final genderCode = gender == 'ชาย' ? 'm' : 'f';
+
+    try {
+      print('username: $username');
+      print('email: $email');
+      print('password: $password');
+      print('date: $date');
+      print('gender: $gender');
+      final response = await http.post(
+        urlx,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          "username": username,
+          "email": email,
+          "password": password,
+          "birthday": date,
+          "gender": genderCode,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+        Logger().i(res);
+
+        if (res['status'] == 'error') {
+          throw Exception(res['message']);
+        }
+        return true;
+      } else {
+        final res = json.decode(response.body);
+        throw Exception(res['message'] ?? 'เกิดข้อผิดพลาด');
+      }
+    } catch (e) {
+      Logger().e('Error during user registration', error: e);
       throw Exception(e.toString());
     }
   }

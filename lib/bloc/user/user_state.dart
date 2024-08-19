@@ -11,6 +11,8 @@ final class UserInitial extends UserState {}
 
 class UserLoading extends UserState {}
 
+class RegisterLoading extends UserState {}
+
 class UserLoaded extends UserState {
   final List<User> users;
 
@@ -58,4 +60,24 @@ class UserLoginrememberSate extends UserState {
 
   @override
   List<Object> get props => [user];
+}
+
+class UserLoginSuccessState extends UserState {
+  final User user;
+
+  const UserLoginSuccessState(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
+class RegisterUserSuccess extends UserState {}
+
+class RegisterUserFailed extends UserState {
+  final String message;
+
+  const RegisterUserFailed(this.message);
+
+  @override
+  List<Object> get props => [message];
 }

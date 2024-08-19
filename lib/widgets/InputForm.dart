@@ -155,9 +155,24 @@ class _InputFormState extends State<InputForm> {
       focusNode: _focusNode,
       cursorColor: Colors.black,
       obscureText: widget.isPassword && !_showPassword,
+      keyboardType: widget.labelText == 'อีเมล'
+          ? TextInputType.emailAddress
+          : TextInputType.text,
       validator: (value) {
         if (value!.isEmpty) {
           return 'กรุณากรอกข้อมูล';
+        }
+        //regex for email validation
+        if (widget.labelText == 'อีเมล') {
+          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+            return 'รูปแบบอีเมลล์ไม่ถูกต้อง';
+          }
+        }
+        //regex for username validation
+        if (widget.labelText == 'ชื่อผู้ใช้') {
+          if (!RegExp(r'^[a-zA-Z0-9_]{3,20}$').hasMatch(value)) {
+            return 'ชื่อผู้ใช้ต้องมีความยาว 3-20 ตัวอักษร';
+          }
         }
         return null;
       },

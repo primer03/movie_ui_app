@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
+import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +26,9 @@ void main() async {
   Hive.init(appDocumentDir.path);
   novelBox = await Hive.openBox('NovelBox');
   bool hasData = novelBox.get('user') != null;
-  print(hasData);
+  if (hasData) {
+    novelBox.put('loginType', 'remember');
+  }
   runApp(MyApp(initialRoute: hasData ? '/main' : '/'));
   WidgetsBinding.instance.addObserver(AppLifecycleObserver());
 }
@@ -32,7 +38,10 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.detached) {
       print('close your app');
-      // clear box
+    } else if (state == AppLifecycleState.inactive) {
+      print('inactive'); // คือเมื่อ app อยู่ในสถานะที่ไม่ได้ใช้งาน
+    } else if (state == AppLifecycleState.paused) {
+      print("App moved to background"); // คือเมื่อ app อยู่ในสถานะที่ถูกปิดไป
     }
   }
 }
@@ -43,7 +52,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // print(novelBox.get('user'));
-    
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserBloc>(

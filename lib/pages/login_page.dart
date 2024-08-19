@@ -96,6 +96,8 @@ class _LoginPageState extends State<LoginPage> {
       type: ToastificationType.success,
     );
     novelBox.put('user', json.encode(state.user.toJson()));
+    // add login type
+    novelBox.put('loginType', 'normal');
     BlocProvider.of<NovelBloc>(context).add(FetchNovels());
     await Future.delayed(const Duration(seconds: 2));
     Navigator.pop(ctx);
