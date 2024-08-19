@@ -27,7 +27,7 @@ class UserRepository {
       Logger().i(res);
 
       if (res['status'] == 'error') throw Exception(res['message']);
-
+      print('datatype: ${res['data'].runtimeType}');
       final tokenData = res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่'
           ? json.decode(res['data'])['token']
           : json.decode(res['data'])['token'];
