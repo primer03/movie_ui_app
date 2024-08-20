@@ -53,6 +53,7 @@ class Detail {
   final dynamic des;
   final String gender;
   final dynamic address;
+  final dynamic phone;
   final dynamic fbLink;
   final dynamic twitterLink;
   final int wheel;
@@ -70,6 +71,7 @@ class Detail {
     required this.des,
     required this.gender,
     required this.address,
+    required this.phone,
     required this.fbLink,
     required this.twitterLink,
     required this.wheel,
@@ -88,6 +90,7 @@ class Detail {
         des: json["des"],
         gender: json["gender"],
         address: json["address"],
+        phone: json["phone"],
         fbLink: json["fb_link"],
         twitterLink: json["twitter_link"],
         wheel: json["wheel"],
@@ -107,6 +110,7 @@ class Detail {
         "des": des,
         "gender": gender,
         "address": address,
+        "phone": phone,
         "fb_link": fbLink,
         "twitter_link": twitterLink,
         "wheel": wheel,

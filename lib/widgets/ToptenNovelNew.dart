@@ -49,10 +49,10 @@ class Toptennovelnew extends StatelessWidget {
                                   (index + 1) < 4
                                       ? Positioned(
                                           left: 10,
-                                          bottom: 110,
+                                          bottom: 120,
                                           child: SvgPicture.asset(
                                             'assets/svg/crown-svgrepo-com.svg',
-                                            width: 30,
+                                            width: 35,
                                             color: (index + 1) == 1
                                                 ? Colors.yellow
                                                 : (index + 1) == 2
@@ -102,120 +102,136 @@ class Toptennovelnew extends StatelessWidget {
                     Positioned(
                       bottom: 0,
                       left: (index + 1) < 10 ? 50 : 70,
-                      child: Container(
-                        // height: 170,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Stack(
-                                  children: [
-                                    // Image.network(
-                                    //   item.img,
-                                    //   fit: BoxFit.cover,
-                                    //   width: 120,
-                                    // ),
-                                    CachedNetworkImage(
-                                        imageUrl: item.img,
-                                        fit: BoxFit.cover,
-                                        width: 120,
-                                        placeholder: (context, url) =>
-                                            Shimmer.fromColors(
-                                              baseColor: Colors.grey[400]!,
-                                              highlightColor: Colors.grey[100]!,
-                                              period: const Duration(
-                                                  milliseconds: 1000),
-                                              child: const ContainerSkeltion(
-                                                height: 170,
-                                                width: 120,
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10)),
-                                              ),
-                                            )),
-                                    item.end.name == 'END'
-                                        ? Positioned(
-                                            top: 10,
-                                            left: -25,
-                                            child: Transform.rotate(
-                                              angle: -0.8,
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                width: 80,
-                                                padding:
-                                                    const EdgeInsets.all(2),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.red[700],
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/noveldetail',
+                            arguments: {
+                              'novelId': item.id,
+                              'allep': item.allep,
+                            },
+                          );
+                        },
+                        child: Container(
+                          // height: 170,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 1,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Stack(
+                                    children: [
+                                      // Image.network(
+                                      //   item.img,
+                                      //   fit: BoxFit.cover,
+                                      //   width: 120,
+                                      // ),
+                                      CachedNetworkImage(
+                                          imageUrl: item.img,
+                                          fit: BoxFit.cover,
+                                          width: 120,
+                                          placeholder: (context, url) =>
+                                              Shimmer.fromColors(
+                                                baseColor: Colors.grey[400]!,
+                                                highlightColor:
+                                                    Colors.grey[100]!,
+                                                period: const Duration(
+                                                    milliseconds: 1000),
+                                                child: const ContainerSkeltion(
+                                                  height: 170,
+                                                  width: 120,
                                                   borderRadius:
-                                                      BorderRadius.circular(5),
+                                                      BorderRadius.all(
+                                                          Radius.circular(10)),
                                                 ),
-                                                child: const Text(
-                                                  'จบแล้ว',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.bold,
+                                              )),
+                                      item.end.name == 'END'
+                                          ? Positioned(
+                                              top: 10,
+                                              left: -25,
+                                              child: Transform.rotate(
+                                                angle: -0.8,
+                                                child: Container(
+                                                  alignment: Alignment.center,
+                                                  width: 80,
+                                                  padding:
+                                                      const EdgeInsets.all(2),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red[700],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                  ),
+                                                  child: const Text(
+                                                    'จบแล้ว',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.remove_red_eye,
-                                  size: 15,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  abbreviateNumber(item.view),
-                                  style: GoogleFonts.athiti(
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w600,
+                                            )
+                                          : const SizedBox(),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                item.allep != null
-                                    ? const Icon(
-                                        Icons.list,
-                                        size: 15,
-                                      )
-                                    : const SizedBox(),
-                                const SizedBox(width: 5),
-                                item.allep != null
-                                    ? Text(
-                                        abbreviateNumber(item.allep!),
-                                        style: GoogleFonts.athiti(
-                                          fontSize: 13,
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      )
-                                    : const SizedBox(),
-                              ],
-                            ),
-                          ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.remove_red_eye,
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    abbreviateNumber(item.view),
+                                    style: GoogleFonts.athiti(
+                                      fontSize: 13,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  item.allep != null
+                                      ? const Icon(
+                                          Icons.list,
+                                          size: 15,
+                                        )
+                                      : const SizedBox(),
+                                  const SizedBox(width: 5),
+                                  item.allep != null
+                                      ? Text(
+                                          abbreviateNumber(item.allep!),
+                                          style: GoogleFonts.athiti(
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        )
+                                      : const SizedBox(),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

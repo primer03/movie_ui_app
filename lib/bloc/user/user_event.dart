@@ -63,6 +63,16 @@ class ResetStateEvent extends UserEvent {
   const ResetStateEvent();
 }
 
+class LoadProfile extends UserEvent {
+  final User user;
+  final String? password;
+
+  const LoadProfile({required this.user, this.password});
+
+  @override
+  List<Object> get props => [user, if (password != null) password!];
+}
+
 
 // class UpdateUser extends UserEvent {
 //   final User user;
