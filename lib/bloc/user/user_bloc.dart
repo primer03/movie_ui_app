@@ -14,6 +14,22 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<UserLoginremember>(_onLoginSuccess);
     on<RegisterUser>(_onRegister);
     on<ResetStateEvent>(_onResetState);
+    on<LoadProfile>(_onLoadProfile);
+  }
+
+  void _onLoadProfile(LoadProfile event, Emitter<UserState> emit) async {
+    // emit(UserLoadingProfile());
+    try {
+      User user = await userRepository.loginUser(
+        email: event.user.detail.email,
+        password: event.password!,
+        identifier: event.user.ag,
+      );
+      emit(UserLoadedProfile(user));
+      emit(UserLoginrememberSate(user));
+    } catch (e) {
+      emit(UserLoadedProfileFailed(e.toString()));
+    }
   }
 
   void _onResetState(ResetStateEvent event, Emitter<UserState> emit) {

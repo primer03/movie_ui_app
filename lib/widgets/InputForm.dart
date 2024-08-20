@@ -13,6 +13,8 @@ class InputForm extends StatefulWidget {
     this.isPassword = false,
     this.showPassword = false,
     this.onShowPassword,
+    this.maxLines = 1,
+    this.isEmptyValue = false,
   });
 
   final TextEditingController controller;
@@ -23,6 +25,8 @@ class InputForm extends StatefulWidget {
   final bool isPassword;
   final bool showPassword;
   final VoidCallback? onShowPassword;
+  final int maxLines;
+  final bool isEmptyValue;
 
   @override
   _InputFormState createState() => _InputFormState();
@@ -151,6 +155,7 @@ class _InputFormState extends State<InputForm> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      maxLines: widget.maxLines,
       controller: widget.controller,
       focusNode: _focusNode,
       cursorColor: Colors.black,
@@ -158,24 +163,25 @@ class _InputFormState extends State<InputForm> {
       keyboardType: widget.labelText == 'อีเมล'
           ? TextInputType.emailAddress
           : TextInputType.text,
-      validator: (value) {
-        if (value!.isEmpty) {
-          return 'กรุณากรอกข้อมูล';
-        }
-        //regex for email validation
-        if (widget.labelText == 'อีเมล') {
-          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-            return 'รูปแบบอีเมลล์ไม่ถูกต้อง';
-          }
-        }
-        //regex for username validation
-        if (widget.labelText == 'ชื่อผู้ใช้') {
-          if (!RegExp(r'^[a-zA-Z0-9_]{3,20}$').hasMatch(value)) {
-            return 'ชื่อผู้ใช้ต้องมีความยาว 3-20 ตัวอักษร';
-          }
-        }
-        return null;
-      },
+      validator: !widget.isEmptyValue
+          ? (value) {
+              if (value!.isEmpty) {
+                return 'กรุณากรอกข้อมูล';
+              }
+              if (widget.labelText == 'อีเมล') {
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                    .hasMatch(value)) {
+                  return 'รูปแบบอีเมลล์ไม่ถูกต้อง';
+                }
+              }
+              if (widget.labelText == 'ชื่อผู้ใช้') {
+                if (!RegExp(r'^[a-zA-Z0-9_]{3,20}$').hasMatch(value)) {
+                  return 'ชื่อผู้ใช้ต้องมีความยาว 3-20 ตัวอักษร';
+                }
+              }
+              return null;
+            }
+          : null,
       style: GoogleFonts.athiti(
         color: Colors.black,
         fontWeight: FontWeight.w800,
@@ -185,6 +191,9 @@ class _InputFormState extends State<InputForm> {
           : null,
       readOnly: widget.labelText == 'วันเดือนปีเกิด',
       decoration: InputDecoration(
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: 50,
+        ),
         errorStyle: GoogleFonts.athiti(
           color: Colors.red,
           fontWeight: FontWeight.w800,

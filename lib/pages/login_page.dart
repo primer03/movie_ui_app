@@ -93,9 +93,10 @@ class _LoginPageState extends State<LoginPage> {
           );
           Navigator.pop(context);
         } else if (state is RegisterUserFailed) {
+          Navigator.pop(context);
           showToastification(
             context: ctx,
-            message: 'สมัครสมาชิกล้มเหลว',
+            message: state.message.split(' ')[2],
             type: ToastificationType.error,
           );
         }

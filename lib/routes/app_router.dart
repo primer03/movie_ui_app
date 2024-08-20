@@ -1,6 +1,8 @@
 import 'package:bloctest/pages/login_page.dart';
 import 'package:bloctest/pages/novel_detail.dart';
+import 'package:bloctest/pages/profile_page.dart';
 import 'package:bloctest/pages/register_page.dart';
+import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:flutter/material.dart';
 import 'package:bloctest/pages/main_page.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -22,6 +24,11 @@ class AppRouter {
             novelId: args['novelId'],
             allep: args['allep'],
           ),
+        );
+      case '/profile':
+      case '/profile':
+        return SlideLeftRoute(
+          page: ProfilePage(), // Cast the User properly
         );
       default:
         return MaterialPageRoute(

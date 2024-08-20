@@ -82,4 +82,24 @@ class RegisterUserFailed extends UserState {
   List<Object> get props => [message];
 }
 
+class UserLoadingProfile extends UserState {}
+
+class UserLoadedProfile extends UserState {
+  final User user;
+
+  const UserLoadedProfile(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
+class UserLoadedProfileFailed extends UserState {
+  final String message;
+
+  const UserLoadedProfileFailed(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
 class RegisterUserFailedResetState extends UserState {}

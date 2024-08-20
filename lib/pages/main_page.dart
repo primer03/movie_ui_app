@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/models/user_model.dart';
+import 'package:bloctest/pages/user_page.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -219,7 +220,7 @@ class _MainpageState extends State<Mainpage> {
                   IconBottombar(
                     state: state,
                     tabIndex: 3,
-                    icon: 'assets/svg/user-01.svg',
+                    icon: 'assets/svg/Setting_line_duotone_line@3x.svg',
                   ),
                 ],
               ),
@@ -239,22 +240,12 @@ class _MainpageState extends State<Mainpage> {
       case 2:
         return Center(
           child: ElevatedButton(
-            onPressed: () async {
-              // ลบข้อมูลจาก Hive
-              String token = novelBox.get('usertoken');
-              await deletePassword();
-              print(token);
-              await novelBox.clear();
-
-              // นำทางไปที่หน้าแรก
-              BlocProvider.of<PageBloc>(context)
-                  .add(const PageChanged(tabIndex: 0));
-              // BlocProvider.of<NovelBloc>(context).add(ResetNovels());
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-            },
+            onPressed: () async {},
             child: const Text('Library'),
           ),
         );
+      case 3:
+        return const UserPage();
       default:
         return const SizedBox.shrink();
     }
