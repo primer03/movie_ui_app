@@ -115,7 +115,7 @@ class _UserPageState extends State<UserPage> {
                 // BlocProvider.of<NovelBloc>(context).add(ResetNovels());
                 // ignore: use_build_context_synchronously
                 Navigator.pushNamedAndRemoveUntil(
-                    context, '/', (route) => false);
+                    context, '/login', (route) => false);
               },
             ),
           ],

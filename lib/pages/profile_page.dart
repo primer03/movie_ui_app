@@ -48,15 +48,22 @@ class _ProfilePageState extends State<ProfilePage> {
         compressFormat: ImageCompressFormat.png,
         uiSettings: [
           AndroidUiSettings(
+            // cropStyle: CropStyle.circle,
             toolbarTitle: 'Cropper',
             toolbarColor: Colors.black,
             toolbarWidgetColor: Colors.white,
-            activeControlsWidgetColor: Colors.green,
+            activeControlsWidgetColor: Colors.white,
+            // hideBottomControls: true,
+            // backgroundColor: Colors.red,
+            // lockAspectRatio: false,
+            initAspectRatio: CropAspectRatioPreset.values[1],
             aspectRatioPresets: [
               CropAspectRatioPreset.original,
               CropAspectRatioPreset.square,
               CropAspectRatioPreset.ratio16x9,
               CropAspectRatioPreset.ratio4x3,
+              CropAspectRatioPreset.ratio3x2,
+              CropAspectRatioPreset.values[1],
             ],
           ),
         ],

@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
+import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
 import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
@@ -26,9 +26,8 @@ void main() async {
   Hive.init(appDocumentDir.path);
   novelBox = await Hive.openBox('NovelBox');
   bool hasData = novelBox.get('user') != null;
-  if (hasData) {
-    novelBox.put('loginType', 'remember');
-  }
+  novelBox.delete('searchData');
+  novelBox.delete('cateID');
   runApp(MyApp(initialRoute: hasData ? '/main' : '/'));
   WidgetsBinding.instance.addObserver(AppLifecycleObserver());
 }
@@ -51,8 +50,6 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key, required this.initialRoute}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    // print(novelBox.get('user'));
-
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserBloc>(
@@ -64,6 +61,9 @@ class MyApp extends StatelessWidget {
                 PageBloc()..add(const PageScroll(isScrolling: true))),
         BlocProvider<OnboardingBloc>(
           create: (context) => OnboardingBloc(),
+        ),
+        BlocProvider<NovelCateBloc>(
+          create: (context) => NovelCateBloc(),
         ),
         initialRoute != '/'
             ? BlocProvider<NovelBloc>(
@@ -85,7 +85,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         onGenerateRoute: AppRouter().onGenerateRoute,
-        initialRoute: initialRoute,
+        initialRoute: '/',
       ),
     );
   }

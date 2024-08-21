@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="custom_background">#FF00E1</color>
+    <color name="custom_toolbar">#4CAF50</color>
+    <color name="custom_status_bar">#388E3C</color>
+    <color name="custom_navigation_bar">#388E3C</color>
+</resources>

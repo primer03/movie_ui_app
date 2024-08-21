@@ -1,3 +1,5 @@
+import 'package:bloctest/main.dart';
+import 'package:bloctest/pages/category_page.dart';
 import 'package:bloctest/pages/login_page.dart';
 import 'package:bloctest/pages/novel_detail.dart';
 import 'package:bloctest/pages/profile_page.dart';
@@ -5,30 +7,46 @@ import 'package:bloctest/pages/register_page.dart';
 import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:flutter/material.dart';
 import 'package:bloctest/pages/main_page.dart';
-import 'package:socket_io_client/socket_io_client.dart';
-// นำเข้าหน้าอื่นๆ ที่คุณต้องการใช้ route ด้วย
+// import 'package:socket_io_client/socket_io_client.dart';
 
 class AppRouter {
+  bool hasData = novelBox.get('user') != null;
   Route onGenerateRoute(RouteSettings settings) {
+    print(hasData);
+    if (hasData) {
+      novelBox.put('loginType', 'remember');
+    }
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => const LoginPage());
+        return MaterialPageRoute(
+            builder: (_) => hasData ? const Mainpage() : const LoginPage());
       case '/register':
         return MaterialPageRoute(builder: (_) => const RegisterPage());
       case '/main':
         return MaterialPageRoute(builder: (_) => const Mainpage());
+      case '/login':
+        return SlideLeftRoute(
+          page: const LoginPage(),
+        );
       case '/noveldetail':
         final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(
-          builder: (_) => NovelDetail(
+        return SlideLeftRoute(
+          page: NovelDetail(
             novelId: args['novelId'],
             allep: args['allep'],
           ),
         );
       case '/profile':
-      case '/profile':
         return SlideLeftRoute(
-          page: ProfilePage(), // Cast the User properly
+          page: const ProfilePage(),
+        );
+      case '/category':
+        final args = settings.arguments as Map<String, dynamic>;
+        return SlideLeftRoute(
+          page: CategoryPage(
+            cateId: args['cateId'],
+            cate: args['cate'],
+          ),
         );
       default:
         return MaterialPageRoute(

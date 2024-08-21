@@ -1,22 +1,14 @@
-import 'dart:ui';
 import 'package:bloctest/Skeleton/movie_home_skeleton.dart';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
-import 'package:bloctest/models/novel_model.dart';
-import 'package:bloctest/pages/home_page.dart';
 import 'package:bloctest/pages/search_page.dart';
-import 'package:bloctest/widgets/AnimatedVisibilityWidget.dart';
-import 'package:bloctest/widgets/CarouselAnime.dart';
 import 'package:bloctest/widgets/CarouselNovel.dart';
 import 'package:bloctest/widgets/Categorymenu.dart';
 import 'package:bloctest/widgets/HeadNovelCategory.dart';
-import 'package:bloctest/widgets/NovelCard.dart';
 import 'package:bloctest/widgets/NovelCardHit.dart';
 import 'package:bloctest/widgets/NovelCardItem.dart';
 import 'package:bloctest/widgets/NovelCardNew.dart';
-import 'package:bloctest/widgets/ToptenNovel.dart';
 import 'package:bloctest/widgets/ToptenNovelNew.dart';
 import 'package:bloctest/widgets/newUpdateNovel.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,7 +25,7 @@ class MovieHome extends StatefulWidget {
 
 class _MovieHomeState extends State<MovieHome> {
   final ScrollController _scrollController = ScrollController();
-
+  int _selectedcateIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -148,9 +140,15 @@ class _MovieHomeState extends State<MovieHome> {
                             ),
                           );
                         }).toList(),
-                        value: state.novels.cate.first.name,
+                        value: state.novels.cate[_selectedcateIndex].name,
                         onChanged: (String? value) {
-                          print(value);
+                          int index = state.novels.cate.indexWhere((element) {
+                            return element.name == value;
+                          });
+                          print(index);
+                          setState(() {
+                            _selectedcateIndex = index;
+                          });
                         },
                         buttonStyleData: ButtonStyleData(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -185,6 +183,7 @@ class _MovieHomeState extends State<MovieHome> {
                   isshowepisode: false,
                   maxLine: 3,
                   isshowviewInimage: false,
+                  category: _selectedcateIndex,
                 ).animate().fadeIn(
                       duration: 500.ms,
                     ),
