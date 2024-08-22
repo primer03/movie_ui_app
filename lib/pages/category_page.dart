@@ -124,6 +124,7 @@ class _CategoryPageState extends State<CategoryPage>
                     icon: const Icon(Icons.keyboard_arrow_down_rounded),
                     style: IconButton.styleFrom(
                       surfaceTintColor: Colors.white,
+                      highlightColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(0),
                       ),
