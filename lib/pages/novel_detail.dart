@@ -92,7 +92,7 @@ class _NovelDetailState extends State<NovelDetail>
     },
   ];
   List<int> epList = [];
-  List<List<NovelEp>> novelEp = [];
+  // List<List<NovelEp>> novelEpisode = [];
   List<String> groupList = [];
   int count = 0;
   int idxcount = 0;
@@ -160,7 +160,6 @@ class _NovelDetailState extends State<NovelDetail>
                 child: CircularProgressIndicator(),
               );
             } else if (state is NovelDetailLoaded) {
-              print(state.dataNovel.novelEp[0].typeRead.name);
               // // int groupEp = (widget.allep / 100).ceil();
               // print(groupEp);
               // int novelEpcount = state.dataNovel.novelEp.length;
@@ -455,29 +454,8 @@ class _NovelDetailState extends State<NovelDetail>
                         ),
                       ),
                     ),
-                    Container(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: groupList
-                                .map((e) => ExpansionTileEpisode(
-                                      title: e,
-                                      index: groupList.indexOf(e),
-                                      initiallyExpanded:
-                                          groupList.indexOf(e) == 0,
-                                    ))
-                                .toList()
-                                .expand((element) => [
-                                      element,
-                                      const SizedBox(height: 10),
-                                    ])
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                    ),
+                    epview(
+                        groupList: groupList, novelEp: state.dataNovel.novelEp),
                     Container(
                       key: const PageStorageKey<String>('novel_recommend'),
                       color: Colors.white,
@@ -520,6 +498,49 @@ class _NovelDetailState extends State<NovelDetail>
   }
 }
 
+class epview extends StatelessWidget {
+  const epview({
+    super.key,
+    required this.groupList,
+    required this.novelEp,
+  });
+
+  final List<String> groupList;
+  final List<NovelEp> novelEp;
+
+  @override
+  Widget build(BuildContext context) {
+    List<List<NovelEp>> novelEpisode = [
+      for (var i = 0; i < novelEp.length; i += 100)
+        novelEp.skip(i).take(100).toList()
+    ];
+    // print('novelEpisode : ${novelEpisode[0][99].name}');
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: SingleChildScrollView(
+          child: Column(
+            children: groupList
+                .map((e) => ExpansionTileEpisode(
+                      title: e,
+                      novelEp: novelEpisode[groupList.indexOf(e)],
+                      index: groupList.indexOf(e),
+                      initiallyExpanded: groupList.indexOf(e) == 0,
+                    ))
+                .toList()
+                .expand((element) => [
+                      element,
+                      const SizedBox(height: 10),
+                    ])
+                .toList(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class TextAbout extends StatelessWidget {
   final String title;
   const TextAbout({super.key, required this.title});
@@ -543,11 +564,14 @@ class ExpansionTileEpisode extends StatefulWidget {
   final bool initiallyExpanded;
   final int index;
   final String title;
-  const ExpansionTileEpisode(
-      {super.key,
-      this.initiallyExpanded = false,
-      required this.index,
-      required this.title});
+  final List<NovelEp> novelEp;
+  const ExpansionTileEpisode({
+    super.key,
+    this.initiallyExpanded = false,
+    required this.index,
+    required this.title,
+    required this.novelEp,
+  });
 
   @override
   _ExpansionTileEpisodeState createState() => _ExpansionTileEpisodeState();
@@ -606,7 +630,7 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
               ),
             ),
             child: Column(children: [
-              ...List.generate(5, (index) {
+              ...widget.novelEp.map((e) {
                 return Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -619,12 +643,14 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'บทที่ 1 เขาแต่งงานกับเธอ แต่ไม่รักเธอ',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.athiti(
-                          fontWeight: FontWeight.w700,
+                      Expanded(
+                        child: Text(
+                          e.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.athiti(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                       Text(

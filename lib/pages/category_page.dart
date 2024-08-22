@@ -131,7 +131,7 @@ class _CategoryPageState extends State<CategoryPage>
                   child: IconButton(
                     icon: const Icon(Icons.keyboard_arrow_down_rounded),
                     style: IconButton.styleFrom(
-                      overlayColor: Colors.white,
+                      surfaceTintColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(0),
                       ),
@@ -214,6 +214,7 @@ class _CategoryPageState extends State<CategoryPage>
                                   //   height: 140,
                                   //   fit: BoxFit.cover,
                                   // ),
+
                                   child: CachedNetworkImage(
                                     imageUrl: e.img,
                                     fit: BoxFit.fill,
