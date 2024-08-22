@@ -164,7 +164,7 @@ class _CategoryPageState extends State<CategoryPage>
                         left: 20,
                         right: 20,
                         bottom: 20,
-                        top: index == 0 ? 20 : 0,
+                        top: index == 0 ? 50 : 0,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
