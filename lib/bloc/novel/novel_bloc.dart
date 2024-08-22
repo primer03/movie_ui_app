@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:equatable/equatable.dart';
@@ -20,7 +21,7 @@ class NovelBloc extends Bloc<NovelEvent, NovelState> {
       final novels = await _novelRepository.getNovels();
       emit(NovelLoaded(novels));
     } catch (e) {
-      emit(NovelError('เกิดข้อผิดพลาด'));
+      emit(const NovelError('เกิดข้อผิดพลาด'));
     }
   }
 

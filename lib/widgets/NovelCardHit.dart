@@ -1,9 +1,11 @@
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/pages/novel_detail.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -50,12 +52,13 @@ class Novelcardhit extends StatelessWidget {
   Widget _buildNovelCard(BuildContext context, HitNovel item) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(
-          context,
+        print('novelId: ${item.id}');
+        Navigator.of(context).pushNamed(
           '/noveldetail',
           arguments: {
             'novelId': item.id,
             'allep': item.allep ?? 0,
+            'bloc': BlocProvider.of<NovelDetailBloc>(context),
           },
         );
       },
@@ -118,7 +121,7 @@ class Novelcardhit extends StatelessWidget {
   Widget _buildViewCount(HitNovel item) {
     return Container(
       alignment: Alignment.center,
-      width: 65,
+      width: 75,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.5),

@@ -1,3 +1,5 @@
+import 'package:bloctest/bloc/novel/novel_bloc.dart';
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/pages/movie_detail.dart';
@@ -5,6 +7,7 @@ import 'package:bloctest/pages/novel_detail.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -36,12 +39,12 @@ class Novelcardnew extends StatelessWidget {
               // print(item.id);
               return GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
+                  Navigator.of(context).pushNamed(
                     '/noveldetail',
                     arguments: {
                       'novelId': item.id,
                       'allep': item.allep,
+                      'bloc': BlocProvider.of<NovelDetailBloc>(context),
                     },
                   );
                 },

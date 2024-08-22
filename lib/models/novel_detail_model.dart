@@ -52,7 +52,7 @@ class DataNovel {
 
 class Novel {
   final String img;
-  final BookId bookId;
+  final String bookId;
   final int btId;
   final String btTitle;
   final String btTag;
@@ -79,7 +79,7 @@ class Novel {
 
   factory Novel.fromJson(Map<String, dynamic> json) => Novel(
         img: json["img"],
-        bookId: bookIdValues.map[json["bookID"]]!,
+        bookId: json["bookID"],
         btId: json["bt.id"],
         btTitle: json["bt.title"],
         btTag: json["bt.tag"],
@@ -93,7 +93,7 @@ class Novel {
 
   Map<String, dynamic> toJson() => {
         "img": img,
-        "bookID": bookIdValues.reverse[bookId],
+        "bookID": bookId,
         "bt.id": btId,
         "bt.title": btTitle,
         "bt.tag": btTag,
@@ -106,15 +106,10 @@ class Novel {
       };
 }
 
-enum BookId { OB_GQK2_OW_BJ_B0611221834 }
-
-final bookIdValues =
-    EnumValues({"ObGqk2owBjB0611221834": BookId.OB_GQK2_OW_BJ_B0611221834});
-
 class NovelEp {
   final int id;
   final String name;
-  final BookId bookId;
+  final String bookId;
   final String epId;
   final int orderBy;
   final TypeRead typeRead;
@@ -137,7 +132,7 @@ class NovelEp {
   factory NovelEp.fromJson(Map<String, dynamic> json) => NovelEp(
         id: json["id"],
         name: json["name"],
-        bookId: bookIdValues.map[json["bookID"]]!,
+        bookId: json["bookID"],
         epId: json["epID"],
         orderBy: json["order_by"],
         typeRead: typeReadValues.map[json["typeRead"]]!,
@@ -149,7 +144,7 @@ class NovelEp {
   Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
-        "bookID": bookIdValues.reverse[bookId],
+        "bookID": bookId,
         "epID": epId,
         "order_by": orderBy,
         "typeRead": typeReadValues.reverse[typeRead],
@@ -160,9 +155,10 @@ class NovelEp {
       };
 }
 
-enum Publish { PUBLISH }
+enum Publish { PRIVATE, PUBLISH }
 
-final publishValues = EnumValues({"publish": Publish.PUBLISH});
+final publishValues =
+    EnumValues({"private": Publish.PRIVATE, "publish": Publish.PUBLISH});
 
 enum TypeRead { COIN, FREE }
 

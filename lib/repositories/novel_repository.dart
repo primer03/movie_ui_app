@@ -1,6 +1,8 @@
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_allsearch_model.dart';
+import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_model.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -52,13 +54,49 @@ class NovelRepository {
     }
   }
 
-  Future<http.Response> _getRequest(Uri url) async {
+  Future<DataNovel> getnovelById(int novelId) async {
+    final url = Uri.parse('$_baseUrl/novel/$novelId');
+    String token = novelBox.get('usertoken');
+    // print('getnovelById: $novelId');
+    // Logger().i('getnovelById: $token');
+    try {
+      final response = await _getRequest(url, token: token);
+      final decodedData = _decodeResponse(response);
+      // Logger().i('getnovelById: $decodedData');
+      Noveldetail noveldetail = Noveldetail.fromJson(decodedData);
+      // Logger().i('getnovelById: ${noveldetail.toJson()}');
+      return noveldetail.dataNovel;
+    } catch (e) {
+      Logger().e('Failed to load novel by id: $e');
+      throw Exception('Failed to load novel by id: $e');
+    }
+  }
+
+  // Future<void> getnovelByIdtest(int novelId) async {
+  //   final url = Uri.parse('$_baseUrl/novel/$novelId');
+  //   String token = novelBox.get('usertoken');
+  //   print('getnovelById: $novelId');
+  //   // Logger().i('getnovelById: $token');
+  //   try {
+  //     final response = await _getRequest(url, token: token);
+  //     final decodedData = _decodeResponse(response);
+  //     Noveldetail noveldetail = Noveldetail.fromJson(decodedData);
+  //     Logger().i('dataNovel: ${noveldetail.dataNovel.toJson()}');
+  //     // Logger().i('getnovelById: ${decodedData}');
+  //   } catch (e) {
+  //     Logger().e('Failed to load novel by id: $e');
+  //     throw Exception('Failed to load novel by id: $e');
+  //   }
+  // }
+
+  Future<http.Response> _getRequest(Uri url, {String? token}) async {
     return await http.get(
       url,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': _apiKey,
         'x-client-domain': _clientDomain,
+        'Authorization': token ?? '',
       },
     );
   }
@@ -68,6 +106,7 @@ class NovelRepository {
       throw Exception(
           'HTTP request failed with status: ${response.statusCode}');
     }
+    // Logger().i('response.body: ${response.body}');
     return json.decode(json.decode(response.body)['data']);
   }
 

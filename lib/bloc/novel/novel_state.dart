@@ -30,3 +30,4 @@ final class NovelError extends NovelState {
   @override
   List<Object> get props => [message];
 }
+

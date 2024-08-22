@@ -162,7 +162,11 @@ class _InputFormState extends State<InputForm> {
       obscureText: widget.isPassword && !_showPassword,
       keyboardType: widget.labelText == 'อีเมล'
           ? TextInputType.emailAddress
-          : TextInputType.text,
+          : widget.labelText == 'เบอร์โทรศัพท์'
+              ? TextInputType.phone
+              : widget.labelText.contains('ลิงก์')
+                  ? TextInputType.url
+                  : TextInputType.text,
       validator: !widget.isEmptyValue
           ? (value) {
               if (value!.isEmpty) {

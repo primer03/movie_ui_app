@@ -1,3 +1,5 @@
+import 'package:bloctest/models/novel_detail_model.dart';
+import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

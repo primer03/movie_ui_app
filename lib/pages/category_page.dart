@@ -2,12 +2,15 @@ import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
+import 'package:bloctest/widgets/ContainerSkeltion.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vertical_scrollable_tabview/vertical_scrollable_tabview.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -206,10 +209,31 @@ class _CategoryPageState extends State<CategoryPage>
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    e.img,
+                                  // child: Image.network(
+                                  //   e.img,
+                                  //   height: 140,
+                                  //   fit: BoxFit.cover,
+                                  // ),
+                                  child: CachedNetworkImage(
+                                    imageUrl: e.img,
+                                    fit: BoxFit.fill,
                                     height: 140,
-                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        Shimmer.fromColors(
+                                      baseColor: Colors.grey[400]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      period:
+                                          const Duration(milliseconds: 1000),
+                                      child: Container(
+                                        height: 140,
+                                        width: 100,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

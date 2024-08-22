@@ -1,9 +1,11 @@
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
@@ -29,7 +31,7 @@ class Toptennovelnew extends StatelessWidget {
                 Stack(
                   children: [
                     Container(
-                      width: (index + 1) < 10 ? 175 : 190,
+                      width: (index + 1) < 10 ? 175 : 195,
                       height: 200,
                       alignment: Alignment.bottomLeft,
                       child: (index + 1) < 10
@@ -101,15 +103,15 @@ class Toptennovelnew extends StatelessWidget {
                     ),
                     Positioned(
                       bottom: 0,
-                      left: (index + 1) < 10 ? 50 : 70,
+                      left: (index + 1) < 10 ? 50 : 60,
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(
-                            context,
+                          Navigator.of(context).pushNamed(
                             '/noveldetail',
                             arguments: {
                               'novelId': item.id,
                               'allep': item.allep,
+                              'bloc': BlocProvider.of<NovelDetailBloc>(context),
                             },
                           );
                         },

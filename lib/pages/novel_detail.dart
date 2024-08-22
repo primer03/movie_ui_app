@@ -1,11 +1,23 @@
+import 'dart:convert';
+
+import 'package:bloctest/bloc/novel/novel_bloc.dart';
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
+import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/pages/movie_home.dart';
+import 'package:bloctest/repositories/novel_repository.dart';
+import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:bloctest/widgets/NovelCard.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/web.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shimmer/shimmer.dart';
 
 class NovelDetail extends StatefulWidget {
   const NovelDetail({super.key, required this.novelId, required this.allep});
@@ -80,15 +92,21 @@ class _NovelDetailState extends State<NovelDetail>
     },
   ];
   List<int> epList = [];
+  List<List<NovelEp>> novelEp = [];
   List<String> groupList = [];
+  int count = 0;
+  int idxcount = 0;
+  int groupEp = 0;
+
   @override
   void initState() {
     super.initState();
+    getnoveldetail();
     _scrollController.addListener(_checkIfAtTop);
     _tabController = TabController(length: 3, vsync: this);
     print(widget.allep);
     epList = List.generate(widget.allep, (index) => index + 1);
-    int groupEp = (epList.length / 100).ceil();
+    groupEp = (epList.length / 100).ceil();
     for (var i = 0; i < groupEp; i++) {
       if (i == groupEp - 1) {
         groupList.add('ตอนที่ ${epList[i * 100]} - ตอนที่ ${epList.last}');
@@ -98,6 +116,14 @@ class _NovelDetailState extends State<NovelDetail>
       }
     }
     Logger().i(groupList);
+  }
+
+  Future<void> getnoveldetail() async {
+    try {
+      context.read<NovelDetailBloc>().add(FetchNovelDetail(widget.novelId));
+    } catch (e) {
+      print('Error fetching novel details: $e');
+    }
   }
 
   @override
@@ -126,263 +152,368 @@ class _NovelDetailState extends State<NovelDetail>
       length: 3,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: NestedScrollView(
-          controller: _scrollController,
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                backgroundColor: isAtTop ? Colors.transparent : Colors.white,
-                foregroundColor: isAtTop ? Colors.white : Colors.black,
-                surfaceTintColor: Colors.white,
-                expandedHeight: 400,
-                floating: false,
-                pinned: true,
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () async {
-                      final result = await Share.share(
-                        'https://bookfet.com/noveldetail/MTIz_%E0%B9%80%E0%B8%82%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2%E0%B8%AB%E0%B8%B1%E0%B8%A7%E0%B9%83%E0%B8%88%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B9%80%E0%B8%94%E0%B8%B4%E0%B8%A1',
-                        subject: 'Check out this novel',
-                      );
-                      if (result.status == ShareResultStatus.success) {
-                        print('Thank you for sharing my website!');
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.bookmark_border),
-                    onPressed: () {},
-                  ),
-                ],
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      image: DecorationImage(
-                        opacity: 0.4,
-                        image: NetworkImage(
-                          'https://admin.buffetebook.com/images/novel/20240401160819.jpg?w=128&q=100?webp',
+        body: BlocBuilder<NovelDetailBloc, NovelDetailState>(
+          builder: (context, state) {
+            print(state);
+            if (state is NovelDetailLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is NovelDetailLoaded) {
+              print(state.dataNovel.novelEp[0].typeRead.name);
+              // // int groupEp = (widget.allep / 100).ceil();
+              // print(groupEp);
+              // int novelEpcount = state.dataNovel.novelEp.length;
+              // state.dataNovel.novelEp.forEach((element) {
+              //   if (count == 100) {
+              //     count = 0;
+              //     idxcount++;
+              //     novelEp.add([]);
+              //   }
+              //   count++;
+              // });
+              // print(novelEp);
+              var bytes = utf8.encode(state.dataNovel.novel.btId.toString());
+              String url =
+                  'https://bookfet.com/noveldetail/${base64.encode(bytes)}_${Uri.encodeComponent(state.dataNovel.novel.btName)}';
+              return NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder:
+                    (BuildContext context, bool innerBoxIsScrolled) {
+                  return <Widget>[
+                    SliverAppBar(
+                      backgroundColor:
+                          isAtTop ? Colors.transparent : Colors.white,
+                      foregroundColor: isAtTop ? Colors.white : Colors.black,
+                      surfaceTintColor: Colors.white,
+                      expandedHeight: 190,
+                      floating: false,
+                      pinned: true,
+                      actions: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.share,
+                            shadows: isAtTop
+                                ? [
+                                    const BoxShadow(
+                                      color: Colors.black,
+                                      blurRadius: 20,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          onPressed: () async {
+                            final result = await Share.share(
+                              url,
+                              subject: 'Check out this novel',
+                            );
+                            if (result.status == ShareResultStatus.success) {
+                              print('Thank you for sharing my website!');
+                            }
+                          },
                         ),
-                        fit: BoxFit.cover,
+                        IconButton(
+                          icon: Icon(
+                            Icons.bookmark_border,
+                            shadows: isAtTop
+                                ? [
+                                    const BoxShadow(
+                                      color: Colors.black,
+                                      blurRadius: 15,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          onPressed: () {},
+                        ),
+                      ],
+                      leading: IconButton(
+                        icon: Icon(
+                          Icons.arrow_back_ios_new,
+                          shadows: isAtTop
+                              ? [
+                                  const BoxShadow(
+                                    color: Colors.black,
+                                    blurRadius: 5,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: Container(
+                          // padding: const EdgeInsets.symmetric(
+                          //   horizontal: 20,
+                          //   vertical: 5,
+                          // ),
+                          alignment: Alignment.bottomCenter,
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: Stack(
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: state.dataNovel.novel.btBgimg,
+                                  fit: BoxFit.cover,
+                                  height: double.infinity,
+                                  width: double.infinity,
+                                  placeholder: (context, url) =>
+                                      Shimmer.fromColors(
+                                    baseColor: Colors.grey[400]!,
+                                    highlightColor: Colors.grey[100]!,
+                                    period: const Duration(milliseconds: 1000),
+                                    child: const ContainerSkeltion(
+                                      height: double.infinity,
+                                      width: double.infinity,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.bottomCenter,
+                                        end: Alignment.topCenter,
+                                        colors: [
+                                          Colors.black.withOpacity(0.8),
+                                          Colors.transparent,
+                                        ],
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.remove_red_eye,
+                                              color: Colors.white,
+                                              size: 30,
+                                              shadows: [
+                                                BoxShadow(
+                                                  color: Colors.black,
+                                                  blurRadius: 10,
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              abbreviateNumber(
+                                                  state.dataNovel.novel.btView),
+                                              style: GoogleFonts.athiti(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                shadows: [
+                                                  const BoxShadow(
+                                                    color: Colors.black,
+                                                    blurRadius: 10,
+                                                    spreadRadius: 5,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            const Icon(
+                                              Icons.list,
+                                              color: Colors.white,
+                                              size: 30,
+                                              shadows: [
+                                                BoxShadow(
+                                                  color: Colors.black,
+                                                  blurRadius: 5,
+                                                  spreadRadius: 5,
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              '${abbreviateNumber(widget.allep)} ตอน',
+                                              style: GoogleFonts.athiti(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                                shadows: [
+                                                  const BoxShadow(
+                                                    color: Colors.black,
+                                                    blurRadius: 5,
+                                                    spreadRadius: 5,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'เกิดใหม่เป็นภรรยาอ้วนของหัวหน้ากองพันสุดฮอต ยุค 80',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.athiti(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _SliverAppBarDelegate(
+                        TabBar(
+                          controller: _tabController,
+                          onTap: (index) async {
+                            await _pageController.animateToPage(
+                              index,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                          labelStyle: GoogleFonts.athiti(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
                           ),
-                        ),
-                        Text(
-                          '##นิยายแปล ##นิยายแปลจีน ##เกิดใหม่ ##ย้อนยุค ##นิยายรัก ##นางเองสู้คน ##พระเอกคลั่งรัก ##ครอบครัว ##ทะลุมิติ ##นิยายยุค80 ##โรแมนติก ##นางเอกเก่ง ##กองทัพ ##พระเอกอบอุ่น ##นางเอกอ้วน ##นิยายแปลนางเอกเก่ง ##Onlybook',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.athiti(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.remove_red_eye,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              '123.2k',
-                              style: GoogleFonts.athiti(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Icon(
-                              Icons.list,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              '233 ตอน',
-                              style: GoogleFonts.athiti(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                          tabs: const [
+                            Tab(text: 'เกี่ยวกับ'),
+                            Tab(text: 'ตอน'),
+                            Tab(text: 'นิยายแนะนำ'),
                           ],
+                          indicatorColor: Colors.black,
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorSize: TabBarIndicatorSize.tab,
                         ),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFd2060b),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                      ),
+                    ),
+                  ];
+                },
+                body: PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    _tabController.animateTo(index);
+                  },
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      width: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 20,
+                          right: 20,
+                          top: 10,
+                          bottom: 10,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SvgPicture.asset(
-                                'assets/svg/read-svgrepo-com.svg',
-                                color: Colors.white,
+                              // Text(state.dataNovel.novel.btDes),
+                              Html(
+                                data: state.dataNovel.novel.btDes,
+                                style: {
+                                  'body': Style(
+                                    fontSize: FontSize(16),
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: GoogleFonts.athiti().fontFamily,
+                                  ),
+                                  'br': Style(
+                                    display: Display.none,
+                                  )
+                                },
                               ),
-                              const SizedBox(width: 5),
                               Text(
-                                'อ่านเลย',
+                                state.dataNovel.novel.btTag,
+                                textAlign: TextAlign.left,
                                 style: GoogleFonts.athiti(
-                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ]
-                          .expand((element) => [
-                                const SizedBox(height: 10),
-                                element,
-                              ])
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverAppBarDelegate(
-                  TabBar(
-                    controller: _tabController,
-                    onTap: (index) async {
-                      await _pageController.animateToPage(
-                        index,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    labelStyle: GoogleFonts.athiti(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    tabs: const [
-                      Tab(text: 'ตอน'),
-                      Tab(text: 'นิยายแนะนำ'),
-                      Tab(text: 'เกี่ยวกับ'),
-                    ],
-                    indicatorColor: Colors.black,
-                    labelColor: Colors.black,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                  ),
-                ),
-              ),
-            ];
-          },
-          body: PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              _tabController.animateTo(index);
-            },
-            children: [
-              Container(
-                color: Colors.white,
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: groupList
-                          .map((e) => ExpansionTileEpisode(
-                                title: e,
-                                index: groupList.indexOf(e),
-                                initiallyExpanded: groupList.indexOf(e) == 0,
-                              ))
-                          .toList()
-                          .expand((element) => [
-                                element,
-                                const SizedBox(height: 10),
-                              ])
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                key: const PageStorageKey<String>('novel_recommend'),
-                color: Colors.white,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        width: double.infinity,
-                        child: Text(
-                          'นิยายแนะนำ',
-                          style: GoogleFonts.athiti(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            ]
+                                .expand((element) => [
+                                      const SizedBox(height: 10),
+                                      element,
+                                    ])
+                                .toList(),
                           ),
                         ),
                       ),
-                      Novelcard(items: _items2),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const TextAbout(
-                            title:
-                                'เกิดใหม่เป็นภรรยาอ้วนของหัวหน้ากองพันสุดฮอต ยุค 80'),
-                        const TextAbout(title: '重生八零嫁给全军第一硬汉'),
-                        const TextAbout(
-                            title:
-                                '*** ลิขสิทธิ์ถูกต้องภายใต้บริษัท โอลลี่บุ๊คส์ จำกัด ***'),
-                        const TextAbout(
-                            title:
-                                'ได้รับลิขสิทธิ์ออนไลน์ (Digital license) สำหรับแปลขายลงบนเว็บไซต์ได้อย่างถูกลิขสิทธิ์ 100%'),
-                        const TextAbout(title: 'สงวนลิขสิทธิ์'),
-                        const TextAbout(
-                            title: 'ผู้แต่ง : 九羊猪猪   ผู้แปล : ทีมงาน onlybook'),
-                        const SizedBox(height: 10),
-                        const TextAbout(title: 'เรื่องย่อ'),
-                        const TextAbout(
-                            title:
-                                'โดนคนรักที่กำลังแต่งงานไปนอกใจกับเพื่อนรักและโยนลงจากชั้น 14 แต่กลับมาเกิดใหม่เป็นหญิงอ้วนหนักกว่า 150 กิโลกรัม ที่พาลูกเลี้ยงของสามีไปขายแลกหนี้ จนสามีรู้เข้าจะหย่ากับเธอภายในเจ็ดเดือน แบบนี้ ‘เจียงหว่าน’ จะอยู่ยังไงเมื่อเจ้าของร่างเดิมแสนโฉดชั่วไปทำเรื่องให้คนขุ่นเคืองใจมากมาย แต่สามีที่กำลังจะหย่ากลับยื่นมือเข้ามาช่วยเสมอ อย่ามาทำแบบนี้นะรู้ไหมมัน น่ากิน... เอ้ย หวั่นไหว!'),
-                      ]
-                          .expand((element) => [
-                                const SizedBox(height: 10),
-                                element,
-                              ])
-                          .toList(),
                     ),
-                  ),
+                    Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: groupList
+                                .map((e) => ExpansionTileEpisode(
+                                      title: e,
+                                      index: groupList.indexOf(e),
+                                      initiallyExpanded:
+                                          groupList.indexOf(e) == 0,
+                                    ))
+                                .toList()
+                                .expand((element) => [
+                                      element,
+                                      const SizedBox(height: 10),
+                                    ])
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      key: const PageStorageKey<String>('novel_recommend'),
+                      color: Colors.white,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              width: double.infinity,
+                              child: Text(
+                                'นิยายแนะนำ',
+                                style: GoogleFonts.athiti(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Novelcard(items: _items2),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
+              );
+            } else if (state is NovelDetailError) {
+              return Center(
+                child: Text(state.message),
+              );
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
         ),
       ),
     );
@@ -395,13 +526,14 @@ class TextAbout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      textAlign: TextAlign.center,
-      style: GoogleFonts.athiti(
-        color: Colors.black,
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
+    return Align(
+      // alignment: Alignment.centerLeft,
+      child: Text(
+        title,
+        style: GoogleFonts.athiti(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -439,7 +571,7 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
         splashColor: Colors.black.withOpacity(0.4),
       ),
       child: ExpansionTile(
-        key: const PageStorageKey<String>('expansion_tile_key'),
+        key: PageStorageKey<String>('expansion_tile_key${widget.index}'),
         initiallyExpanded: _isExpanded,
         onExpansionChanged: (bool expanded) {
           print('index : ${widget.index} expanded : $expanded');

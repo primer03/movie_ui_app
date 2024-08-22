@@ -1,3 +1,5 @@
+import 'package:bloctest/bloc/novel/novel_bloc.dart';
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/pages/category_page.dart';
 import 'package:bloctest/pages/login_page.dart';
@@ -7,6 +9,7 @@ import 'package:bloctest/pages/register_page.dart';
 import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:flutter/material.dart';
 import 'package:bloctest/pages/main_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:socket_io_client/socket_io_client.dart';
 
 class AppRouter {
@@ -31,9 +34,13 @@ class AppRouter {
       case '/noveldetail':
         final args = settings.arguments as Map<String, dynamic>;
         return SlideLeftRoute(
-          page: NovelDetail(
-            novelId: args['novelId'],
-            allep: args['allep'],
+          page: BlocProvider.value(
+            // รับ Bloc จาก arguments แทนที่จะเรียกใช้ context โดยตรง
+            value: args['bloc'] as NovelDetailBloc,
+            child: NovelDetail(
+              novelId: args['novelId'],
+              allep: args['allep'],
+            ),
           ),
         );
       case '/profile':

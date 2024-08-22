@@ -33,7 +33,7 @@ String abbreviateNumber(num number) {
     unitIndex++;
   }
 
-  return '${abbreviatedNumber.toStringAsFixed(1)} ${units[unitIndex]}';
+  return '${abbreviatedNumber.toStringAsFixed(2)}${units[unitIndex]}';
 }
 
 Future<String> getDevice() async {
