@@ -365,6 +365,7 @@ class _CateviewState extends State<Cateview> {
             element.cat2 == widget.CateId.toString())
         .toList();
     // print('allsearch: ${widget.allsearch[0].updateEp}');
+    // print('allsearch: ${widget.allsearch.length}');
     return Stack(
       children: [
         ListView.builder(
@@ -525,19 +526,21 @@ class _CateviewState extends State<Cateview> {
                       height: 20,
                     ),
                     items: [
-                      ...['ยอดการดู', 'จำนวนตอน', 'อัพเดทล่าสุด'].map(
-                        (e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(
-                            e,
-                            style: GoogleFonts.athiti(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                      ...['ยอดการดู', 'จำนวนตอน', 'อัพเดทล่าสุด']
+                          .map(
+                            (e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e,
+                                style: GoogleFonts.athiti(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
+                          )
+                          .toList(),
                     ],
                     onChanged: (value) {
                       print('value: $value');
