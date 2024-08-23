@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final allsearch = allsearchFromJson(jsonString);
+
 import 'dart:convert';
 
 Allsearch allsearchFromJson(String str) => Allsearch.fromJson(json.decode(str));
@@ -120,6 +124,7 @@ class Searchnovel {
   final String des;
   final String cat1;
   final String cat2;
+  final DateTime updateEp;
   final int allep;
 
   Searchnovel({
@@ -139,6 +144,7 @@ class Searchnovel {
     required this.des,
     required this.cat1,
     required this.cat2,
+    required this.updateEp,
     required this.allep,
   });
 
@@ -159,6 +165,7 @@ class Searchnovel {
         des: json["des"],
         cat1: json["cat1"],
         cat2: json["cat2"],
+        updateEp: DateTime.parse(json["update_ep"]),
         allep: json["Allep"],
       );
 
@@ -179,6 +186,7 @@ class Searchnovel {
         "des": des,
         "cat1": cat1,
         "cat2": cat2,
+        "update_ep": updateEp.toIso8601String(),
         "Allep": allep,
       };
 }

@@ -10,6 +10,7 @@ import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:flutter/material.dart';
 import 'package:bloctest/pages/main_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:page_transition/page_transition.dart';
 // import 'package:socket_io_client/socket_io_client.dart';
 
 class AppRouter {
@@ -49,12 +50,16 @@ class AppRouter {
         );
       case '/category':
         final args = settings.arguments as Map<String, dynamic>;
-        return SlideLeftRoute(
-          page: CategoryPage(
-            cateId: args['cateId'],
-            cate: args['cate'],
-          ),
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: CategoryPage(cateId: args['cateId'], cate: args['cate']),
         );
+      // return SlideLeftRoute(
+      //   page: CategoryPage(
+      //     cateId: args['cateId'],
+      //     cate: args['cate'],
+      //   ),
+      // );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

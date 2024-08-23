@@ -13,6 +13,7 @@ import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/IconBottombar.dart';
 import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:bloctest/main.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:shimmer/shimmer.dart';

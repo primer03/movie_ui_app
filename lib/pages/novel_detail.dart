@@ -455,29 +455,8 @@ class _NovelDetailState extends State<NovelDetail>
                         ),
                       ),
                     ),
-                    Container(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: groupList
-                                .map((e) => ExpansionTileEpisode(
-                                      title: e,
-                                      index: groupList.indexOf(e),
-                                      initiallyExpanded:
-                                          groupList.indexOf(e) == 0,
-                                    ))
-                                .toList()
-                                .expand((element) => [
-                                      element,
-                                      const SizedBox(height: 10),
-                                    ])
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                    ),
+                    Epview(
+                        groupList: groupList, novelEp: state.dataNovel.novelEp),
                     Container(
                       key: const PageStorageKey<String>('novel_recommend'),
                       color: Colors.white,
@@ -520,6 +499,52 @@ class _NovelDetailState extends State<NovelDetail>
   }
 }
 
+class Epview extends StatelessWidget {
+  const Epview({
+    super.key,
+    required this.groupList,
+    required this.novelEp,
+  });
+
+  final List<String> groupList;
+  final List<NovelEp> novelEp;
+
+  @override
+  Widget build(BuildContext context) {
+    print(novelEp.length);
+
+    List<List<NovelEp>> novelEpisode = [
+      for (var i = 0; i < novelEp.length; i += 100)
+        novelEp.skip(i).take(100).toList()
+    ];
+
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(10),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(0),
+        itemCount: groupList.length,
+        itemBuilder: (context, index) {
+          final group = groupList[index];
+          final episodes = novelEpisode[index];
+          return Column(
+            children: [
+              ExpansionTileEpisode(
+                key: ValueKey(group),
+                novelEp: episodes,
+                title: group,
+                index: index,
+                initiallyExpanded: index == 0,
+              ),
+              const SizedBox(height: 10),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
 class TextAbout extends StatelessWidget {
   final String title;
   const TextAbout({super.key, required this.title});
@@ -543,11 +568,14 @@ class ExpansionTileEpisode extends StatefulWidget {
   final bool initiallyExpanded;
   final int index;
   final String title;
-  const ExpansionTileEpisode(
-      {super.key,
-      this.initiallyExpanded = false,
-      required this.index,
-      required this.title});
+  final List<NovelEp> novelEp;
+  const ExpansionTileEpisode({
+    super.key,
+    this.initiallyExpanded = false,
+    required this.index,
+    required this.title,
+    required this.novelEp,
+  });
 
   @override
   _ExpansionTileEpisodeState createState() => _ExpansionTileEpisodeState();
@@ -605,41 +633,67 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                 color: Colors.grey[200]!,
               ),
             ),
-            child: Column(children: [
-              ...List.generate(5, (index) {
-                return Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.grey[200]!,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(0),
+              key: PageStorageKey<String>('listview_key${widget.index}'),
+              itemCount: widget.novelEp.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final episode = widget.novelEp[index];
+                return Material(
+                  key: ValueKey('material_${episode.id}'),
+                  child: InkWell(
+                    key: ValueKey('inkwell_${episode.id}'),
+                    splashColor: Colors.black12,
+                    onTap: () {
+                      print('Episode ${episode.id} tapped');
+                    },
+                    child: Container(
+                      key: ValueKey(episode.id),
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey[200]!,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              episode.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.athiti(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          episode.typeRead.name == 'FREE'
+                              ? Text(
+                                  'อ่านฟรี',
+                                  style: GoogleFonts.athiti(
+                                    color: Colors.grey[400],
+                                    fontWeight: FontWeight.w600,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                )
+                              : SvgPicture.asset(
+                                  key: ValueKey(episode.id),
+                                  'assets/svg/crown-user-svgrepo-com.svg',
+                                  width: 20,
+                                ),
+                        ],
                       ),
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'บทที่ 1 เขาแต่งงานกับเธอ แต่ไม่รักเธอ',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.athiti(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        'อ่านฟรี',
-                        style: GoogleFonts.athiti(
-                          color: Colors.grey[400],
-                          fontWeight: FontWeight.w600,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
                 );
-              })
-            ]),
+              },
+            ),
           ),
         ],
       ),
