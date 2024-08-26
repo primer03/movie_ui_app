@@ -135,6 +135,7 @@ class _NovelDetailState extends State<NovelDetail>
   void _checkIfAtTop() {
     if (_scrollController.hasClients) {
       final position = _scrollController.position;
+      print('position : ${position.pixels}');
       setState(() {
         isAtTop = position.pixels < position.maxScrollExtent / 2;
       });
@@ -161,18 +162,7 @@ class _NovelDetailState extends State<NovelDetail>
               );
             } else if (state is NovelDetailLoaded) {
               print(state.dataNovel.novelEp[0].typeRead.name);
-              // // int groupEp = (widget.allep / 100).ceil();
-              // print(groupEp);
-              // int novelEpcount = state.dataNovel.novelEp.length;
-              // state.dataNovel.novelEp.forEach((element) {
-              //   if (count == 100) {
-              //     count = 0;
-              //     idxcount++;
-              //     novelEp.add([]);
-              //   }
-              //   count++;
-              // });
-              // print(novelEp);
+
               var bytes = utf8.encode(state.dataNovel.novel.btId.toString());
               String url =
                   'https://bookfet.com/noveldetail/${base64.encode(bytes)}_${Uri.encodeComponent(state.dataNovel.novel.btName)}';

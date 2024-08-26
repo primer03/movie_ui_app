@@ -50,6 +50,31 @@ class NovelRepository {
     }
   }
 
+  Future<List<Searchnovel>> searchNovelByName(String query) async {
+    final url = Uri.parse('$_baseUrl/Allsearch');
+    List<Searchnovel> search;
+    try {
+      final response = await _getRequest(url);
+      final decodedData = _decodeResponse(response);
+      Allsearch allsearch = Allsearch.fromJson(decodedData);
+      List<dynamic> cateList = json.decode(await novelBox.get('categoryData'));
+      // Logger().i('cateList: $cateList');
+      List<Cate> catex = _parseList<Cate>(cateList, Cate.fromJson);
+      List<int> cateID =
+          catex.where((e) => e.name.contains(query)).map((e) => e.id).toList();
+
+      search = allsearch.searchnovel
+          .where((e) =>
+              e.name.contains(query) ||
+              cateID.contains(e.cat1 != '' ? int.parse(e.cat1) : 0) ||
+              cateID.contains(e.cat2 != '' ? int.parse(e.cat2) : 0))
+          .toList();
+      return search;
+    } catch (e) {
+      throw Exception('Failed to search novels: $e');
+    }
+  }
+
   Future<DataNovel> getnovelById(int novelId) async {
     final url = Uri.parse('$_baseUrl/novel/$novelId');
     String token = novelBox.get('usertoken');
@@ -128,6 +153,7 @@ class NovelRepository {
   List<Cate> _parseCateList(List<dynamic> cateList) {
     List<Cate> cate = [Cate(id: 0, name: 'ทั้งหมด', img: 'img', des: '')];
     cate.addAll(_parseList<Cate>(cateList, Cate.fromJson));
+    novelBox.put('categoryData', json.encode(cate));
     return cate;
   }
 

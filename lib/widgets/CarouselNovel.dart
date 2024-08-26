@@ -139,6 +139,8 @@ class _CarouselnovelState extends State<Carouselnovel> {
                                             tapTargetSize: MaterialTapTargetSize
                                                 .shrinkWrap,
                                             minimumSize: const Size(0, 0),
+                                            splashFactory:
+                                                InkRipple.splashFactory,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(5),

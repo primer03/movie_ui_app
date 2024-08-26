@@ -72,6 +72,7 @@ dependencies:
   aescryptojs: ^1.0.0
   page_transition: ^2.1.0
   flutter_cache_manager: ^3.4.1
+  flutter_staggered_grid_view: ^0.7.0
   # flash: ^3.1.1
 
 dev_dependencies:
