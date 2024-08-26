@@ -1,11 +1,8 @@
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
-<<<<<<< HEAD
-=======
 import 'package:bloctest/widgets/CateSkeletion.dart';
 import 'package:bloctest/widgets/CateView.dart';
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -15,10 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-<<<<<<< HEAD
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-=======
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
 import 'package:shimmer/shimmer.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
@@ -39,11 +32,8 @@ class _CategoryPageState extends State<CategoryPage>
   final ScrollController scrollController = ScrollController();
 
   bool isMenuVisible = true;
-<<<<<<< HEAD
-=======
   bool isCateVisible = false;
   bool isShowFloating = false;
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
 
   @override
   void initState() {
@@ -215,58 +205,6 @@ class _CategoryPageState extends State<CategoryPage>
           if (state is NovelCateLoading) {
             return CateSkeleton().animate().fade();
           } else if (state is NovelCateLoaded) {
-<<<<<<< HEAD
-            return Stack(
-              children: [
-                ListView.builder(
-                  controller: scrollController,
-                  itemCount: state.allsearch.length,
-                  itemBuilder: (context, index) {
-                    final e = state.allsearch[index];
-                    return Card(
-                      elevation: 0,
-                      color: Colors.white,
-                      margin: EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                        bottom: 20,
-                        top: index == 0 ? 50 : 0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.5),
-                                  blurRadius: 6,
-                                  spreadRadius: 0.1,
-                                  offset: const Offset(4, 5),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: CachedNetworkImage(
-                                imageUrl: e.img,
-                                fit: BoxFit.fill,
-                                height: 140,
-                                placeholder: (context, url) =>
-                                    Shimmer.fromColors(
-                                  baseColor: Colors.grey[400]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  period: const Duration(milliseconds: 1000),
-                                  child: Container(
-                                    height: 140,
-                                    width: 100,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-=======
             pageController = PageController(initialPage: widget.cateId);
             return Stack(
               children: [
@@ -356,115 +294,13 @@ class _CategoryPageState extends State<CategoryPage>
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
                                     borderRadius: BorderRadius.circular(10),
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
                                   ),
                                 ),
                               ),
                             ),
-<<<<<<< HEAD
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  e.name,
-                                  style: GoogleFonts.athiti(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  e.title,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.athiti(
-                                    fontSize: 14,
-                                    color: Colors.grey[500],
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(
-                                      Icons.remove_red_eye,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      abbreviateNumber(e.view),
-                                      style: GoogleFonts.athiti(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    const Icon(
-                                      Icons.list,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      abbreviateNumber(e.allep),
-                                      style: GoogleFonts.athiti(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    const Icon(
-                                      Icons.thumb_up,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      abbreviateNumber(e.score),
-                                      style: GoogleFonts.athiti(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                AnimatedSlide(
-                  offset: isMenuVisible ? Offset(0, 0) : Offset(0, -1),
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  child: Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    color: Colors.white,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${state.allsearch.length} รายการ',
-                          style: GoogleFonts.athiti(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-=======
                           ),
                         );
                       },
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
                     ),
                   ),
                 ),
