@@ -161,23 +161,8 @@ class _NovelDetailState extends State<NovelDetail>
                 child: CircularProgressIndicator(),
               );
             } else if (state is NovelDetailLoaded) {
-<<<<<<< HEAD
-              // // int groupEp = (widget.allep / 100).ceil();
-              // print(groupEp);
-              // int novelEpcount = state.dataNovel.novelEp.length;
-              // state.dataNovel.novelEp.forEach((element) {
-              //   if (count == 100) {
-              //     count = 0;
-              //     idxcount++;
-              //     novelEp.add([]);
-              //   }
-              //   count++;
-              // });
-              // print(novelEp);
-=======
               print(state.dataNovel.novelEp[0].typeRead.name);
 
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
               var bytes = utf8.encode(state.dataNovel.novel.btId.toString());
               String url =
                   'https://bookfet.com/noveldetail/${base64.encode(bytes)}_${Uri.encodeComponent(state.dataNovel.novel.btName)}';
@@ -460,11 +445,7 @@ class _NovelDetailState extends State<NovelDetail>
                         ),
                       ),
                     ),
-<<<<<<< HEAD
-                    epview(
-=======
                     Epview(
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
                         groupList: groupList, novelEp: state.dataNovel.novelEp),
                     Container(
                       key: const PageStorageKey<String>('novel_recommend'),
@@ -508,13 +489,8 @@ class _NovelDetailState extends State<NovelDetail>
   }
 }
 
-<<<<<<< HEAD
-class epview extends StatelessWidget {
-  const epview({
-=======
 class Epview extends StatelessWidget {
   const Epview({
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
     super.key,
     required this.groupList,
     required this.novelEp,
@@ -525,39 +501,12 @@ class Epview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-=======
     print(novelEp.length);
 
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
     List<List<NovelEp>> novelEpisode = [
       for (var i = 0; i < novelEp.length; i += 100)
         novelEp.skip(i).take(100).toList()
     ];
-<<<<<<< HEAD
-    // print('novelEpisode : ${novelEpisode[0][99].name}');
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: SingleChildScrollView(
-          child: Column(
-            children: groupList
-                .map((e) => ExpansionTileEpisode(
-                      title: e,
-                      novelEp: novelEpisode[groupList.indexOf(e)],
-                      index: groupList.indexOf(e),
-                      initiallyExpanded: groupList.indexOf(e) == 0,
-                    ))
-                .toList()
-                .expand((element) => [
-                      element,
-                      const SizedBox(height: 10),
-                    ])
-                .toList(),
-          ),
-        ),
-=======
 
     return Container(
       color: Colors.white,
@@ -581,7 +530,6 @@ class Epview extends StatelessWidget {
             ],
           );
         },
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
       ),
     );
   }
@@ -675,42 +623,6 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                 color: Colors.grey[200]!,
               ),
             ),
-<<<<<<< HEAD
-            child: Column(children: [
-              ...widget.novelEp.map((e) {
-                return Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.grey[200]!,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          e.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.athiti(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        'อ่านฟรี',
-                        style: GoogleFonts.athiti(
-                          color: Colors.grey[400],
-                          fontWeight: FontWeight.w600,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
-=======
             child: ListView.builder(
               padding: const EdgeInsets.all(0),
               key: PageStorageKey<String>('listview_key${widget.index}'),
@@ -769,7 +681,6 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                       ),
                     ),
                   ),
->>>>>>> 2ad998d72c4faa336100787854cb893327c82702
                 );
               },
             ),
