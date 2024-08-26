@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
+import 'package:bloctest/bloc/novelsearch/novelsearch_bloc.dart';
 import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
@@ -68,6 +69,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<NovelDetailBloc>(
           create: (context) => NovelDetailBloc(),
+        ),
+        BlocProvider<NovelsearchBloc>(
+          create: (context) => NovelsearchBloc(),
         ),
         initialRoute != '/'
             ? BlocProvider<NovelBloc>(
