@@ -224,6 +224,7 @@ class _SearchPageState extends State<SearchPage> {
                                                   state.searchnovel[index].img,
                                               fit: BoxFit.fill,
                                               width: double.infinity,
+                                              height: 160,
                                               placeholder: (context, url) =>
                                                   Shimmer.fromColors(
                                                 baseColor: Colors.grey[400]!,
@@ -232,7 +233,7 @@ class _SearchPageState extends State<SearchPage> {
                                                 period: const Duration(
                                                     milliseconds: 1000),
                                                 child: ContainerSkeltion(
-                                                  height: 150,
+                                                  height: 160,
                                                   width: double.infinity,
                                                   borderRadius:
                                                       BorderRadius.circular(10),
