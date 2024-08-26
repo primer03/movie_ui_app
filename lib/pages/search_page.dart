@@ -69,9 +69,8 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void changSearch(String value) {
-    setState(() {
-      searchController.text = value;
-    });
+    searchController.text = value;
+    _onSearch(value);
   }
 
   List<T> _parseList<T>(
