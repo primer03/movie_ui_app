@@ -559,6 +559,7 @@ class ExpansionTileEpisode extends StatefulWidget {
   final int index;
   final String title;
   final List<NovelEp> novelEp;
+
   const ExpansionTileEpisode({
     super.key,
     this.initiallyExpanded = false,
@@ -592,7 +593,6 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
         key: PageStorageKey<String>('expansion_tile_key${widget.index}'),
         initiallyExpanded: _isExpanded,
         onExpansionChanged: (bool expanded) {
-          print('index : ${widget.index} expanded : $expanded');
           setState(() {
             _isExpanded = expanded;
           });
@@ -632,15 +632,13 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
               itemBuilder: (context, index) {
                 final episode = widget.novelEp[index];
                 return Material(
-                  key: ValueKey('material_${episode.id}'),
+                  color: Colors.white,
                   child: InkWell(
-                    key: ValueKey('inkwell_${episode.id}'),
                     splashColor: Colors.black12,
                     onTap: () {
                       print('Episode ${episode.id} tapped');
                     },
                     child: Container(
-                      key: ValueKey(episode.id),
                       padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         border: Border(
@@ -673,7 +671,6 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                                   ),
                                 )
                               : SvgPicture.asset(
-                                  key: ValueKey(episode.id),
                                   'assets/svg/crown-user-svgrepo-com.svg',
                                   width: 20,
                                 ),
