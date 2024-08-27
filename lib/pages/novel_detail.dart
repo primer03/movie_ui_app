@@ -499,10 +499,8 @@ class Epview extends StatelessWidget {
   Widget build(BuildContext context) {
     print(novelEp.length);
 
-    List<List<NovelEp>> novelEpisode = [
-      for (var i = 0; i < novelEp.length; i += 100)
-        novelEp.skip(i).take(100).toList()
-    ];
+    // Split the episodes into groups outside the build method
+    final novelEpisode = _splitEpisodes(novelEp, 100);
 
     return Container(
       color: Colors.white,
@@ -528,6 +526,13 @@ class Epview extends StatelessWidget {
         },
       ),
     );
+  }
+
+  List<List<NovelEp>> _splitEpisodes(List<NovelEp> episodes, int chunkSize) {
+    return [
+      for (var i = 0; i < episodes.length; i += chunkSize)
+        episodes.skip(i).take(chunkSize).toList()
+    ];
   }
 }
 
