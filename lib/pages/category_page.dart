@@ -1,5 +1,4 @@
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
-import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/widgets/CateSkeletion.dart';
 import 'package:bloctest/widgets/CateView.dart';
@@ -15,7 +14,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 class CategoryPage extends StatefulWidget {
-  const CategoryPage({super.key, required this.cateId, required this.cate});
+  const CategoryPage({Key? key, required this.cateId, required this.cate})
+      : super(key: key);
   final int cateId;
   final List<Cate> cate;
 
@@ -41,6 +41,7 @@ class _CategoryPageState extends State<CategoryPage>
     pageController = PageController();
     autoScrollController = AutoScrollController();
     tabController.animateTo(widget.cateId);
+
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients &&
           scrollController.position.pixels != 0) {
@@ -49,9 +50,13 @@ class _CategoryPageState extends State<CategoryPage>
         });
       }
     });
+
     scrollController.addListener(() {
-      if (scrollController.position.userScrollDirection ==
-          ScrollDirection.reverse) {
+      final isScrollingDown = scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse;
+      final isAtTop = scrollController.position.pixels == 0;
+
+      if (isScrollingDown) {
         if (!isShowFloating) {
           setState(() {
             isShowFloating = true;
@@ -60,9 +65,8 @@ class _CategoryPageState extends State<CategoryPage>
         setState(() {
           isMenuVisible = false;
         });
-      } else if (scrollController.position.userScrollDirection ==
-          ScrollDirection.forward) {
-        if (scrollController.position.pixels == 0) {
+      } else if (!isScrollingDown && isAtTop) {
+        if (isShowFloating) {
           setState(() {
             isShowFloating = false;
           });
@@ -77,11 +81,8 @@ class _CategoryPageState extends State<CategoryPage>
   }
 
   @override
-  void dispose() async {
+  void dispose() {
     super.dispose();
-    print('dispose');
-    await novelBox.delete('cateID');
-    await novelBox.delete('searchData');
     tabController.dispose();
     pageController.dispose();
     autoScrollController.dispose();
@@ -90,7 +91,6 @@ class _CategoryPageState extends State<CategoryPage>
 
   @override
   Widget build(BuildContext context) {
-    // print(widget.cate[0].img);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -98,34 +98,23 @@ class _CategoryPageState extends State<CategoryPage>
         surfaceTintColor: Colors.white,
         title: Text(
           'หมวดหมู่',
-          style: GoogleFonts.athiti(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: GoogleFonts.athiti(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () async {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () async {
-              // final cacheManager = DefaultCacheManager();
-              // await cacheManager.emptyCache(); // ลบแคชทั้งหมด
-              Navigator.pushNamed(context, '/search');
-            },
+            onPressed: () => Navigator.pushNamed(context, '/search'),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50.0),
+          preferredSize: const Size.fromHeight(50.0),
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-            ),
+            color: Colors.white,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -136,14 +125,11 @@ class _CategoryPageState extends State<CategoryPage>
                           child: Text(
                             'หมวดหมู่',
                             style: GoogleFonts.athiti(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ).animate().fade()
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ).animate().fade())
                       : TabBar(
+                          tabAlignment: TabAlignment.start,
                           physics: const BouncingScrollPhysics(),
-                          tabAlignment: TabAlignment.center,
                           controller: tabController,
                           onTap: (value) {
                             pageController.animateToPage(
@@ -151,22 +137,15 @@ class _CategoryPageState extends State<CategoryPage>
                               duration: const Duration(milliseconds: 400),
                               curve: Curves.easeInOutCubic,
                             );
-                            print('TabBar: $value');
                           },
                           isScrollable: true,
                           labelColor: Colors.black,
                           labelStyle: GoogleFonts.athiti(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 16, fontWeight: FontWeight.bold),
                           unselectedLabelColor: Colors.grey,
                           indicatorColor: Colors.black,
                           tabs: widget.cate
-                              .map(
-                                (e) => Tab(
-                                  text: e.name,
-                                ),
-                              )
+                              .map((e) => Tab(text: e.name))
                               .toList(),
                         ),
                 ),
@@ -174,20 +153,13 @@ class _CategoryPageState extends State<CategoryPage>
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                      border: Border(
-                    bottom: BorderSide(color: Colors.grey[300]!, width: 2),
-                  )),
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey[300]!, width: 2),
+                    ),
+                  ),
                   child: IconButton(
                     icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                    style: IconButton.styleFrom(
-                      surfaceTintColor: Colors.white,
-                      highlightColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
-                      ),
-                    ),
                     onPressed: () {
-                      print('Filter');
                       setState(() {
                         isCateVisible = !isCateVisible;
                       });
@@ -204,7 +176,6 @@ class _CategoryPageState extends State<CategoryPage>
           if (state is NovelCateLoading) {
             return CateSkeleton().animate().fade();
           } else if (state is NovelCateLoaded) {
-            pageController = PageController(initialPage: widget.cateId);
             return Stack(
               children: [
                 PageView.builder(
@@ -224,34 +195,26 @@ class _CategoryPageState extends State<CategoryPage>
                   },
                 ),
                 AnimatedSlide(
-                  offset:
-                      isCateVisible ? const Offset(0, 0) : const Offset(0, -1),
+                  offset: isCateVisible ? Offset.zero : const Offset(0, -1),
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOutCubic,
                   child: Container(
                     height: double.infinity,
-                    padding: const EdgeInsets.only(
-                      top: 10,
-                      left: 10,
-                      right: 10,
-                      bottom: 10,
-                    ),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: isCateVisible ? 3 : 0,
-                          spreadRadius: isCateVisible ? 0.1 : 0,
-                          offset: isCateVisible
-                              ? const Offset(3, 5)
-                              : const Offset(0, 0),
-                        )
+                        if (isCateVisible)
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 3,
+                            offset: const Offset(3, 5),
+                          ),
                       ],
                     ),
                     child: GridView.builder(
-                      shrinkWrap: true, // ใช้ควบคุมความสูง
+                      shrinkWrap: true,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
