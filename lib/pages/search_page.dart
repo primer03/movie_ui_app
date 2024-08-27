@@ -274,7 +274,7 @@ class _SearchPageState extends State<SearchPage> {
               bottom: PreferredSize(
                 preferredSize: searchController.text.isEmpty
                     ? const Size.fromHeight(20)
-                    : const Size.fromHeight(60),
+                    : const Size.fromHeight(50),
                 child: searchController.text.isNotEmpty
                     ? Container(
                         width: double.infinity,

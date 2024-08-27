@@ -35,8 +35,9 @@ class AppRouter {
         );
       case '/noveldetail':
         final args = settings.arguments as Map<String, dynamic>;
-        return SlideLeftRoute(
-          page: BlocProvider.value(
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: BlocProvider.value(
             // รับ Bloc จาก arguments แทนที่จะเรียกใช้ context โดยตรง
             value: args['bloc'] as NovelDetailBloc,
             child: NovelDetail(
@@ -59,7 +60,6 @@ class AppRouter {
         return PageTransition(
           child: const SearchPage(),
           type: PageTransitionType.rightToLeft,
-          // duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
       // return SlideLeftRoute(
