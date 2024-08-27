@@ -164,31 +164,28 @@ class Toptennovelnew extends StatelessWidget {
                                               )),
                                       item.end.name == 'END'
                                           ? Positioned(
-                                              top: 10,
-                                              left: -25,
-                                              child: Transform.rotate(
-                                                angle: -0.8,
-                                                child: Container(
-                                                  alignment: Alignment.center,
-                                                  width: 80,
-                                                  padding:
-                                                      const EdgeInsets.all(2),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.red[700],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
+                                              top: 5,
+                                              left: 5,
+                                              child: Stack(
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/label.png',
+                                                    width: 55,
                                                   ),
-                                                  child: const Text(
-                                                    'จบแล้ว',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                  Positioned(
+                                                    top: 1,
+                                                    left: 10,
+                                                    child: Text(
+                                                      'จบแล้ว',
+                                                      style: GoogleFonts.athiti(
+                                                        color: Colors.red[700],
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
+                                                ],
                                               ),
                                             )
                                           : const SizedBox(),

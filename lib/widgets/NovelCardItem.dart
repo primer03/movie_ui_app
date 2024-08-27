@@ -6,6 +6,7 @@ import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -48,8 +49,8 @@ class Novelcarditem extends StatelessWidget {
                   );
                 },
                 child: Container(
-                  width: 150,
-                  margin: const EdgeInsets.only(right: 20),
+                  width: 115,
+                  margin: const EdgeInsets.only(right: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -58,13 +59,9 @@ class Novelcarditem extends StatelessWidget {
                         child: Stack(
                           children: [
                             Container(
-                              height: 220,
+                              height: 170,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                // image: DecorationImage(
-                                //   image: NetworkImage(item.img),
-                                //   fit: BoxFit.fill,
-                                // ),
                               ),
                               child: CachedNetworkImage(
                                 imageUrl: item.btcolImg,
@@ -123,28 +120,49 @@ class Novelcarditem extends StatelessWidget {
                                 : Container(),
                             item.btcolEnd.name == 'END'
                                 ? Positioned(
-                                    top: 10,
-                                    left: -25,
-                                    child: Transform.rotate(
-                                        angle: -0.8,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: 90,
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red[700],
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
+                                    top: 5,
+                                    left: 5,
+                                    child: Stack(
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/label.png',
+                                          width: 55,
+                                        ),
+                                        Positioned(
+                                          top: 1,
+                                          left: 10,
                                           child: Text(
                                             'จบแล้ว',
                                             style: GoogleFonts.athiti(
-                                              color: Colors.white,
-                                              fontSize: 12,
+                                              color: Colors.red[700],
+                                              fontSize: 11,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                        )),
+                                        ),
+                                      ],
+                                    ),
+                                    // child: Transform.rotate(
+                                    //   angle: -0.8,
+                                    //   child: Container(
+                                    //     alignment: Alignment.center,
+                                    //     width: 80,
+                                    //     padding: const EdgeInsets.all(2),
+                                    //     decoration: BoxDecoration(
+                                    //       color: Colors.red[700],
+                                    //       borderRadius:
+                                    //           BorderRadius.circular(5),
+                                    //     ),
+                                    //     child: Text(
+                                    //       'จบแล้ว',
+                                    //       style: GoogleFonts.athiti(
+                                    //         color: Colors.white,
+                                    //         fontSize: 11,
+                                    //         fontWeight: FontWeight.bold,
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   )
                                 : Container(),
                           ],
@@ -178,33 +196,33 @@ class Novelcarditem extends StatelessWidget {
                           isshowviewInimage
                               ? const Icon(
                                   Icons.remove_red_eye_rounded,
-                                  size: 15,
+                                  size: 12,
                                 )
                               : Container(),
-                          SizedBox(width: isshowviewInimage ? 5 : 0),
+                          SizedBox(width: isshowviewInimage ? 3 : 0),
                           isshowviewInimage
                               ? Text(
                                   abbreviateNumber(item.btcolView),
                                   style: GoogleFonts.athiti(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
                               : Container(),
                           // const Spacer(),
-                          SizedBox(width: isshowviewInimage ? 10 : 0),
+                          const Spacer(),
                           isshowepisode
                               ? const Icon(
                                   Icons.list,
-                                  size: 15,
+                                  size: 12,
                                 )
                               : Container(),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 3),
                           isshowepisode
                               ? Text(
-                                  abbreviateNumber(item.allep ?? 0),
+                                  abbreviateNumber(item.allep),
                                   style: GoogleFonts.athiti(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )

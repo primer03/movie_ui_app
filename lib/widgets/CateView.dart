@@ -11,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Cateview extends StatefulWidget {
-  Cateview({
+  const Cateview({
     super.key,
     required this.scrollController,
     required this.isMenuVisible,
@@ -21,7 +21,7 @@ class Cateview extends StatefulWidget {
 
   final ScrollController scrollController;
   final bool isMenuVisible;
-  List<Searchnovel> allsearch;
+  final List<Searchnovel> allsearch;
   final int CateId;
 
   @override
@@ -29,32 +29,41 @@ class Cateview extends StatefulWidget {
 }
 
 class _CateviewState extends State<Cateview> {
-  List<Searchnovel> allSearch = [];
-  void sortnovel(String value) {
-    switch (value) {
-      case 'ยอดการดู':
-        allSearch.sort((a, b) => b.view.compareTo(a.view));
-        break;
-      case 'จำนวนตอน':
-        allSearch.sort((a, b) => b.allep.compareTo(a.allep));
-        break;
-      case 'อัพเดทล่าสุด':
-        allSearch.sort((a, b) => b.updateEp.compareTo(a.updateEp));
-        break;
-      default:
-        allSearch.sort((a, b) => b.view.compareTo(a.view));
-    }
-  }
+  late List<Searchnovel> allSearch;
+  String _sortValue = 'ยอดการดู';
 
   @override
   void initState() {
     super.initState();
-    allSearch = widget.allsearch
-        .where((element) =>
-            widget.CateId == 0 ||
-            element.cat1 == widget.CateId.toString() ||
-            element.cat2 == widget.CateId.toString())
+    allSearch = _filterSearchResults(widget.allsearch, widget.CateId);
+    _sortNovels(_sortValue);
+  }
+
+  List<Searchnovel> _filterSearchResults(
+      List<Searchnovel> searchList, int cateId) {
+    return searchList
+        .where((novel) =>
+            cateId == 0 ||
+            novel.cat1 == cateId.toString() ||
+            novel.cat2 == cateId.toString())
         .toList();
+  }
+
+  void _sortNovels(String value) {
+    setState(() {
+      _sortValue = value;
+      switch (value) {
+        case 'ยอดการดู':
+          allSearch.sort((a, b) => b.view.compareTo(a.view));
+          break;
+        case 'จำนวนตอน':
+          allSearch.sort((a, b) => b.allep.compareTo(a.allep));
+          break;
+        case 'อัพเดทล่าสุด':
+          allSearch.sort((a, b) => b.updateEp.compareTo(a.updateEp));
+          break;
+      }
+    });
   }
 
   @override
@@ -64,244 +73,266 @@ class _CateviewState extends State<Cateview> {
         ListView.builder(
           controller: widget.scrollController,
           itemCount: allSearch.length,
+          cacheExtent:
+              500.0, // คือการกำหนดความสูงของ ListView ที่จะทำการเก็บไว้ในหน่วย pixel
           itemBuilder: (context, index) {
-            final e = allSearch[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.of(context).pushNamed(
-                  '/noveldetail',
-                  arguments: {
-                    'novelId': e.id,
-                    'allep': e.allep,
-                    'bloc': BlocProvider.of<NovelDetailBloc>(context),
-                  },
-                );
-              },
-              child: Card(
-                elevation: 0,
-                color: Colors.white,
-                margin: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  bottom: 20,
-                  top: index == 0 ? 50 : 0,
+            return NovelItemCard(novel: allSearch[index], index: index);
+          },
+        ),
+        _buildAnimatedMenu(),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedMenu() {
+    return AnimatedSlide(
+      offset: widget.isMenuVisible ? Offset(0, 0) : Offset(0, -1),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${allSearch.length} รายการ',
+              style: GoogleFonts.athiti(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            _buildSortDropdown(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortDropdown() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton2(
+        isExpanded: true,
+        customButton: SvgPicture.asset(
+          'assets/svg/Sort.svg',
+          width: 20,
+          height: 20,
+        ),
+        items: ['ยอดการดู', 'จำนวนตอน', 'อัพเดทล่าสุด']
+            .map(
+              (value) => DropdownMenuItem(
+                value: value,
+                child: Text(
+                  value,
+                  style: GoogleFonts.athiti(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            )
+            .toList(),
+        onChanged: (value) {
+          _sortNovels(value as String);
+        },
+        dropdownStyleData: DropdownStyleData(
+          width: 160,
+          padding: const EdgeInsets.symmetric(vertical: 0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(0),
+            color: Colors.black,
+          ),
+          offset: const Offset(100, -10),
+        ),
+        menuItemStyleData: const MenuItemStyleData(
+          padding: EdgeInsets.only(left: 16, right: 16),
+        ),
+      ),
+    );
+  }
+}
+
+class NovelItemCard extends StatelessWidget {
+  const NovelItemCard({
+    Key? key,
+    required this.novel,
+    required this.index,
+  }) : super(key: key);
+
+  final Searchnovel novel;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushNamed(
+          '/noveldetail',
+          arguments: {
+            'novelId': novel.id,
+            'allep': novel.allep,
+            'bloc': BlocProvider.of<NovelDetailBloc>(context),
+          },
+        );
+      },
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        margin: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: 20,
+          top: index == 0 ? 50 : 0,
+        ),
+        child: Row(
+          children: [
+            _buildThumbnail(),
+            const SizedBox(width: 15),
+            Expanded(child: _buildNovelDetails()),
+          ],
+        ),
+      ),
+    ).animate().fade(duration: 400.ms, curve: Curves.easeInOut);
+  }
+
+  Widget _buildThumbnail() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 3,
+            spreadRadius: 0.1,
+            offset: const Offset(3, 5),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Stack(
+          children: [
+            CachedNetworkImage(
+              key: Key('catevieimage-${novel.id}'),
+              imageUrl: novel.img,
+              fit: BoxFit.fill,
+              height: 140,
+              placeholder: (context, url) => const NovelImageShimmer(),
+            ),
+            if (novel.end.name == 'END')
+              Positioned(
+                top: 3,
+                left: 2,
+                child: Stack(
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 3,
-                            spreadRadius: 0.1,
-                            offset: const Offset(3, 5),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Stack(
-                          children: [
-                            CachedNetworkImage(
-                              key: Key('catevieimage-${e.id}'),
-                              imageUrl: e.img,
-                              fit: BoxFit.fill,
-                              height: 140,
-                              placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[400]!,
-                                highlightColor: Colors.grey[100]!,
-                                period: const Duration(milliseconds: 1000),
-                                child: Container(
-                                  height: 140,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            e.end.name == 'END'
-                                ? Positioned(
-                                    top: 10,
-                                    left: -25,
-                                    child: Transform.rotate(
-                                        angle: -0.9,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: 80,
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red[700],
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: Text(
-                                            'จบแล้ว',
-                                            style: GoogleFonts.athiti(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        )),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ),
+                    Image.asset(
+                      'assets/images/label.png',
+                      width: 50,
                     ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            e.name,
-                            style: GoogleFonts.athiti(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            e.title,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.athiti(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.remove_red_eye,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                abbreviateNumber(e.view),
-                                style: GoogleFonts.athiti(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Icon(
-                                Icons.list,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                abbreviateNumber(e.allep),
-                                style: GoogleFonts.athiti(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Icon(
-                                Icons.thumb_up,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                abbreviateNumber(e.score),
-                                style: GoogleFonts.athiti(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    Positioned(
+                      top: 1,
+                      left: 10,
+                      child: Text(
+                        'จบแล้ว',
+                        style: GoogleFonts.athiti(
+                          color: Colors.red[700],
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ).animate().fade(duration: 400.ms, curve: Curves.easeInOut);
-          },
+          ],
         ),
-        AnimatedSlide(
-          offset: widget.isMenuVisible ? Offset(0, 0) : Offset(0, -1),
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: Container(
-            height: 50,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${allSearch.length} รายการ',
-                  style: GoogleFonts.athiti(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton2(
-                    isExpanded: true,
-                    customButton: SvgPicture.asset(
-                      'assets/svg/Sort.svg',
-                      width: 20,
-                      height: 20,
-                    ),
-                    items: [
-                      ...['ยอดการดู', 'จำนวนตอน', 'อัพเดทล่าสุด']
-                          .map(
-                            (e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(
-                                e,
-                                style: GoogleFonts.athiti(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ],
-                    onChanged: (value) {
-                      print('value: $value');
-                      setState(() {
-                        sortnovel(value.toString());
-                      });
-                    },
-                    dropdownStyleData: DropdownStyleData(
-                      width: 160,
-                      padding: const EdgeInsets.symmetric(vertical: 0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(0),
-                        color: Colors.black,
-                      ),
-                      offset: const Offset(100, -10),
-                    ),
-                    menuItemStyleData: const MenuItemStyleData(
-                      padding: EdgeInsets.only(left: 16, right: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      ),
+    );
+  }
+
+  Widget _buildNovelDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          novel.name,
+          style: GoogleFonts.athiti(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
+        const SizedBox(height: 5),
+        Text(
+          novel.title,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.athiti(
+            fontSize: 14,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            const Icon(Icons.remove_red_eye, size: 16),
+            const SizedBox(width: 5),
+            Text(
+              abbreviateNumber(novel.view),
+              style: GoogleFonts.athiti(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Icon(Icons.list, size: 16),
+            const SizedBox(width: 5),
+            Text(
+              abbreviateNumber(novel.allep),
+              style: GoogleFonts.athiti(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Icon(Icons.thumb_up, size: 16),
+            const SizedBox(width: 5),
+            Text(
+              abbreviateNumber(novel.score),
+              style: GoogleFonts.athiti(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+class NovelImageShimmer extends StatelessWidget {
+  const NovelImageShimmer({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[400]!,
+      highlightColor: Colors.grey[100]!,
+      period: const Duration(milliseconds: 1000),
+      child: Container(
+        height: 140,
+        width: 100,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
     );
   }
 }

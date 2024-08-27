@@ -9,7 +9,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
@@ -115,9 +114,9 @@ class _CategoryPageState extends State<CategoryPage>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () async {
-              final cacheManager = DefaultCacheManager();
-              await cacheManager.emptyCache(); // ลบแคชทั้งหมด
-              // Navigator.pushNamed(context, '/search');
+              // final cacheManager = DefaultCacheManager();
+              // await cacheManager.emptyCache(); // ลบแคชทั้งหมด
+              Navigator.pushNamed(context, '/search');
             },
           ),
         ],

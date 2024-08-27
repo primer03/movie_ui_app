@@ -28,3 +28,11 @@ final class NovelsearchError extends NovelsearchState {
 }
 
 final class NovelsearchEmpty extends NovelsearchState {}
+
+final class NovelsearchFilter extends NovelsearchState {
+  final List<Searchnovel> searchnovel;
+  const NovelsearchFilter(this.searchnovel);
+
+  @override
+  List<Object> get props => [searchnovel];
+}

@@ -120,10 +120,7 @@ class _MainpageState extends State<Mainpage> {
                   actions: [
                     IconButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          SlideLeftRoute(page: const SearchPage()),
-                        );
+                        Navigator.pushNamed(context, '/search');
                       },
                       icon: const Icon(Icons.search),
                     ),

@@ -6,6 +6,7 @@ import 'package:bloctest/pages/login_page.dart';
 import 'package:bloctest/pages/novel_detail.dart';
 import 'package:bloctest/pages/profile_page.dart';
 import 'package:bloctest/pages/register_page.dart';
+import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:flutter/material.dart';
 import 'package:bloctest/pages/main_page.dart';
@@ -53,6 +54,13 @@ class AppRouter {
         return PageTransition(
           type: PageTransitionType.rightToLeft,
           child: CategoryPage(cateId: args['cateId'], cate: args['cate']),
+        );
+      case '/search':
+        return PageTransition(
+          child: const SearchPage(),
+          type: PageTransitionType.rightToLeft,
+          // duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
         );
       // return SlideLeftRoute(
       //   page: CategoryPage(

@@ -50,6 +50,31 @@ class NovelRepository {
     }
   }
 
+  Future<List<Searchnovel>> filterNovelByGenre(String category,
+      {String? query}) async {
+    if (novelBox.get('searchDatabyName') == null) {
+      return await searchNovelByName(query!);
+    }
+    if (category == '0') {
+      if (query == null) {
+        throw ArgumentError('Query must not be null when category is "0"');
+      }
+      return await searchNovelByName(query);
+    }
+
+    try {
+      print('categoryxxx: $category');
+      List<Searchnovel> search = _parseList<Searchnovel>(
+          json.decode(await novelBox.get('searchDatabyName')),
+          Searchnovel.fromJson);
+      return search
+          .where((e) => e.cat1 == category || e.cat2 == category)
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to filter novels: $e');
+    }
+  }
+
   Future<List<Searchnovel>> searchNovelByName(String query) async {
     final url = Uri.parse('$_baseUrl/Allsearch');
     List<Searchnovel> search;
@@ -69,6 +94,7 @@ class NovelRepository {
               cateID.contains(e.cat1 != '' ? int.parse(e.cat1) : 0) ||
               cateID.contains(e.cat2 != '' ? int.parse(e.cat2) : 0))
           .toList();
+      novelBox.put('searchDatabyName', json.encode(search));
       return search;
     } catch (e) {
       throw Exception('Failed to search novels: $e');

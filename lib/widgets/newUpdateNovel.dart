@@ -50,10 +50,6 @@ class newUpdateNovel extends StatelessWidget {
                             height: 190,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              // image: DecorationImage(
-                              //   image: NetworkImage(item.img),
-                              //   fit: BoxFit.cover,
-                              // ),
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),

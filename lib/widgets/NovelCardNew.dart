@@ -36,7 +36,6 @@ class Novelcardnew extends StatelessWidget {
           children: [
             const SizedBox(width: 20),
             ...items.map((Recomnovel item) {
-              // print(item.id);
               return GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushNamed(
@@ -49,8 +48,8 @@ class Novelcardnew extends StatelessWidget {
                   );
                 },
                 child: Container(
-                  width: 150,
-                  margin: const EdgeInsets.only(right: 20),
+                  width: 115,
+                  margin: const EdgeInsets.only(right: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -59,13 +58,9 @@ class Novelcardnew extends StatelessWidget {
                         child: Stack(
                           children: [
                             Container(
-                              height: 220,
+                              height: 170,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                // image: DecorationImage(
-                                //   image: NetworkImage(item.img),
-                                //   fit: BoxFit.fill,
-                                // ),
                               ),
                               child: CachedNetworkImage(
                                 imageUrl: item.img,
@@ -124,28 +119,28 @@ class Novelcardnew extends StatelessWidget {
                                 : Container(),
                             item.end.name == 'END'
                                 ? Positioned(
-                                    top: 10,
-                                    left: -25,
-                                    child: Transform.rotate(
-                                        angle: -0.8,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: 90,
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red[700],
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
+                                    top: 5,
+                                    left: 5,
+                                    child: Stack(
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/label.png',
+                                          width: 55,
+                                        ),
+                                        Positioned(
+                                          top: 1,
+                                          left: 10,
                                           child: Text(
                                             'จบแล้ว',
                                             style: GoogleFonts.athiti(
-                                              color: Colors.white,
-                                              fontSize: 12,
+                                              color: Colors.red[700],
+                                              fontSize: 11,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                        )),
+                                        ),
+                                      ],
+                                    ),
                                   )
                                 : Container(),
                           ],
@@ -179,33 +174,33 @@ class Novelcardnew extends StatelessWidget {
                           isshowviewInimage
                               ? const Icon(
                                   Icons.remove_red_eye_rounded,
-                                  size: 15,
+                                  size: 12,
                                 )
                               : Container(),
-                          SizedBox(width: isshowviewInimage ? 5 : 0),
+                          SizedBox(width: isshowviewInimage ? 3 : 0),
                           isshowviewInimage
                               ? Text(
                                   abbreviateNumber(item.view),
                                   style: GoogleFonts.athiti(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
                               : Container(),
                           // const Spacer(),
-                          SizedBox(width: isshowviewInimage ? 10 : 0),
+                          const Spacer(),
                           isshowepisode
-                              ? Icon(
+                              ? const Icon(
                                   Icons.list,
-                                  size: 15,
+                                  size: 12,
                                 )
                               : Container(),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 2),
                           isshowepisode
                               ? Text(
                                   abbreviateNumber(item.allep),
                                   style: GoogleFonts.athiti(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )

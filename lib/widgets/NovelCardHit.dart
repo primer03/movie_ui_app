@@ -63,8 +63,8 @@ class Novelcardhit extends StatelessWidget {
         );
       },
       child: Container(
-        width: 150,
-        margin: const EdgeInsets.only(right: 20),
+        width: 115,
+        margin: const EdgeInsets.only(right: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -89,7 +89,7 @@ class Novelcardhit extends StatelessWidget {
           CachedNetworkImage(
             imageUrl: item.img,
             fit: BoxFit.fill,
-            height: 220,
+            height: 170,
             placeholder: (context, url) => Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[100]!,
@@ -103,14 +103,15 @@ class Novelcardhit extends StatelessWidget {
           ),
           if (!isshowviewInimage)
             Positioned(
-              top: 10,
-              right: 10,
+              bottom: 0,
+              right: 0,
+              left: 0,
               child: _buildViewCount(item),
             ),
           if (item.end.name == 'END')
             Positioned(
-              top: 10,
-              left: -25,
+              top: 5,
+              left: 3,
               child: _buildEndLabel(),
             ),
         ],
@@ -120,57 +121,65 @@ class Novelcardhit extends StatelessWidget {
 
   Widget _buildViewCount(HitNovel item) {
     return Container(
-      alignment: Alignment.center,
-      width: 75,
-      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
         borderRadius: BorderRadius.circular(5),
+        gradient: const LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [Colors.black, Colors.transparent],
+        ),
       ),
+      padding: const EdgeInsets.all(5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.remove_red_eye_rounded,
-            size: 12,
-            color: Colors.white,
-          ),
-          const SizedBox(width: 5),
-          Text(
-            abbreviateNumber(item.view),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.athiti(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          _buildInfoItem(Icons.remove_red_eye_rounded, item.view),
+          const Spacer(),
+          _buildInfoItem(Icons.list, item.allep ?? 0),
         ],
       ),
     );
   }
 
-  Widget _buildEndLabel() {
-    return Transform.rotate(
-      angle: -0.8,
-      child: Container(
-        alignment: Alignment.center,
-        width: 90,
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: Colors.red[700],
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Text(
-          'จบแล้ว',
+  Widget _buildInfoItem(IconData icon, int value) {
+    return Row(
+      children: [
+        Icon(icon, size: 10, color: Colors.white),
+        const SizedBox(width: 2),
+        Text(
+          abbreviateNumber(value),
           style: GoogleFonts.athiti(
             color: Colors.white,
-            fontSize: 12,
+            fontSize: 10,
             fontWeight: FontWeight.bold,
+            shadows: const [
+              Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 1)
+            ],
           ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildEndLabel() {
+    return Stack(
+      children: [
+        Image.asset(
+          'assets/images/label.png',
+          width: 55,
+        ),
+        Positioned(
+          top: 1,
+          left: 10,
+          child: Text(
+            'จบแล้ว',
+            style: GoogleFonts.athiti(
+              color: Colors.red[700],
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

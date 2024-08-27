@@ -174,3 +174,8 @@ String convertISOToThaiDate(String isoDate) {
   }
   return '$day $monthName $buddhistYear';
 }
+
+List<T> parseList<T>(
+    List<dynamic> list, T Function(Map<String, dynamic>) fromJson) {
+  return list.map<T>((item) => fromJson(item)).toList();
+}
