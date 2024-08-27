@@ -1,11 +1,7 @@
 import 'dart:convert';
-
-import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
-import 'package:bloctest/pages/movie_home.dart';
-import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:bloctest/widgets/NovelCard.dart';
 import 'package:cached_network_image/cached_network_image.dart';
