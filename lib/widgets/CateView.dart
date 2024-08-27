@@ -6,6 +6,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
@@ -70,13 +71,27 @@ class _CateviewState extends State<Cateview> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        ListView.builder(
+        // ListView.builder(
+        //   controller: widget.scrollController,
+        //   itemCount: allSearch.length,
+        //   cacheExtent:
+        //       500.0, // คือการกำหนดความสูงของ ListView ที่จะทำการเก็บไว้ในหน่วย pixel
+        //   itemBuilder: (context, index) {
+        //     return NovelItemCard(novel: allSearch[index], index: index);
+        //   },
+        // ),
+        AlignedGridView.count(
           controller: widget.scrollController,
+          crossAxisCount: 1,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
           itemCount: allSearch.length,
-          cacheExtent:
-              500.0, // คือการกำหนดความสูงของ ListView ที่จะทำการเก็บไว้ในหน่วย pixel
           itemBuilder: (context, index) {
-            return NovelItemCard(novel: allSearch[index], index: index);
+            return NovelItemCard(
+              novel: allSearch[index],
+              index: index,
+              key: ValueKey('cateview-${allSearch[index].id}'),
+            );
           },
         ),
         _buildAnimatedMenu(),
@@ -187,6 +202,7 @@ class NovelItemCard extends StatelessWidget {
           top: index == 0 ? 50 : 0,
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildThumbnail(),
             const SizedBox(width: 15),
@@ -255,6 +271,7 @@ class NovelItemCard extends StatelessWidget {
   Widget _buildNovelDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text(
           novel.name,
