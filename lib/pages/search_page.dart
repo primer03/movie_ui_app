@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/novelsearch/novelsearch_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
@@ -441,38 +442,50 @@ class ItemNovelSearch extends StatelessWidget {
 
   Widget _buildNovelItem(BuildContext context, int index) {
     final novel = searchnovel[index];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Stack(
-          children: [
-            _buildCoverImage(novel.img),
-            if (novel.end.name == 'END') _buildEndBadge(),
-            _buildInfoOverlay(novel),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Text(
-          novel.name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.athiti(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushNamed(
+          '/noveldetail',
+          arguments: {
+            'novelId': novel.id,
+            'allep': novel.allep,
+            'bloc': BlocProvider.of<NovelDetailBloc>(context),
+          },
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              _buildCoverImage(novel.img),
+              if (novel.end.name == 'END') _buildEndBadge(),
+              _buildInfoOverlay(novel),
+            ],
           ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          '${getCategoryName(novel.cat1)} ${getCategoryName(novel.cat2)}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.athiti(
-            color: Colors.grey,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+          const SizedBox(height: 5),
+          Text(
+            novel.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.athiti(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 5),
+          Text(
+            '${getCategoryName(novel.cat1)} ${getCategoryName(novel.cat2)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.athiti(
+              color: Colors.grey,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     ).animate().fadeIn();
   }
 
