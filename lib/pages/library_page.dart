@@ -96,7 +96,6 @@ class _LibraryPageState extends State<LibraryPage> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            NovelRepository().getBookmark();
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
