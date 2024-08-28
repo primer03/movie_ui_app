@@ -1,4 +1,5 @@
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/widgets/CateSkeletion.dart';
 import 'package:bloctest/widgets/CateView.dart';
@@ -87,6 +88,8 @@ class _CategoryPageState extends State<CategoryPage>
     pageController.dispose();
     autoScrollController.dispose();
     scrollController.dispose();
+    novelBox.delete('cateID');
+    novelBox.delete('searchData');
   }
 
   @override

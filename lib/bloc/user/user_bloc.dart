@@ -3,6 +3,7 @@ import 'package:bloctest/main.dart';
 import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 part 'user_event.dart';
 part 'user_state.dart';
@@ -64,7 +65,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       }
       emit(UserLoginrememberSate(userlogin));
     } catch (e) {
-      print(e);
+      emit(UserLoginRemeberFailed(e.toString()));
     }
   }
 

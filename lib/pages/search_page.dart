@@ -7,6 +7,7 @@ import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_allsearch_model.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
+import 'package:bloctest/widgets/gridskeleton.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:logger/web.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -94,6 +96,7 @@ class _SearchPageState extends State<SearchPage> {
         await novelBox.get('lastSearch', defaultValue: <String>[]);
     setState(() {
       lastSearch.addAll(lastSearchList);
+      cate = cate;
     });
   }
 
@@ -107,7 +110,15 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
+    // novelBox.delete('lastSearch');
+    novelBox.delete('searchDatabyName');
     _onFetch();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -170,7 +181,7 @@ class _SearchPageState extends State<SearchPage> {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(Iconsax.search_normal_1),
                       suffixIconConstraints: const BoxConstraints(
                         minWidth: 20,
                         minHeight: 20,
@@ -383,11 +394,7 @@ class SearchDatawidget extends StatelessWidget {
         builder: (context, state) {
           // print('state: $state');
           if (state is NovelsearchLoading) {
-            return Container(
-              width: double.infinity,
-              alignment: Alignment.center,
-              child: const Text('Loading...'),
-            );
+            return gridskeleton(width: width);
           } else if (state is NovelsearchLoaded) {
             testallsearch!(state.searchnovel);
             // print('state: ${state.searchnovel[0].name}');
@@ -397,9 +404,53 @@ class SearchDatawidget extends StatelessWidget {
               searchnovel: state.searchnovel,
             );
           } else if (state is NovelsearchError) {
-            return Text('Error: ${state.message}');
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  Image.asset(
+                    'assets/mascot/error.png',
+                    width: 200,
+                  ).animate().shakeX(),
+                  const SizedBox(height: 15),
+                  Text(
+                    'เกิดข้อผิดพลาด',
+                    style: GoogleFonts.athiti(
+                      fontSize: 19,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            );
           } else if (state is NovelsearchEmpty) {
-            return const Text('Empty');
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  Image.asset(
+                    'assets/mascot/nodata.png',
+                    width: 200,
+                  ).animate().shakeX(),
+                  const SizedBox(height: 15),
+                  Text(
+                    'ไม่พบข้อมูล',
+                    style: GoogleFonts.athiti(
+                      fontSize: 19,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            );
           } else if (state is NovelsearchFilter) {
             return ItemNovelSearch(
               width: width,

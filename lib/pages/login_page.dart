@@ -99,6 +99,9 @@ class _LoginPageState extends State<LoginPage> {
             message: state.message.split(' ')[2],
             type: ToastificationType.error,
           );
+        } else if (state is UserLoginRemeberFailed) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/login', (route) => false);
         }
       },
       child: const SizedBox.shrink(),

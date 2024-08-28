@@ -210,7 +210,7 @@ class NovelItemCard extends StatelessWidget {
           ],
         ),
       ),
-    ).animate().fade(duration: 400.ms, curve: Curves.easeInOut);
+    );
   }
 
   Widget _buildThumbnail() {
@@ -235,6 +235,7 @@ class NovelItemCard extends StatelessWidget {
               imageUrl: novel.img,
               fit: BoxFit.fill,
               height: 140,
+              width: 100,
               placeholder: (context, url) => const NovelImageShimmer(),
             ),
             if (novel.end.name == 'END')

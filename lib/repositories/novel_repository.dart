@@ -1,6 +1,7 @@
 import 'package:aescryptojs/aescryptojs.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_allsearch_model.dart';
+import 'package:bloctest/models/novel_bookmark_model.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +84,6 @@ class NovelRepository {
       final decodedData = _decodeResponse(response);
       Allsearch allsearch = Allsearch.fromJson(decodedData);
       List<dynamic> cateList = json.decode(await novelBox.get('categoryData'));
-      // Logger().i('cateList: $cateList');
       List<Cate> catex = _parseList<Cate>(cateList, Cate.fromJson);
       List<int> cateID =
           catex.where((e) => e.name.contains(query)).map((e) => e.id).toList();
@@ -91,6 +91,7 @@ class NovelRepository {
       search = allsearch.searchnovel
           .where((e) =>
               e.name.contains(query) ||
+              e.tag.contains(query) ||
               cateID.contains(e.cat1 != '' ? int.parse(e.cat1) : 0) ||
               cateID.contains(e.cat2 != '' ? int.parse(e.cat2) : 0))
           .toList();
@@ -104,14 +105,10 @@ class NovelRepository {
   Future<DataNovel> getnovelById(int novelId) async {
     final url = Uri.parse('$_baseUrl/novel/$novelId');
     String token = novelBox.get('usertoken');
-    // print('getnovelById: $novelId');
-    // Logger().i('getnovelById: $token');
     try {
       final response = await _getRequest(url, token: token);
       final decodedData = _decodeResponse(response);
-      // Logger().i('getnovelById: $decodedData');
       Noveldetail noveldetail = Noveldetail.fromJson(decodedData);
-      // Logger().i('getnovelById: ${noveldetail.toJson()}');
       return noveldetail.dataNovel;
     } catch (e) {
       Logger().e('Failed to load novel by id: $e');
@@ -119,22 +116,62 @@ class NovelRepository {
     }
   }
 
-  // Future<void> getnovelByIdtest(int novelId) async {
-  //   final url = Uri.parse('$_baseUrl/novel/$novelId');
-  //   String token = novelBox.get('usertoken');
-  //   print('getnovelById: $novelId');
-  //   // Logger().i('getnovelById: $token');
-  //   try {
-  //     final response = await _getRequest(url, token: token);
-  //     final decodedData = _decodeResponse(response);
-  //     Noveldetail noveldetail = Noveldetail.fromJson(decodedData);
-  //     Logger().i('dataNovel: ${noveldetail.dataNovel.toJson()}');
-  //     // Logger().i('getnovelById: ${decodedData}');
-  //   } catch (e) {
-  //     Logger().e('Failed to load novel by id: $e');
-  //     throw Exception('Failed to load novel by id: $e');
-  //   }
-  // }
+  Future<bool> addBookmark(String bookId) async {
+    final url = Uri.parse('$_baseUrl/addbook');
+    String token = novelBox.get('usertoken');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': _apiKey,
+          'x-client-domain': _clientDomain,
+          'Authorization': token,
+        },
+        body: json.encode({'BookID': bookId}),
+      );
+      // final decodedData = _decodeResponse(response);
+      Logger().i('addBookmark: ${response.body}');
+      if (response.statusCode != 200) {
+        throw Exception('เกิดข้อผิดพลาดในการเพิ่ม Bookmark');
+      } else {
+        var des = json.decode(response.body)['message'];
+        Logger().i('des: $des');
+        if (des == 'อยู่ในชั้นหนังสือแล้ว') {
+          throw Exception('อยู่ในชั้นหนังสือแล้ว');
+        }
+        return true;
+      }
+    } catch (e) {
+      Logger().e('Failed to add bookmark: $e');
+      throw Exception('Failed to add bookmark: $e');
+    }
+  }
+
+  Future<List<Bookmark>> getBookmark() async {
+    final url = Uri.parse('$_baseUrl/cheackbook/member');
+    String token = novelBox.get('usertoken');
+    try {
+      final response = await _getRequest(url, token: token);
+      Logger().i('getBookmark: ${response.body}');
+      // final decodedData = _decodeResponse(response);
+      // Logger().i('getBookmark: ${decodedData}');
+      if (response.statusCode == 200) {
+        final des =
+            decryptAESCryptoJS(json.decode(response.body)['data'], pass);
+        Logger().i('des: ${des.runtimeType}');
+        final bookmark =
+            _parseList<Bookmark>(json.decode(des), Bookmark.fromJson);
+        Logger().i('bookmark: ${bookmark.length}');
+        return bookmark;
+      } else {
+        throw Exception('เกิดข้อผิดพลาดในการดึงข้อมูล Bookmark');
+      }
+    } catch (e) {
+      Logger().e('Failed to get bookmark: $e');
+      throw Exception('Failed to get bookmark: $e');
+    }
+  }
 
   Future<http.Response> _getRequest(Uri url, {String? token}) async {
     return await http.get(
@@ -153,8 +190,9 @@ class NovelRepository {
       throw Exception(
           'HTTP request failed with status: ${response.statusCode}');
     }
-    // Logger().i('response.body: ${response.body}');
+    // Logger().i('response.body: ${json.decode(response.body)}');
     final des = decryptAESCryptoJS(json.decode(response.body)['data'], pass);
+    // Logger().i('des: $des');
     return json.decode(des);
   }
 

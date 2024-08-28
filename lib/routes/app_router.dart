@@ -62,12 +62,6 @@ class AppRouter {
           type: PageTransitionType.rightToLeft,
           curve: Curves.easeInOut,
         );
-      // return SlideLeftRoute(
-      //   page: CategoryPage(
-      //     cateId: args['cateId'],
-      //     cate: args['cate'],
-      //   ),
-      // );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

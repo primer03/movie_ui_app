@@ -42,6 +42,15 @@ class UserLoginFailed extends UserState {
   List<Object> get props => [message, timestamp];
 }
 
+class UserLoginRemeberFailed extends UserState {
+  final String message;
+
+  const UserLoginRemeberFailed(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
 class UserNoData extends UserState {}
 
 class UserError extends UserState {

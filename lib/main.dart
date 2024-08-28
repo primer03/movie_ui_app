@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
+import 'package:bloctest/bloc/novelbookmark/novelbookmark_bloc.dart';
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/novelsearch/novelsearch_bloc.dart';
@@ -72,6 +73,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<NovelsearchBloc>(
           create: (context) => NovelsearchBloc(),
+        ),
+        BlocProvider<NovelbookmarkBloc>(
+          create: (context) => NovelbookmarkBloc(),
         ),
         initialRoute != '/'
             ? BlocProvider<NovelBloc>(

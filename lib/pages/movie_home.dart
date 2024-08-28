@@ -1,5 +1,6 @@
 import 'package:bloctest/Skeleton/movie_home_skeleton.dart';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/CarouselNovel.dart';
 import 'package:bloctest/widgets/Categorymenu.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/web.dart';
 
 class MovieHome extends StatefulWidget {
   const MovieHome({super.key});

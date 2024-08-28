@@ -66,6 +66,9 @@ class _ExplorePageState extends State<ExplorePage> {
                     const TextSelectionThemeData(cursorColor: Colors.blue),
               ),
               child: TextField(
+                onTap: () {
+                  Navigator.pushNamed(context, '/search');
+                },
                 cursorColor: Colors.black,
                 decoration: InputDecoration(
                   hintText: 'ค้นหา',

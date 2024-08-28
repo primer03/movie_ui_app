@@ -84,7 +84,7 @@ void showLoadingDialog(BuildContext context) {
 
   showDialog(
     context: context,
-    barrierDismissible: false, // ป้องกันการปิด dialog โดยการคลิกข้างนอก
+    barrierDismissible: false,
     builder: (context) {
       return PopScope(
         canPop: false,
@@ -99,10 +99,9 @@ void showLoadingDialog(BuildContext context) {
       );
     },
   ).then((_) {
-    // Reset status bar style when dialog is closed
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.white, // Reset status bar to default color
-      statusBarIconBrightness: Brightness.dark, // Reset status bar icon color
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
     ));
   });
 }

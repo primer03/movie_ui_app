@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:ffi';
+import 'dart:math';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
+import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:bloctest/widgets/NovelCard.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -10,7 +14,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/web.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shimmer/shimmer.dart';
@@ -93,6 +100,7 @@ class _NovelDetailState extends State<NovelDetail>
   int count = 0;
   int idxcount = 0;
   int groupEp = 0;
+  late FToast fToast;
 
   @override
   void initState() {
@@ -111,7 +119,42 @@ class _NovelDetailState extends State<NovelDetail>
             'ตอนที่ ${epList[i * 100]} - ตอนที่ ${epList[(i + 1) * 100 - 1]}');
       }
     }
+    fToast = FToast();
+    fToast.init(context);
     Logger().i(groupList);
+  }
+
+  _showToast(String message) {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black.withOpacity(0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Iconsax.archive_add, color: Colors.white),
+          const SizedBox(
+            width: 12.0,
+          ),
+          Text(
+            message,
+            style: GoogleFonts.athiti(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: const Duration(seconds: 2),
+    );
   }
 
   Future<void> getnoveldetail() async {
@@ -124,8 +167,12 @@ class _NovelDetailState extends State<NovelDetail>
 
   @override
   void dispose() {
+    _scrollController.removeListener(_checkIfAtTop);
+    _scrollController.dispose();
+    _tabController.dispose();
+    _pageController.dispose();
+    novelBox.delete('cateID');
     super.dispose();
-    print('close page');
   }
 
   void _checkIfAtTop() {
@@ -153,8 +200,13 @@ class _NovelDetailState extends State<NovelDetail>
           builder: (context, state) {
             print(state);
             if (state is NovelDetailLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
+              return Center(
+                child: LoadingAnimationWidget.discreteCircle(
+                  color: Colors.grey,
+                  secondRingColor: Colors.black,
+                  thirdRingColor: Colors.red[900]!,
+                  size: 50,
+                ),
               );
             } else if (state is NovelDetailLoaded) {
               print(state.dataNovel.novelEp[0].typeRead.name);
@@ -200,7 +252,7 @@ class _NovelDetailState extends State<NovelDetail>
                         ),
                         IconButton(
                           icon: Icon(
-                            Icons.bookmark_border,
+                            Iconsax.archive_add,
                             shadows: isAtTop
                                 ? [
                                     const BoxShadow(
@@ -210,7 +262,20 @@ class _NovelDetailState extends State<NovelDetail>
                                   ]
                                 : null,
                           ),
-                          onPressed: () {},
+                          onPressed: () async {
+                            print(state.dataNovel.novel.bookId);
+                            try {
+                              bool checkadd = await NovelRepository()
+                                  .addBookmark(state.dataNovel.novel.bookId);
+                              Logger().i('checkadd: $checkadd');
+                              String msg = checkadd
+                                  ? 'เพิ่มเข้าชั้นหนังสือแล้ว'
+                                  : 'เพิ่มหนังสือเข้าชั้นหนังสือไม่สำเร็จ';
+                              _showToast(msg);
+                            } catch (e) {
+                              _showToast(e.toString().split(':').last);
+                            }
+                          },
                         ),
                       ],
                       leading: IconButton(
