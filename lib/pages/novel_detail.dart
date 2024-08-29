@@ -4,8 +4,10 @@ import 'dart:math';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/models/novel_bookmark_model.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/repositories/novel_repository.dart';
+import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:bloctest/widgets/NovelCard.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -100,7 +102,8 @@ class _NovelDetailState extends State<NovelDetail>
   int count = 0;
   int idxcount = 0;
   int groupEp = 0;
-  late FToast fToast;
+  bool isBookmark = false;
+  late BookmarkManager _bookmarkManager;
 
   @override
   void initState() {
@@ -119,47 +122,25 @@ class _NovelDetailState extends State<NovelDetail>
             'ตอนที่ ${epList[i * 100]} - ตอนที่ ${epList[(i + 1) * 100 - 1]}');
       }
     }
-    fToast = FToast();
-    fToast.init(context);
+    _bookmarkManager = BookmarkManager(context, _updateBookmarkState);
+    // _bookmarkManager.fToast.init(context);
     Logger().i(groupList);
   }
 
-  _showToast(String message) {
-    Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
-        color: Colors.black.withOpacity(0.8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Iconsax.archive_add, color: Colors.white),
-          const SizedBox(
-            width: 12.0,
-          ),
-          Text(
-            message,
-            style: GoogleFonts.athiti(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-
-    fToast.showToast(
-      child: toast,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 2),
-    );
+  void _updateBookmarkState(bool newState) {
+    setState(() {
+      isBookmark = newState;
+    });
   }
 
   Future<void> getnoveldetail() async {
     try {
       context.read<NovelDetailBloc>().add(FetchNovelDetail(widget.novelId));
+      final bookmarks = parseList<Bookmark>(
+          json.decode(await novelBox.get('bookmarkData') ?? '[]'),
+          Bookmark.fromJson);
+      setState(
+          () => isBookmark = bookmarks.any((b) => b.sbtId == widget.novelId));
     } catch (e) {
       print('Error fetching novel details: $e');
     }
@@ -252,7 +233,7 @@ class _NovelDetailState extends State<NovelDetail>
                         ),
                         IconButton(
                           icon: Icon(
-                            Iconsax.archive_add,
+                            !isBookmark ? Iconsax.archive_add : Icons.bookmark,
                             shadows: isAtTop
                                 ? [
                                     const BoxShadow(
@@ -262,20 +243,10 @@ class _NovelDetailState extends State<NovelDetail>
                                   ]
                                 : null,
                           ),
-                          onPressed: () async {
-                            print(state.dataNovel.novel.bookId);
-                            try {
-                              bool checkadd = await NovelRepository()
-                                  .addBookmark(state.dataNovel.novel.bookId);
-                              Logger().i('checkadd: $checkadd');
-                              String msg = checkadd
-                                  ? 'เพิ่มเข้าชั้นหนังสือแล้ว'
-                                  : 'เพิ่มหนังสือเข้าชั้นหนังสือไม่สำเร็จ';
-                              _showToast(msg);
-                            } catch (e) {
-                              _showToast(e.toString().split(':').last);
-                            }
-                          },
+                          onPressed: () async => isBookmark == false
+                              ? _bookmarkManager.addBookmark(state.dataNovel)
+                              : _bookmarkManager
+                                  .removeBookmark(state.dataNovel.novel.bookId),
                         ),
                       ],
                       leading: IconButton(
