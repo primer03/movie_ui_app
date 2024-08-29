@@ -119,6 +119,7 @@ class NovelRepository {
   Future<bool> addBookmark(String bookId) async {
     final url = Uri.parse('$_baseUrl/addbook');
     String token = novelBox.get('usertoken');
+
     try {
       final response = await http.post(
         url,
@@ -130,46 +131,83 @@ class NovelRepository {
         },
         body: json.encode({'BookID': bookId}),
       );
-      // final decodedData = _decodeResponse(response);
+
       Logger().i('addBookmark: ${response.body}');
+
       if (response.statusCode != 200) {
         throw Exception('เกิดข้อผิดพลาดในการเพิ่ม Bookmark');
-      } else {
-        var des = json.decode(response.body)['message'];
-        Logger().i('des: $des');
-        if (des == 'อยู่ในชั้นหนังสือแล้ว') {
-          throw Exception('อยู่ในชั้นหนังสือแล้ว');
-        }
-        return true;
       }
+
+      var message = json.decode(response.body)['message'];
+      Logger().i('message: $message');
+
+      if (message == 'อยู่ในชั้นหนังสือแล้ว') {
+        throw Exception(message);
+      }
+
+      await novelBox.delete('bookmarkData');
+      await getBookmark();
+      return true;
     } catch (e) {
       Logger().e('Failed to add bookmark: $e');
-      throw Exception('Failed to add bookmark: $e');
+      rethrow;
     }
   }
 
   Future<List<Bookmark>> getBookmark() async {
-    final url = Uri.parse('$_baseUrl/cheackbook/member');
-    String token = novelBox.get('usertoken');
+    if (novelBox.get('bookmarkData') != null) {
+      return _parseList<Bookmark>(
+          json.decode(novelBox.get('bookmarkData')), Bookmark.fromJson);
+    }
+
     try {
-      final response = await _getRequest(url, token: token);
-      Logger().i('getBookmark: ${response.body}');
-      // final decodedData = _decodeResponse(response);
-      // Logger().i('getBookmark: ${decodedData}');
+      final response = await _getRequest(
+          Uri.parse('$_baseUrl/cheackbook/member'),
+          token: novelBox.get('usertoken'));
+
       if (response.statusCode == 200) {
         final des =
             decryptAESCryptoJS(json.decode(response.body)['data'], pass);
-        Logger().i('des: ${des.runtimeType}');
         final bookmark =
             _parseList<Bookmark>(json.decode(des), Bookmark.fromJson);
-        Logger().i('bookmark: ${bookmark.length}');
+        novelBox.put('bookmarkData', json.encode(bookmark));
         return bookmark;
       } else {
         throw Exception('เกิดข้อผิดพลาดในการดึงข้อมูล Bookmark');
       }
     } catch (e) {
-      Logger().e('Failed to get bookmark: $e');
       throw Exception('Failed to get bookmark: $e');
+    }
+  }
+
+  Future<bool> removeBookmark(String bookId) async {
+    final url = Uri.parse('$_baseUrl/delebook');
+    String token = novelBox.get('usertoken');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': _apiKey,
+          'x-client-domain': _clientDomain,
+          'Authorization': token,
+        },
+        body: json.encode({'BookID': bookId}),
+      );
+
+      Logger().i('removeBookmark: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw Exception('เกิดข้อผิดพลาดในการลบ Bookmark');
+      }
+
+      await novelBox.delete('bookmarkData');
+      await getBookmark();
+      return true;
+    } catch (e) {
+      Logger().e('Failed to remove bookmark: $e');
+      rethrow;
     }
   }
 
