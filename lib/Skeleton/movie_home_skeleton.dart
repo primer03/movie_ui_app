@@ -74,7 +74,7 @@ class _MovieHomeSkeletonState extends State<MovieHomeSkeleton> {
                 child: Row(
                   children: [
                     const SizedBox(width: 20),
-                    ...List.generate(3, (index) {
+                    ...List.generate(4, (index) {
                       return const NovelCardSkeltion();
                     }).expand(
                         (element) => [element, const SizedBox(width: 10)]),
@@ -133,7 +133,7 @@ class _MovieHomeSkeletonState extends State<MovieHomeSkeleton> {
                 child: Row(
                   children: [
                     const SizedBox(width: 20),
-                    ...List.generate(3, (index) {
+                    ...List.generate(4, (index) {
                       return const NovelCardSkeltion();
                     }).expand(
                         (element) => [element, const SizedBox(width: 10)]),
@@ -159,26 +159,26 @@ class NovelCardSkeltion extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ContainerSkeltion(
-          height: 200,
-          width: 150,
+          height: 170,
+          width: 115,
           borderRadius: BorderRadius.circular(10),
         ),
         const SizedBox(height: 10),
         ContainerSkeltion(
           height: 6,
-          width: 130,
+          width: 115,
           borderRadius: BorderRadius.circular(4),
         ),
         const SizedBox(height: 5),
         ContainerSkeltion(
           height: 6,
-          width: 80,
+          width: 100,
           borderRadius: BorderRadius.circular(4),
         ),
         const SizedBox(height: 5),
         ContainerSkeltion(
           height: 6,
-          width: 130,
+          width: 90,
           borderRadius: BorderRadius.circular(4),
         ),
         const SizedBox(height: 5),
@@ -186,13 +186,13 @@ class NovelCardSkeltion extends StatelessWidget {
           children: [
             ContainerSkeltion(
               height: 9,
-              width: 50,
+              width: 30,
               borderRadius: BorderRadius.circular(4),
             ),
             const SizedBox(width: 5),
             ContainerSkeltion(
               height: 9,
-              width: 50,
+              width: 30,
               borderRadius: BorderRadius.circular(4),
             ),
           ],
