@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/pages/explore_page.dart';
-import 'package:bloctest/pages/movie_home.dart';
+import 'package:bloctest/pages/novel_home.dart';
 import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/IconBottombar.dart';
 import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
