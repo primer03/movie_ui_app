@@ -31,6 +31,9 @@ void main() async {
   bool hasData = novelBox.get('user') != null;
   novelBox.delete('searchData');
   novelBox.delete('cateID');
+  novelBox.delete('searchDatabyName');
+  novelBox.delete('bookmarkData');
+  novelBox.delete('categoryData');
   runApp(MyApp(initialRoute: hasData ? '/main' : '/'));
   WidgetsBinding.instance.addObserver(AppLifecycleObserver());
 }
