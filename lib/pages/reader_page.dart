@@ -31,6 +31,7 @@ class _ReaderPageState extends State<ReaderPage> {
   double _previousScrollPosition = 0.0;
   bool _isScrollingDown = true;
   int _toggleCount = 0;
+  TextEditingController _fontSizeController = TextEditingController();
   late GoogleFonts _selectedFont;
   List<Map<String, dynamic>> TheamSetting = [
     {
@@ -39,7 +40,8 @@ class _ReaderPageState extends State<ReaderPage> {
       'name': 'Light',
     },
     {
-      'bg': const Color(0xFF3C3C3C),
+      'bg': const Color(0xFF18191A),
+      // 'bg': const Color(0xFF3C3C3C),
       'fg': const Color(0xFFE0E0E0),
       'name': 'Dark',
     },
@@ -85,6 +87,7 @@ class _ReaderPageState extends State<ReaderPage> {
     _scrollController.addListener(_calculateScrollPercentage);
     _initializeBrightness();
     _getCurrentBrightness();
+    _fontSizeController.text = '16';
   }
 
   @override
@@ -198,9 +201,11 @@ class _ReaderPageState extends State<ReaderPage> {
           key: _containerKey,
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
           style: TextStyle(
-            fontSize: 67,
+            fontSize: double.parse(_fontSizeController.text),
             height: 1.5,
             color: _selectedTheam['fg'],
+            fontFamily:
+                _fontFamily[_currentSelectedFont]['fontFamily'].fontFamily,
           ),
         ),
       ),
@@ -409,364 +414,13 @@ class _ReaderPageState extends State<ReaderPage> {
                 ),
                 child: Column(
                   children: [
-                    InteractiveSlider(
-                      padding: const EdgeInsets.all(0),
-                      startIcon: const Icon(CupertinoIcons.sun_max),
-                      endIcon: const Icon(CupertinoIcons.sun_max_fill),
-                      backgroundColor: getBackgroundColor(_selectedTheam),
-                      foregroundColor: _selectedTheam['name'] == 'Dark'
-                          ? _selectedTheam['bg']
-                          : _selectedTheam['name'] == 'Light'
-                              ? Colors.grey[800]
-                              : _selectedTheam['fg'],
-                      iconColor: _selectedTheam['fg'],
-                      min: 0.0,
-                      max: 1.0,
-                      initialProgress: _brightness,
-                      onChanged: (value) async {
-                        setState(() {
-                          _brightness = value;
-                        });
-                        await ScreenBrightness().setScreenBrightness(value);
-                        print('Brightness: $_brightness');
-                      },
-                    ),
+                    _buildBrightnessSlider(states),
                     const SizedBox(height: 20),
-                    Stack(
-                      children: [
-                        CarouselSlider(
-                          options: CarouselOptions(
-                            height: 40,
-                            viewportFraction: 0.27,
-                            enlargeFactor: 0.2,
-                            initialPage: 0,
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                print(
-                                    'Font Family: ${_fontFamily[index]['fontName']}');
-                                _currentSelectedFont = index;
-                              });
-                              states(() {
-                                _currentSelectedFont = index;
-                              });
-                            },
-                          ),
-                          items: _fontFamily.asMap().entries.map((e) {
-                            return Builder(
-                              builder: (BuildContext context) {
-                                return Container(
-                                  alignment: Alignment.topCenter,
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Text(
-                                    e.value['fontName'],
-                                    style: GoogleFonts.getFont(
-                                      e.value['fontName'],
-                                      fontSize: 18,
-                                      color: _currentSelectedFont == e.key
-                                          ? _selectedTheam['fg']
-                                          : Colors.grey,
-                                      fontWeight: _currentSelectedFont == e.key
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ),
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          bottom: 0,
-                          child: Container(
-                            height: 40,
-                            width: 60,
-                            // color: _selectedTheam['bg'],
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  _selectedTheam['bg'],
-                                  _selectedTheam['bg'].withOpacity(0.0),
-                                ],
-                                stops: [0.0, 1.0],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            height: 40,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  _selectedTheam['bg'].withOpacity(0.0),
-                                  _selectedTheam['bg'],
-                                ],
-                                stops: [0.0, 1.0],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    // const SizedBox(height: 5),
-                    AnimatedSmoothIndicator(
-                      activeIndex: _currentSelectedFont,
-                      count: _fontFamily.length,
-                      effect: JumpingDotEffect(
-                        activeDotColor: _selectedTheam['fg'],
-                        dotColor: Colors.grey,
-                        dotHeight: 10,
-                        dotWidth: 10,
-                      ),
-                      onDotClicked: (index) {
-                        setState(() {
-                          print(
-                              'Font Family: ${_fontFamily[index]['fontName']}');
-                          _currentSelectedFont = index;
-                        });
-                        states(() {
-                          _currentSelectedFont = index;
-                        });
-                      },
-                    ),
+                    _buildFontCarousel(states),
                     const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 55,
-                            margin: const EdgeInsets.only(left: 10),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: getBackgroundColor(_selectedTheam),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                TextButton(
-                                  onPressed: () {},
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5, vertical: 5),
-                                  ),
-                                  child: Text(
-                                    'Aa',
-                                    style: GoogleFonts.athiti(
-                                      fontSize: 25,
-                                      color: _selectedTheam['fg'],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 30,
-                                  child: VerticalDivider(
-                                    width: 20,
-                                    thickness: 1,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {},
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                  ),
-                                  child: Text(
-                                    'Aa',
-                                    style: GoogleFonts.athiti(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                      color: _selectedTheam['fg'],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 55,
-                            margin: const EdgeInsets.only(right: 10),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      backgroundColor:
-                                          getBackgroundColor(_selectedTheam),
-                                      foregroundColor: _selectedTheam['fg'],
-                                      shadowColor:
-                                          _selectedTheam['name'] == 'Dark'
-                                              ? Colors.black
-                                              : _selectedTheam['fg'],
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
-                                      minimumSize:
-                                          const Size(double.infinity, 55),
-                                    ),
-                                    child: const Icon(Iconsax.add, size: 20),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  flex: 2,
-                                  child: TextFormField(
-                                    readOnly: true,
-                                    initialValue: '16',
-                                    style: GoogleFonts.athiti(
-                                      fontSize: 20,
-                                      color: _selectedTheam['fg'],
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          width: 2,
-                                          color:
-                                              _selectedTheam['name'] == 'Dark'
-                                                  ? Colors.black
-                                                  : _selectedTheam['name'] ==
-                                                          'Light'
-                                                      ? Colors.grey
-                                                      : _selectedTheam['fg'],
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      contentPadding: const EdgeInsets.all(10),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      backgroundColor:
-                                          getBackgroundColor(_selectedTheam),
-                                      foregroundColor: _selectedTheam['fg'],
-                                      shadowColor:
-                                          _selectedTheam['name'] == 'Dark'
-                                              ? Colors.black
-                                              : _selectedTheam['fg'],
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
-                                      minimumSize:
-                                          const Size(double.infinity, 55),
-                                    ),
-                                    child: const Icon(Iconsax.minus, size: 20),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    _buildFontSizeControls(states),
                     const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: TheamSetting.asMap()
-                            .entries
-                            .map((e) {
-                              return Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedTheam = e.value;
-                                    });
-                                    states(() {
-                                      _selectedTheam = e.value;
-                                    });
-                                  },
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Container(
-                                        height: 80,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: e.value['bg'],
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                            color: _selectedTheam['name'] ==
-                                                    e.value['name']
-                                                ? Colors.black
-                                                : Colors.transparent,
-                                            width: 2,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          Iconsax.textalign_justifycenter,
-                                          size: 60,
-                                          color: e.value['fg'],
-                                        ),
-                                      ),
-                                      Text(
-                                        e.value['name'],
-                                        style: GoogleFonts.athiti(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: _selectedTheam['fg'],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            })
-                            .toList()
-                            .expand((element) => [
-                                  const SizedBox(width: 10),
-                                  element,
-                                ])
-                            .toList(),
-                      ),
-                    )
+                    _buildThemeSelectors(states),
                   ],
                 ),
               ),
@@ -774,6 +428,358 @@ class _ReaderPageState extends State<ReaderPage> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildBrightnessSlider(StateSetter states) {
+    return InteractiveSlider(
+      padding: const EdgeInsets.all(0),
+      startIcon: const Icon(CupertinoIcons.sun_max),
+      endIcon: const Icon(CupertinoIcons.sun_max_fill),
+      backgroundColor: getBackgroundColor(_selectedTheam),
+      foregroundColor: _selectedTheam['name'] == 'Dark'
+          ? _selectedTheam['bg']
+          : _selectedTheam['name'] == 'Light'
+              ? Colors.grey[800]
+              : _selectedTheam['fg'],
+      iconColor: _selectedTheam['fg'],
+      min: 0.0,
+      max: 1.0,
+      initialProgress: _brightness,
+      onChanged: (value) async {
+        setState(() {
+          _brightness = value;
+        });
+        await ScreenBrightness().setScreenBrightness(value);
+        print('Brightness: $_brightness');
+      },
+    );
+  }
+
+  Widget _buildFontCarousel(StateSetter states) {
+    return Stack(
+      children: [
+        CarouselSlider(
+          options: CarouselOptions(
+            height: 40,
+            viewportFraction: 0.27,
+            enlargeFactor: 0.2,
+            initialPage: _currentSelectedFont,
+            onPageChanged: (index, reason) {
+              setState(() {
+                print('Font Family: ${_fontFamily[index]['fontName']}');
+                _currentSelectedFont = index;
+              });
+              states(() {
+                _currentSelectedFont = index;
+              });
+            },
+          ),
+          items: _fontFamily.asMap().entries.map((e) {
+            return Builder(
+              builder: (BuildContext context) {
+                return Container(
+                  alignment: Alignment.topCenter,
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Text(
+                    e.value['fontName'],
+                    style: GoogleFonts.getFont(
+                      e.value['fontName'],
+                      fontSize: 18,
+                      color: _currentSelectedFont == e.key
+                          ? _selectedTheam['fg']
+                          : Colors.grey,
+                      fontWeight: _currentSelectedFont == e.key
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                );
+              },
+            );
+          }).toList(),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          bottom: 0,
+          child: Container(
+            height: 40,
+            width: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  _selectedTheam['bg'],
+                  _selectedTheam['bg'].withOpacity(0.0),
+                ],
+                stops: [0.0, 1.0],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          bottom: 0,
+          child: Container(
+            height: 40,
+            width: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  _selectedTheam['bg'].withOpacity(0.0),
+                  _selectedTheam['bg'],
+                ],
+                stops: [0.0, 1.0],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFontSizeControls(StateSetter states) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            alignment: Alignment.center,
+            height: 55,
+            margin: const EdgeInsets.only(left: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            decoration: BoxDecoration(
+              color: getBackgroundColor(_selectedTheam),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.black,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                  ),
+                  child: Text(
+                    'Aa',
+                    style: GoogleFonts.athiti(
+                      fontSize: 25,
+                      color: _selectedTheam['fg'],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
+                  child: VerticalDivider(
+                    width: 20,
+                    thickness: 1,
+                    color: Colors.black,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.black,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  ),
+                  child: Text(
+                    'Aa',
+                    style: GoogleFonts.athiti(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: _selectedTheam['fg'],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            alignment: Alignment.center,
+            height: 55,
+            margin: const EdgeInsets.only(right: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _fontSizeController.text =
+                            (int.parse(_fontSizeController.text) + 1)
+                                .toString();
+                      });
+                      states(() {
+                        _fontSizeController.text =
+                            (int.parse(_fontSizeController.text) + 1)
+                                .toString();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: getBackgroundColor(_selectedTheam),
+                      foregroundColor: _selectedTheam['fg'],
+                      shadowColor: _selectedTheam['name'] == 'Dark'
+                          ? Colors.black
+                          : _selectedTheam['fg'],
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      minimumSize: const Size(double.infinity, 55),
+                    ),
+                    child: const Icon(Iconsax.add, size: 20),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    controller: _fontSizeController,
+                    readOnly: true,
+                    style: GoogleFonts.athiti(
+                      fontSize: 20,
+                      color: _selectedTheam['fg'],
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          width: 2,
+                          color: _selectedTheam['name'] == 'Dark'
+                              ? Colors.black
+                              : _selectedTheam['name'] == 'Light'
+                                  ? Colors.grey
+                                  : _selectedTheam['fg'],
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.all(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _fontSizeController.text =
+                            (int.parse(_fontSizeController.text) - 1)
+                                .toString();
+                      });
+                      states(() {
+                        _fontSizeController.text =
+                            (int.parse(_fontSizeController.text) - 1)
+                                .toString();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: getBackgroundColor(_selectedTheam),
+                      foregroundColor: _selectedTheam['fg'],
+                      shadowColor: _selectedTheam['name'] == 'Dark'
+                          ? Colors.black
+                          : _selectedTheam['fg'],
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      minimumSize: const Size(double.infinity, 55),
+                    ),
+                    child: const Icon(Iconsax.minus, size: 20),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThemeSelectors(StateSetter states) {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        children: TheamSetting.asMap()
+            .entries
+            .map((e) {
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedTheam = e.value;
+                    });
+                    states(() {
+                      _selectedTheam = e.value;
+                    });
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Container(
+                        height: 80,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: e.value['bg'],
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: _selectedTheam['name'] == e.value['name']
+                                ? Colors.black
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          Iconsax.textalign_justifycenter,
+                          size: 60,
+                          color: e.value['fg'],
+                        ),
+                      ),
+                      Text(
+                        e.value['name'],
+                        style: GoogleFonts.athiti(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: _selectedTheam['fg'],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            })
+            .toList()
+            .expand((element) => [
+                  const SizedBox(width: 10),
+                  element,
+                ])
+            .toList(),
+      ),
     );
   }
 }
