@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:bloctest/bloc/novelbookmark/novelbookmark_bloc.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
@@ -23,7 +25,7 @@ class BookmarkManager extends ChangeNotifier {
 
   Future<void> removeBookmark(String bookId) async {
     if (_isProcessing) {
-      _showToast('กรุณารอสักครู่ก่อนดำเนินการอีกครั้ง');
+      showToast('กรุณารอสักครู่ก่อนดำเนินการอีกครั้ง');
       return;
     }
 
@@ -35,9 +37,10 @@ class BookmarkManager extends ChangeNotifier {
       String msg = checkRemove
           ? 'ลบหนังสือออกจากชั้นหนังสือแล้ว'
           : 'ลบหนังสือออกจากชั้นหนังสือไม่สำเร็จ';
-      _showToast(msg);
+      showToast(msg);
+      context.read<NovelbookmarkBloc>().add(const RemoveBookmarkEvent());
     } catch (e) {
-      _showToast(e.toString().split(':').last);
+      showToast(e.toString().split(':').last);
     } finally {
       _startCooldown();
     }
@@ -45,7 +48,7 @@ class BookmarkManager extends ChangeNotifier {
 
   Future<void> addBookmark(DataNovel dataNovel) async {
     if (_isProcessing) {
-      _showToast('กรุณารอสักครู่ก่อนดำเนินการอีกครั้ง');
+      showToast('กรุณารอสักครู่ก่อนดำเนินการอีกครั้ง');
       return;
     }
 
@@ -58,9 +61,10 @@ class BookmarkManager extends ChangeNotifier {
       String msg = checkAdd
           ? 'เพิ่มเข้าชั้นหนังสือแล้ว'
           : 'เพิ่มหนังสือเข้าชั้นหนังสือไม่สำเร็จ';
-      _showToast(msg);
+      showToast(msg, iconDatax: Iconsax.archive_add);
+      context.read<NovelbookmarkBloc>().add(const AddBookmarkEvent());
     } catch (e) {
-      _showToast(e.toString().split(':').last);
+      showToast(e.toString().split(':').last, iconDatax: Icons.error);
     } finally {
       _startCooldown();
     }
@@ -79,24 +83,33 @@ class BookmarkManager extends ChangeNotifier {
     _cooldownTimer?.cancel();
   }
 
-  _showToast(String message) {
+  showToast(
+    String message, {
+    Color? colorIcon = Colors.white,
+    Color? colorText = Colors.white,
+    IconData? iconDatax,
+    Color? colorBackground = Colors.black,
+  }) {
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: Colors.black.withOpacity(0.8),
+        color: colorBackground?.withOpacity(0.8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Iconsax.archive_add, color: Colors.white),
-          const SizedBox(
-            width: 12.0,
-          ),
+          iconDatax != null
+              ? Icon(
+                  iconDatax,
+                  color: colorIcon,
+                )
+              : const SizedBox(),
+          iconDatax != null ? const SizedBox(width: 12.0) : const SizedBox(),
           Text(
             message,
             style: GoogleFonts.athiti(
-              color: Colors.white,
+              color: colorText,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
