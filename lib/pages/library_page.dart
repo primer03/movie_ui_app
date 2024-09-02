@@ -1,11 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:bloctest/bloc/novelbookmark/novelbookmark_bloc.dart';
-import 'package:bloctest/bloc/novelsearch/novelsearch_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/models/novel_bookmark_model.dart';
 import 'package:bloctest/models/novel_model.dart';
-import 'package:bloctest/repositories/novel_repository.dart';
+import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ItemGridBookmark.dart';
 import 'package:bloctest/widgets/gridskeleton.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -16,6 +16,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:logger/web.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class LibraryPage extends StatefulWidget {
   const LibraryPage({super.key});
@@ -29,11 +30,29 @@ class _LibraryPageState extends State<LibraryPage> {
   FocusNode focusNode = FocusNode();
   int selectCate = 0;
   List<Cate> cate = [];
-
+  DateTime? lastRefreshTime;
+  List<Bookmark> bookmarkList = [];
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+  Timer? _debounce;
   @override
   void initState() {
     super.initState();
     _onFetch();
+    searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 700), () {
+      context.read<NovelbookmarkBloc>().add(
+            BoolmarkSearchEvent(
+              search: searchController.text,
+              cateId: selectCate.toString(),
+              bookmarkList: bookmarkList,
+            ),
+          );
+    });
   }
 
   Future<void> _onFetch() async {
@@ -46,10 +65,26 @@ class _LibraryPageState extends State<LibraryPage> {
     Logger().i('cate: $cate');
   }
 
+  Future<void> _handleRefresh() async {
+    final now = DateTime.now();
+    if (lastRefreshTime == null ||
+        now.difference(lastRefreshTime!) > const Duration(seconds: 5)) {
+      lastRefreshTime = now;
+      novelBox.delete('bookmarkData');
+      context.read<NovelbookmarkBloc>().add(const FetchBookmark());
+      _refreshController.refreshCompleted();
+    } else {
+      BookmarkManager(context, (bool checkAdd) {})
+          .showToast('กรุณารอสักครู่ก่อนดำเนินการอีกครั้ง');
+      _refreshController.refreshCompleted();
+    }
+  }
+
   @override
   void dispose() {
     searchController.dispose();
     focusNode.dispose();
+    _debounce?.cancel();
     if (kDebugMode) {
       print('close library page');
     }
@@ -60,12 +95,17 @@ class _LibraryPageState extends State<LibraryPage> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // Replace this delay with the code to be executed during refresh
-          // and return asynchronous code
-          // return Future<void>.delayed(const Duration(seconds: 3));
-        },
+      body: SmartRefresher(
+        controller: _refreshController,
+        enablePullDown: true,
+        enablePullUp: false,
+        header: WaterDropMaterialHeader(
+          backgroundColor: Colors.grey[200],
+          color: Colors.black,
+          distance: 60,
+        ),
+        physics: const BouncingScrollPhysics(),
+        onRefresh: _handleRefresh,
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -96,6 +136,12 @@ class _LibraryPageState extends State<LibraryPage> {
                         ),
                         child: InkWell(
                           onTap: () {
+                            setState(() {
+                              selectCate = e.key;
+                            });
+                            _onSearchChanged();
+                            // print('cate: ${e.key}');
+                            // print('cate: ${bookmarkList.length}');
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -130,6 +176,8 @@ class _LibraryPageState extends State<LibraryPage> {
                       child: gridskeleton(width: width),
                     );
                   } else if (state is BookmarkLoaded) {
+                    bookmarkList = state.bookmarkList;
+                    // print('bookmarkList: ${bookmarkList.length}');
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -145,8 +193,37 @@ class _LibraryPageState extends State<LibraryPage> {
                       child: Text(state.message),
                     );
                   } else if (state is BookmarkEmpty) {
-                    return const Center(
-                      child: Text('BookmarkEmpty'),
+                    bookmarkList = [];
+                    return Container(
+                      height: MediaQuery.of(context).size.height - 400,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/mascot/error.png',
+                            width: 200,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'คุณยังไม่ได้เพิ่มหนังสือในชั้น',
+                            style: GoogleFonts.athiti(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else if (state is BookmarlSearching) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Itemgridbookmark(
+                        bookmarkList: state.bookmarkList,
+                        width: width,
+                      ),
                     );
                   } else {
                     return const Center(
@@ -206,70 +283,12 @@ class _LibraryPageState extends State<LibraryPage> {
               minWidth: 20,
               minHeight: 20,
             ),
-            suffixIcon: DropdownButtonHideUnderline(
-              child: DropdownButton2(
-                isExpanded: true,
-                customButton: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClipRRect(
-                    child: SvgPicture.asset(
-                      'assets/svg/Filter@3x.svg',
-                      width: 25,
-                      height: 25,
-                    ),
-                  ),
-                ),
-                buttonStyleData: ButtonStyleData(
-                  overlayColor: WidgetStateProperty.all(
-                    Colors.white,
-                  ),
-                ),
-                items: [
-                  ...['ล้างการค้นหา', 'ยอดการดู', 'จำนวนตอน', 'อัพเดทล่าสุด']
-                      .map(
-                    (e) => DropdownMenuItem(
-                      value: e,
-                      child: Text(
-                        e,
-                        style: GoogleFonts.athiti(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  // print('value: $value');
-                  if (value == 'ล้างการค้นหา') {
-                    searchController.clear();
-                    focusNode.unfocus();
-                    setState(() {});
-                    return;
-                  }
-                },
-                dropdownStyleData: DropdownStyleData(
-                  width: 160,
-                  padding: const EdgeInsets.symmetric(vertical: 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.5),
-                        blurRadius: 6,
-                        spreadRadius: 0.1,
-                        offset: const Offset(4, 5),
-                      ),
-                    ],
-                  ),
-                  offset: const Offset(-120, -10),
-                ),
-                menuItemStyleData: const MenuItemStyleData(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                ),
-              ),
+            suffixIcon: IconButton(
+              icon: const Icon(Iconsax.close_circle),
+              onPressed: () {
+                searchController.clear();
+                _onSearchChanged();
+              },
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(100),
