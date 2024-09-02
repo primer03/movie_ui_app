@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/novelbookmark/novelbookmark_bloc.dart';
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
@@ -8,11 +7,10 @@ import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
-import 'package:bloctest/function/app_function.dart';
-import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
