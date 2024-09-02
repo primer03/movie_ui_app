@@ -30,3 +30,12 @@ final class BookmarkError extends NovelbookmarkState {
 final class BookmarkEmpty extends NovelbookmarkState {}
 
 final class BookmarkLoading extends NovelbookmarkState {}
+
+final class BookmarlSearching extends NovelbookmarkState {
+  final List<Bookmark> bookmarkList;
+
+  const BookmarlSearching(this.bookmarkList);
+
+  @override
+  List<Object> get props => [bookmarkList];
+}
