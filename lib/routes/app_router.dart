@@ -5,6 +5,7 @@ import 'package:bloctest/pages/category_page.dart';
 import 'package:bloctest/pages/login_page.dart';
 import 'package:bloctest/pages/novel_detail.dart';
 import 'package:bloctest/pages/profile_page.dart';
+import 'package:bloctest/pages/reader_page.dart';
 import 'package:bloctest/pages/register_page.dart';
 import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
@@ -59,6 +60,12 @@ class AppRouter {
       case '/search':
         return PageTransition(
           child: const SearchPage(),
+          type: PageTransitionType.rightToLeft,
+          curve: Curves.easeInOut,
+        );
+      case 'reader':
+        return PageTransition(
+          child: const ReaderPage(),
           type: PageTransitionType.rightToLeft,
           curve: Curves.easeInOut,
         );
