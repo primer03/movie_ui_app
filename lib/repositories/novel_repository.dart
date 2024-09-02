@@ -211,6 +211,34 @@ class NovelRepository {
     }
   }
 
+  Future<List<Bookmark>> searchBookmark(String? cateID, String? query) async {
+    try {
+      final bookmarkData = novelBox.get('bookmarkData');
+      final List<Bookmark> bookmarks = bookmarkData != null
+          ? _parseList<Bookmark>(json.decode(bookmarkData), Bookmark.fromJson)
+          : await getBookmark();
+      final List<Bookmark> result;
+      if (query != null && cateID == '0') {
+        result = bookmarks.where((e) => e.sbtName.contains(query)).toList();
+      } else if (query != null && cateID != '0') {
+        result = bookmarks
+            .where((e) =>
+                e.sbtName.contains(query) &&
+                (e.sbtCate1 == cateID || e.sbtCate2 == cateID))
+            .toList();
+      } else if (query == null && cateID != '0') {
+        result = bookmarks
+            .where((e) => e.sbtCate1 == cateID || e.sbtCate2 == cateID)
+            .toList();
+      } else {
+        result = bookmarks;
+      }
+      return result;
+    } catch (e) {
+      throw Exception('Failed to get bookmark by cate: $e');
+    }
+  }
+
   Future<http.Response> _getRequest(Uri url, {String? token}) async {
     return await http.get(
       url,
