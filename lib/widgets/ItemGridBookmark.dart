@@ -22,7 +22,7 @@ class Itemgridbookmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('bookmarkList: ${bookmarkList[0].sbtEnd}');
+    print('bookmarkList: ${bookmarkList[0].userId}');
     return AlignedGridView.count(
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
@@ -43,7 +43,7 @@ class Itemgridbookmark extends StatelessWidget {
           '/noveldetail',
           arguments: {
             'novelId': novel.sbtId,
-            'allep': novel.sbtId,
+            'allep': novel.sbtAllep,
             'bloc': BlocProvider.of<NovelDetailBloc>(context),
           },
         );
