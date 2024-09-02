@@ -674,6 +674,7 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                     splashColor: Colors.black12,
                     onTap: () {
                       print('Episode ${episode.id} tapped');
+                      Navigator.pushNamed(context, 'reader');
                     },
                     child: Container(
                       padding: const EdgeInsets.all(15),
