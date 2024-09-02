@@ -15,6 +15,9 @@ class Bookmark {
   final String sbtName;
   final String sbtTag;
   final String sbtEnd;
+  final int sbtAllep;
+  final String sbtCate1;
+  final String sbtCate2;
 
   Bookmark({
     required this.bookId,
@@ -25,6 +28,9 @@ class Bookmark {
     required this.sbtName,
     required this.sbtTag,
     required this.sbtEnd,
+    required this.sbtAllep,
+    required this.sbtCate1,
+    required this.sbtCate2,
   });
 
   factory Bookmark.fromJson(Map<String, dynamic> json) => Bookmark(
@@ -36,6 +42,9 @@ class Bookmark {
         sbtName: json["sbt.name"],
         sbtTag: json["sbt.tag"],
         sbtEnd: json["sbt.end"],
+        sbtAllep: json["sbt.Allep"],
+        sbtCate1: json["sbt.cat1"],
+        sbtCate2: json["sbt.cat2"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -47,5 +56,8 @@ class Bookmark {
         "sbt.name": sbtName,
         "sbt.tag": sbtTag,
         "sbt.end": sbtEnd,
+        "sbt.Allep": sbtAllep,
+        "sbt.cat1": sbtCate1,
+        "sbt.cat2": sbtCate2,
       };
 }
