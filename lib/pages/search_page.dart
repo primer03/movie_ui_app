@@ -115,9 +115,16 @@ class _SearchPageState extends State<SearchPage> {
     _onFetch();
   }
 
+  Future<void> _clearcach() async {
+    await novelBox.delete('searchDatabyName');
+    await novelBox.delete('searchData');
+    // await novelBox.delete('cateID');
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
+    _clearcach();
     super.dispose();
   }
 
