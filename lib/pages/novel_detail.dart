@@ -6,6 +6,7 @@ import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_bookmark_model.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
+import 'package:bloctest/models/novel_read_model.dart';
 import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
@@ -103,6 +104,7 @@ class _NovelDetailState extends State<NovelDetail>
   int idxcount = 0;
   int groupEp = 0;
   bool isBookmark = false;
+  int allEP = 0;
   late BookmarkManager _bookmarkManager;
 
   @override
@@ -112,6 +114,7 @@ class _NovelDetailState extends State<NovelDetail>
     _scrollController.addListener(_checkIfAtTop);
     _tabController = TabController(length: 3, vsync: this);
     print(widget.allep);
+    allEP = widget.allep;
     epList = List.generate(widget.allep, (index) => index + 1);
     groupEp = (epList.length / 100).ceil();
     for (var i = 0; i < groupEp; i++) {
@@ -555,6 +558,7 @@ class Epview extends StatelessWidget {
                 title: group,
                 index: index,
                 initiallyExpanded: index == 0,
+                allEP: novelEp.length,
               ),
               const SizedBox(height: 10),
             ],
@@ -596,6 +600,7 @@ class ExpansionTileEpisode extends StatefulWidget {
   final int index;
   final String title;
   final List<NovelEp> novelEp;
+  final int allEP;
 
   const ExpansionTileEpisode({
     super.key,
@@ -603,6 +608,7 @@ class ExpansionTileEpisode extends StatefulWidget {
     required this.index,
     required this.title,
     required this.novelEp,
+    required this.allEP,
   });
 
   @override
@@ -668,13 +674,24 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 final episode = widget.novelEp[index];
+                // Logger().i("Episode ${episode.bookId}_${episode.epId}");
                 return Material(
                   color: Colors.white,
                   child: InkWell(
                     splashColor: Colors.black12,
-                    onTap: () {
-                      print('Episode ${episode.id} tapped');
-                      Navigator.pushNamed(context, 'reader');
+                    onTap: () async {
+                      print('Episode ${episode.publishDate} tapped');
+                      // BookfetNovelRead noep = await NovelRepository()
+                      //     .getReadNovel(episode.bookId, episode.epId);
+                      // Logger().i(noep.readnovel.previousOrNext.previous?.epId);
+                      Navigator.pushNamed(
+                        context,
+                        'reader',
+                        arguments: {
+                          'bookId': episode.bookId,
+                          'epId': episode.epId,
+                        },
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.all(15),
