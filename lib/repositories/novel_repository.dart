@@ -3,13 +3,12 @@ import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_allsearch_model.dart';
 import 'package:bloctest/models/novel_bookmark_model.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
+import 'package:bloctest/models/novel_episode_model.dart';
 import 'package:bloctest/models/novel_model.dart';
-import 'package:flutter/material.dart';
+import 'package:bloctest/models/novel_read_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:logger/web.dart';
-import 'package:path_provider/path_provider.dart';
 
 class NovelRepository {
   static const String _baseUrl = 'https://pzfbh88v-3002.asse.devtunnels.ms/api';
@@ -294,5 +293,27 @@ class NovelRepository {
                 Columnnovel.fromJson(innerItem as Map<String, dynamic>))
             .toList())
         .toList();
+  }
+
+  Future<BookfetNovelRead> getReadNovel(String bookId, String epId) async {
+    final url = Uri.parse('$_baseUrl/readnovelep/${bookId}_$epId');
+    final token = novelBox.get('usertoken');
+
+    try {
+      final response = await _getRequest(url, token: token);
+      final des = json.decode(response.body);
+      if (des['code'] == 200) {
+        final mapEp = json.decode(des['data']);
+        mapEp['epData'] = decryptAESCryptoJS(mapEp['epData'], pass);
+        BookfetNovelRead novelRead = BookfetNovelRead.fromJson(
+            json.decode(Episode.fromJson(mapEp).epData));
+        return novelRead;
+      } else {
+        throw Exception(des['message']);
+      }
+    } catch (e) {
+      Logger().e('Failed to get read novel: $e');
+      throw Exception('Failed to get read novel: $e');
+    }
   }
 }
