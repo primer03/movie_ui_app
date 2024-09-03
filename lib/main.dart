@@ -2,6 +2,7 @@ import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/novelbookmark/novelbookmark_bloc.dart';
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
+import 'package:bloctest/bloc/novelread/readnovel_bloc.dart';
 import 'package:bloctest/bloc/novelsearch/novelsearch_bloc.dart';
 import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
@@ -78,6 +79,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<NovelbookmarkBloc>(
           create: (context) => NovelbookmarkBloc(),
         ),
+        BlocProvider<ReadnovelBloc>(create: (context) => ReadnovelBloc()),
         initialRoute != '/'
             ? BlocProvider<NovelBloc>(
                 create: (context) => NovelBloc()..add(FetchNovels()))
