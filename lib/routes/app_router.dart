@@ -64,8 +64,12 @@ class AppRouter {
           curve: Curves.easeInOut,
         );
       case 'reader':
+        final args = settings.arguments as Map<String, dynamic>;
         return PageTransition(
-          child: const ReaderPage(),
+          child: ReaderPage(
+            bookId: args['bookId'],
+            epId: args['epId'],
+          ),
           type: PageTransitionType.rightToLeft,
           curve: Curves.easeInOut,
         );
