@@ -189,8 +189,7 @@ class _MainpageState extends State<Mainpage> {
               },
               body: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-                transitionBuilder:
-                    (Widget child, Animation<double> animation) {
+                transitionBuilder: (Widget child, Animation<double> animation) {
                   return SlideTransition(
                     position: Tween<Offset>(
                       begin: const Offset(1.0, 0.0),
