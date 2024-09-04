@@ -89,6 +89,7 @@ class BookmarkManager extends ChangeNotifier {
     Color? colorText = Colors.white,
     IconData? iconDatax,
     Color? colorBackground = Colors.black,
+    ToastGravity gravity = ToastGravity.BOTTOM,
   }) {
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
@@ -120,7 +121,7 @@ class BookmarkManager extends ChangeNotifier {
 
     fToast.showToast(
       child: toast,
-      gravity: ToastGravity.BOTTOM,
+      gravity: gravity,
       toastDuration: const Duration(seconds: 2),
     );
   }
