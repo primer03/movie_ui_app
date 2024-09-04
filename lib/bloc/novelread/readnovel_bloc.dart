@@ -25,7 +25,7 @@ class ReadnovelBloc extends Bloc<ReadnovelEvent, ReadnovelState> {
         emit(ReadnovelLoaded(bookfetNovelRead: bookfetNovelRead));
       }
     } catch (e) {
-      emit(const ReadnovelError(message: 'ไม่สามารถโหลดข้อมูลได้'));
+      emit(ReadnovelError(message: e.toString()));
     }
   }
 }
