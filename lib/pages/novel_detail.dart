@@ -194,7 +194,6 @@ class _NovelDetailState extends State<NovelDetail>
               );
             } else if (state is NovelDetailLoaded) {
               print(state.dataNovel.novelEp[0].typeRead.name);
-
               var bytes = utf8.encode(state.dataNovel.novel.btId.toString());
               String url =
                   'https://bookfet.com/noveldetail/${base64.encode(bytes)}_${Uri.encodeComponent(state.dataNovel.novel.btName)}';
@@ -481,7 +480,10 @@ class _NovelDetailState extends State<NovelDetail>
                       ),
                     ),
                     Epview(
-                        groupList: groupList, novelEp: state.dataNovel.novelEp),
+                      groupList: groupList,
+                      novelEp: state.dataNovel.novelEp,
+                      bookname: state.dataNovel.novel.btName,
+                    ),
                     Container(
                       key: const PageStorageKey<String>('novel_recommend'),
                       color: Colors.white,
@@ -525,14 +527,15 @@ class _NovelDetailState extends State<NovelDetail>
 }
 
 class Epview extends StatelessWidget {
-  const Epview({
-    super.key,
-    required this.groupList,
-    required this.novelEp,
-  });
+  const Epview(
+      {super.key,
+      required this.groupList,
+      required this.novelEp,
+      required this.bookname});
 
   final List<String> groupList;
   final List<NovelEp> novelEp;
+  final String bookname;
 
   @override
   Widget build(BuildContext context) {
@@ -559,6 +562,8 @@ class Epview extends StatelessWidget {
                 index: index,
                 initiallyExpanded: index == 0,
                 allEP: novelEp.length,
+                bookname: bookname,
+                novelEpAll: novelEp,
               ),
               const SizedBox(height: 10),
             ],
@@ -600,7 +605,9 @@ class ExpansionTileEpisode extends StatefulWidget {
   final int index;
   final String title;
   final List<NovelEp> novelEp;
+  final List<NovelEp> novelEpAll;
   final int allEP;
+  final String bookname;
 
   const ExpansionTileEpisode({
     super.key,
@@ -608,7 +615,9 @@ class ExpansionTileEpisode extends StatefulWidget {
     required this.index,
     required this.title,
     required this.novelEp,
+    required this.novelEpAll,
     required this.allEP,
+    required this.bookname,
   });
 
   @override
@@ -690,6 +699,8 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                         arguments: {
                           'bookId': episode.bookId,
                           'epId': episode.epId,
+                          'bookName': widget.bookname,
+                          'novelEp': widget.novelEpAll,
                         },
                       );
                     },
