@@ -69,6 +69,8 @@ class AppRouter {
           child: ReaderPage(
             bookId: args['bookId'],
             epId: args['epId'],
+            bookName: args['bookName'],
+            novelEp: args['novelEp'],
           ),
           type: PageTransitionType.rightToLeft,
           curve: Curves.easeInOut,
