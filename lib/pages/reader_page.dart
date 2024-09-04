@@ -1,32 +1,41 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/novelread/readnovel_bloc.dart';
+import 'package:bloctest/main.dart';
+import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_read_model.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
+import 'package:bloctest/service/SecurityManager.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:interactive_slider/interactive_slider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:logger/web.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class ReaderPage extends StatefulWidget {
   const ReaderPage({
     Key? key,
     required this.bookId,
+    required this.bookName,
     required this.epId,
+    required this.novelEp,
   }) : super(key: key);
   final String bookId;
   final String epId;
+  final String bookName;
+  final List<NovelEp> novelEp;
 
   @override
   State<ReaderPage> createState() => _ReaderPageState();
@@ -35,7 +44,9 @@ class ReaderPage extends StatefulWidget {
 class _ReaderPageState extends State<ReaderPage> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _nestedScrollController = ScrollController();
+  final ScrollController _listViewController = ScrollController();
   final GlobalKey _containerKey = GlobalKey();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   double _scrollPercentage = 0.0;
   double _brightness = 0.5;
   bool _isToggled = false;
@@ -48,7 +59,10 @@ class _ReaderPageState extends State<ReaderPage> {
   TextEditingController _fontSizeController = TextEditingController();
   late GoogleFonts _selectedFont;
   BookfetNovelRead? _bookfetRead;
+  DateTime? lastPressed;
   bool _isThick = false;
+  bool _isMaxPage = false;
+  String EpID = '';
   List<Map<String, dynamic>> TheamSetting = [
     {
       'bg': Colors.white,
@@ -73,7 +87,6 @@ class _ReaderPageState extends State<ReaderPage> {
     },
   ];
   late Map<String, dynamic> _selectedTheam = TheamSetting[0];
-
   final List<Map<String, dynamic>> _fontFamily = [
     {
       'fontName': GoogleFonts.kanit().fontFamily?.split('_')[0],
@@ -100,9 +113,11 @@ class _ReaderPageState extends State<ReaderPage> {
   @override
   void initState() {
     super.initState();
+    setTheme();
     _scrollController.addListener(_calculateScrollPercentage);
     _initializeBrightness();
-    _getCurrentBrightness();
+    setWindowFlags();
+    // _getCurrentBrightness();
     _fontSizeController.text = '16';
     print('Book ID: ${widget.bookId}');
     print('Episode ID: ${widget.epId}');
@@ -114,12 +129,68 @@ class _ReaderPageState extends State<ReaderPage> {
         );
   }
 
+  void setWindowFlags() async {
+    SecurityManager.enableSecurity(); // ปิดการแสดงหน้าต่างและการถ่ายภาพ
+  }
+
+  void disableWindowFlags() async {
+    SecurityManager.disableSecurity(); // เปิดการแสดงหน้าต่างและการถ่ายภาพ
+  }
+
   @override
   void dispose() {
     _scrollController.removeListener(_calculateScrollPercentage);
     _scrollController.dispose();
     _resetBrightness();
+    disableWindowFlags();
     super.dispose();
+  }
+
+  Future<void> setTheme() async {
+    final theme = await novelBox.get('theme');
+    final fontthick = await novelBox.get('fontStyle');
+    final fontSize = await novelBox.get('fontSize');
+    final fontFamily = await novelBox.get('fontFamily');
+    final brightness = await novelBox.get('brightness');
+    if (brightness != null) {
+      _brightness = brightness;
+      await ScreenBrightness().setScreenBrightness(brightness);
+    }
+    if (fontFamily != null) {
+      _currentSelectedFont = _fontFamily.indexWhere(
+        (element) => element['fontName'] == fontFamily,
+      );
+    }
+    if (fontSize != null) {
+      _fontSizeController.text = fontSize;
+    }
+    if (fontthick != null) {
+      if (fontthick == 'bold') {
+        _isThick = true;
+      } else {
+        _isThick = false;
+      }
+    }
+    if (theme != null) {
+      setState(() {
+        _selectedTheam = TheamSetting.firstWhere(
+          (element) => element['name'] == theme,
+          orElse: () => TheamSetting[0],
+        );
+      });
+    }
+  }
+
+  void setDefaultTheme() async {
+    final double result = await ScreenBrightness().current;
+    setState(() {
+      _selectedTheam = TheamSetting[0];
+      _brightness = result;
+      _currentBrightness = result;
+      _currentSelectedFont = 0;
+      _fontSizeController.text = '16';
+      _isThick = false;
+    });
   }
 
   Future<void> _initializeBrightness() async {}
@@ -153,6 +224,7 @@ class _ReaderPageState extends State<ReaderPage> {
       _isScrollingDown = currentScrollPosition < _previousScrollPosition;
       _scrollPercentage =
           (currentScrollPosition / maxScrollExtent).clamp(0.0, 1.0) * 100;
+      _isMaxPage = currentScrollPosition == maxScrollExtent;
       _previousScrollPosition = currentScrollPosition;
       _toggleCount = 0;
       _isToggled = false;
@@ -161,42 +233,167 @@ class _ReaderPageState extends State<ReaderPage> {
     // print('Scrolling Down: $_isScrollingDown');
   }
 
+  void _MoveScrollListEP() {
+    var index = widget.novelEp.indexWhere((element) => element.epId == EpID);
+    var length = widget.novelEp.length;
+    var positionmove = _listViewController.position.maxScrollExtent / length;
+    // print('Position: ${MediaQuery.of(context).size.height}');
+    _listViewController.animateTo(
+      ((index + 1) * positionmove) - 50,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.ease,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _selectedTheam['bg'],
-      body: Stack(children: [
-        CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverAppBar(
-              floating: true,
-              snap: true,
-              pinned: false,
-              surfaceTintColor: _selectedTheam['bg'],
-              backgroundColor: _selectedTheam['bg'],
-              foregroundColor: _selectedTheam['fg'],
-              leadingWidth: 40,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new),
-                onPressed: () => Navigator.pop(context),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
+        }
+        final now = DateTime.now();
+        const maxDuration = Duration(seconds: 2);
+        final isWarning =
+            lastPressed == null || now.difference(lastPressed!) > maxDuration;
+
+        if (isWarning) {
+          lastPressed = DateTime.now();
+          BookmarkManager(context, (bool checkAdd) {})
+              .showToast('กดอีกครั้งเพื่อออกจากหน้านี้');
+          return;
+        }
+        Navigator.pop(context);
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: Drawer(
+          backgroundColor: _selectedTheam['bg'],
+          child: ListView.builder(
+            controller: _listViewController,
+            itemCount: widget.novelEp.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                key: Key('item-$index'),
+                title: Text(
+                  widget.novelEp[index].name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: _selectedTheam['fg'],
+                    fontFamily: _fontFamily[_currentSelectedFont]['fontName'],
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                tileColor: EpID == widget.novelEp[index].epId
+                    ? _selectedTheam['fg']?.withOpacity(0.1)
+                    : _selectedTheam['bg'],
+                trailing: widget.novelEp[index].typeRead.name == 'FREE'
+                    ? Text(
+                        'อ่านฟรี',
+                        style: TextStyle(
+                            color: _selectedTheam['fg']?.withOpacity(0.5),
+                            fontWeight: FontWeight.w600,
+                            fontFamily: _fontFamily[_currentSelectedFont]
+                                ['fontName'],
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic),
+                      )
+                    : Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.yellow[700],
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          'VIP',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: _fontFamily[_currentSelectedFont]
+                                  ['fontName'],
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                onTap: () {
+                  context.read<ReadnovelBloc>().add(
+                        FetchReadnovel(
+                          bookId: widget.bookId,
+                          epId: widget.novelEp[index].epId,
+                        ),
+                      );
+                  setState(() {
+                    _isToggled = false;
+                    _toggleCount = 0;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+        ),
+        backgroundColor: _selectedTheam['bg'],
+        body: Stack(children: [
+          CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                pinned: false,
+                surfaceTintColor: _selectedTheam['bg'],
+                backgroundColor: _selectedTheam['bg'],
+                foregroundColor: _selectedTheam['fg'],
+                leadingWidth: 40,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                title: Text(
+                  widget.bookName,
+                  style: GoogleFonts.athiti(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: _selectedTheam['fg'],
+                  ),
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Iconsax.setting_2),
+                    onPressed: () {
+                      _showSettingsModal();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () async {
+                      var bytesbookId = utf8.encode(widget.bookId);
+                      var base64StrbookId = base64.encode(bytesbookId);
+                      var bytesepId = utf8.encode(".${widget.epId}");
+                      var base64StrepId = base64.encode(bytesepId);
+                      var shareText =
+                          'https://bookfet.com/novelread/$base64StrbookId$base64StrepId';
+                      final result = await Share.share(
+                        shareText,
+                        subject: 'Check out this novel',
+                      );
+                      if (result.status == ShareResultStatus.success) {
+                        print('Thank you for sharing my website!');
+                      }
+                    },
+                  ),
+                ],
               ),
-              title: const Text('Reader Page'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Iconsax.setting_2),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  BlocBuilder<ReadnovelBloc, ReadnovelState>(
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    BlocBuilder<ReadnovelBloc, ReadnovelState>(
                       buildWhen: (previous, current) => previous != current,
                       builder: (context, state) {
                         if (state is ReadnovelLoading) {
@@ -212,35 +409,46 @@ class _ReaderPageState extends State<ReaderPage> {
                           );
                         } else if (state is ReadnovelLoaded) {
                           _bookfetRead = state.bookfetNovelRead;
+                          EpID = state.bookfetNovelRead.readnovel.novelEp.epId;
+                          print(
+                              'EpID: ${state.bookfetNovelRead.readnovel.novelEp.epId}');
                           return _buildContent(state.bookfetNovelRead);
-                        } else {
-                          return const Center(
-                            child: Text('Error'),
+                        } else if (state is ReadnovelError) {
+                          return Center(
+                            child: Text(
+                              state.message.split(':').last,
+                              style: const TextStyle(color: Colors.red),
+                            ),
                           );
                         }
-                      }),
-                ],
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
+          ),
+          if (_isScrollingDown || _isMaxPage) ...[
+            BlocBuilder<ReadnovelBloc, ReadnovelState>(
+                builder: (context, state) {
+              if (state is ReadnovelLoaded) {
+                return _buildFooter(state.bookfetNovelRead);
+              } else {
+                return const SizedBox.shrink();
+              }
+            }),
+            BlocBuilder<ReadnovelBloc, ReadnovelState>(
+                builder: (context, state) {
+              if (state is ReadnovelLoaded) {
+                return _buildCircularMenu();
+              } else {
+                return const SizedBox.shrink();
+              }
+            }),
           ],
-        ),
-        if (_isScrollingDown) ...[
-          BlocBuilder<ReadnovelBloc, ReadnovelState>(builder: (context, state) {
-            if (state is ReadnovelLoaded) {
-              return _buildFooter(state.bookfetNovelRead);
-            } else {
-              return const SizedBox.shrink();
-            }
-          }),
-          BlocBuilder<ReadnovelBloc, ReadnovelState>(builder: (context, state) {
-            if (state is ReadnovelLoaded) {
-              return _buildCircularMenu();
-            } else {
-              return const SizedBox.shrink();
-            }
-          }),
-        ],
-      ]),
+        ]),
+      ),
     );
   }
 
@@ -256,7 +464,12 @@ class _ReaderPageState extends State<ReaderPage> {
       },
       child: Container(
         color: _selectedTheam['bg'],
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(
+          top: 20,
+          left: 20,
+          right: 20,
+          bottom: 80,
+        ),
         child: HtmlWidget(
           bookfetNovelRead.readnovel.novelEp.detail ?? '',
           customWidgetBuilder: (element) {
@@ -329,8 +542,10 @@ class _ReaderPageState extends State<ReaderPage> {
                     curve: Curves.ease,
                   );
                 } else {
-                  BookmarkManager(context, (bool checkAdd) {})
-                      .showToast('ไม่มีตอนก่อนหน้านี้');
+                  BookmarkManager(context, (bool checkAdd) {}).showToast(
+                    'ไม่มีตอนก่อนหน้านี้',
+                    gravity: ToastGravity.CENTER,
+                  );
                 }
               },
             ),
@@ -359,6 +574,11 @@ class _ReaderPageState extends State<ReaderPage> {
                     0,
                     duration: const Duration(milliseconds: 1),
                     curve: Curves.ease,
+                  );
+                } else {
+                  BookmarkManager(context, (bool checkAdd) {}).showToast(
+                    'ไม่มีตอนถัดไป',
+                    gravity: ToastGravity.CENTER,
                   );
                 }
               },
@@ -429,7 +649,13 @@ class _ReaderPageState extends State<ReaderPage> {
               ),
             ],
             items: [
-              _buildMenuItem(Icons.list),
+              //open drawer
+              _buildMenuItem(Icons.list, onTap: () {
+                _scaffoldKey.currentState?.openDrawer();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _MoveScrollListEP();
+                });
+              }),
               _buildMenuItem(Iconsax.message_text),
               _buildMenuItem(Iconsax.setting_2, onTap: _showSettingsModal),
             ],
@@ -490,8 +716,8 @@ class _ReaderPageState extends State<ReaderPage> {
             return SingleChildScrollView(
               controller: ModalScrollController.of(context),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                padding: const EdgeInsets.only(
+                    top: 20, left: 10, right: 10, bottom: 10),
                 decoration: BoxDecoration(
                   color: _selectedTheam['bg'],
                   borderRadius: const BorderRadius.only(
@@ -500,6 +726,7 @@ class _ReaderPageState extends State<ReaderPage> {
                   ),
                 ),
                 child: Column(
+                  // crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     _buildBrightnessSlider(states),
                     const SizedBox(height: 20),
@@ -509,6 +736,42 @@ class _ReaderPageState extends State<ReaderPage> {
                     _buildFontSizeControls(states),
                     const SizedBox(height: 10),
                     _buildThemeSelectors(states),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.end,
+                    //   children: [
+                    //     ElevatedButton.icon(
+                    //       onPressed: () async {
+                    //         await novelBox.delete('theme');
+                    //         await novelBox.delete('fontFamily');
+                    //         await novelBox.delete('fontSize');
+                    //         await novelBox.delete('fontStyle');
+                    //         await novelBox.delete('brightness');
+                    //         setDefaultTheme();
+                    //         Navigator.pop(context);
+                    //         states(() {});
+                    //       },
+                    //       style: ElevatedButton.styleFrom(
+                    //         shape: RoundedRectangleBorder(
+                    //           borderRadius: BorderRadius.circular(10),
+                    //         ),
+                    //         backgroundColor: getBackgroundColor(_selectedTheam),
+                    //         foregroundColor: _selectedTheam['fg'],
+                    //         padding: const EdgeInsets.symmetric(
+                    //             horizontal: 10, vertical: 5),
+                    //         // minimumSize: const Size(double.infinity, 55),
+                    //       ),
+                    //       icon:
+                    //           const Icon(Iconsax.refresh_left_square, size: 20),
+                    //       label: Text(
+                    //         'คืนค่าเริ่มต้น',
+                    //         style: GoogleFonts.athiti(
+                    //           fontSize: 16,
+                    //           fontWeight: FontWeight.bold,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
@@ -562,6 +825,7 @@ class _ReaderPageState extends State<ReaderPage> {
           _brightness = value;
         });
         await ScreenBrightness().setScreenBrightness(value);
+        novelBox.put('brightness', value);
         print('Brightness: $_brightness');
       },
     );
@@ -584,6 +848,7 @@ class _ReaderPageState extends State<ReaderPage> {
               states(() {
                 _currentSelectedFont = index;
               });
+              novelBox.put('fontFamily', _fontFamily[index]['fontName']);
             },
           ),
           items: _fontFamily.asMap().entries.map((e) {
@@ -671,8 +936,9 @@ class _ReaderPageState extends State<ReaderPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     _isThick = false;
+                    await novelBox.put('fontStyle', 'normal');
                     setState(() {});
                     states(() {});
                   },
@@ -699,8 +965,9 @@ class _ReaderPageState extends State<ReaderPage> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     _isThick = true;
+                    await novelBox.put('fontStyle', 'bold');
                     setState(() {});
                     states(() {});
                   },
@@ -735,10 +1002,11 @@ class _ReaderPageState extends State<ReaderPage> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       _fontSizeController.text =
                           (int.parse(_fontSizeController.text) + 1).toString();
                       // print('Font Size: ${_fontSizeController.text}');
+                      await novelBox.put('fontSize', _fontSizeController.text);
                       setState(() {});
                       states(() {});
                     },
@@ -798,12 +1066,14 @@ class _ReaderPageState extends State<ReaderPage> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (int.parse(_fontSizeController.text) > 14) {
                         _fontSizeController.text =
                             (int.parse(_fontSizeController.text) - 1)
                                 .toString();
                         print('Font Size: ${_fontSizeController.text}');
+                        await novelBox.put(
+                            'fontSize', _fontSizeController.text);
                         setState(() {});
                         states(() {});
                       }
@@ -848,6 +1118,7 @@ class _ReaderPageState extends State<ReaderPage> {
                     states(() {
                       _selectedTheam = e.value;
                     });
+                    novelBox.put('theme', e.value['name']);
                   },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
