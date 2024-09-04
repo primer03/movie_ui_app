@@ -79,6 +79,8 @@ dependencies:
   circular_menu: ^4.0.0
   modal_bottom_sheet: ^3.0.0
   screen_brightness: ^1.0.1
+  flutter_widget_from_html: ^0.15.2
+  # flutter_windowmanager: ^0.2.0
   # flutter_screen_wake: ^1.0.2
   # flash: ^3.1.1
 
