@@ -1,7 +1,7 @@
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/main.dart';
-import 'package:bloctest/pages/category_page.dart';
+import 'package:bloctest/pages/cate/category_page.dart';
 import 'package:bloctest/pages/auth/login_page.dart';
 import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:bloctest/pages/detail/novel_detail_new.dart';

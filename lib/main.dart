@@ -9,6 +9,7 @@ import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
+import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ void main() async {
   novelBox.delete('categoryData');
   novelBox.delete('ReadLast');
   novelBox.delete('specialData');
+  getAppVersion();
   runApp(MyApp(initialRoute: hasData ? '/main' : '/'));
   WidgetsBinding.instance.addObserver(AppLifecycleObserver());
 }

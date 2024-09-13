@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:toastification/toastification.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -189,4 +190,14 @@ String convertISOToThaiDate(String isoDate) {
 List<T> parseList<T>(
     List<dynamic> list, T Function(Map<String, dynamic>) fromJson) {
   return list.map<T>((item) => fromJson(item)).toList();
+}
+
+Future<void> getAppVersion() async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+  String version = packageInfo.version; // เวอร์ชันแอป
+  String buildNumber = packageInfo.buildNumber; // หมายเลขบิลด์
+
+  print('App Version: $version');
+  print('Build Number: $buildNumber');
 }

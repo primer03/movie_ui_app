@@ -88,6 +88,7 @@ dependencies:
   video_player: ^2.9.1
   percent_indicator: ^4.2.3
   custom_refresh_indicator: ^4.0.1
+  package_info_plus: ^8.0.2
   # secure_application: ^4.0.1
   # flutter_windowmanager: ^0.2.0
   # flutter_screen_wake: ^1.0.2
