@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
-import 'package:bloctest/pages/novel_detail.dart';
+import 'package:bloctest/models/user_model.dart';
+import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -51,16 +55,20 @@ class Novelcardhit extends StatelessWidget {
 
   Widget _buildNovelCard(BuildContext context, HitNovel item) {
     return GestureDetector(
-      onTap: () {
-        print('novelId: ${item.id}');
-        Navigator.of(context).pushNamed(
-          '/noveldetail',
-          arguments: {
-            'novelId': item.id,
-            'allep': item.allep ?? 0,
-            'bloc': BlocProvider.of<NovelDetailBloc>(context),
-          },
-        );
+      onTap: () async {
+        final userData = await novelBox.get('user');
+        if (userData != null) {
+          User user = User.fromJson(json.decode(userData));
+          Navigator.of(context).pushNamed(
+            '/noveldetail',
+            arguments: {
+              'novelId': item.id,
+              'allep': item.allep,
+              'bloc': BlocProvider.of<NovelDetailBloc>(context),
+              'user': user,
+            },
+          );
+        }
       },
       child: Container(
         width: 115,

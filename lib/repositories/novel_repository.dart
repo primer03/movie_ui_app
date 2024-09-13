@@ -6,6 +6,7 @@ import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_episode_model.dart';
 import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/models/novel_read_model.dart';
+import 'package:bloctest/models/novel_special_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:logger/web.dart';
@@ -40,13 +41,28 @@ class NovelRepository {
       final decodedData = _decodeResponse(response);
       Allsearch allsearch = Allsearch.fromJson(decodedData);
       search = allsearch.searchnovel;
-      // Logger().i('searchNovels: ${search.length}');
-      // Logger().i('cateID: $cateID');
       novelBox.put('cateID', cateID);
       novelBox.put('searchData', json.encode(search));
       return search;
     } catch (e) {
       throw Exception('Failed to search novels: $e');
+    }
+  }
+
+  Future<SpecialPage> getNovelSpecial() async {
+    final url = Uri.parse('$_baseUrl/special');
+    String token = novelBox.get('usertoken');
+    try {
+      final response = await _getRequest(url, token: token);
+      Logger().i('response: ${response.body}');
+      final decodedData = _decodeResponse(response);
+      Logger().i('decodedData: $decodedData');
+      if (decodedData.isNotEmpty) {
+        novelBox.put('specialData', json.encode(decodedData));
+      }
+      return SpecialPage.fromJson(decodedData);
+    } catch (e) {
+      throw Exception('Failed to load special novels: $e');
     }
   }
 
@@ -101,14 +117,18 @@ class NovelRepository {
     }
   }
 
-  Future<DataNovel> getnovelById(int novelId) async {
+  Future<Map<String, dynamic>> getNovelById(String novelId) async {
     final url = Uri.parse('$_baseUrl/novel/$novelId');
     String token = novelBox.get('usertoken');
     try {
       final response = await _getRequest(url, token: token);
       final decodedData = _decodeResponse(response);
       Noveldetail noveldetail = Noveldetail.fromJson(decodedData);
-      return noveldetail.dataNovel;
+      // Logger().i('noveldetail: ${noveldetail.hisRead.toList()}');
+      return {
+        'novel': noveldetail.dataNovel,
+        'hisRead': noveldetail.hisRead.toList(),
+      };
     } catch (e) {
       Logger().e('Failed to load novel by id: $e');
       throw Exception('Failed to load novel by id: $e');

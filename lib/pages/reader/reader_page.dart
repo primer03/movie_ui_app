@@ -1,28 +1,35 @@
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:bloctest/bloc/novelread/readnovel_bloc.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_read_model.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/service/SecurityManager.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:interactive_slider/interactive_slider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/web.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:no_screenshot/no_screenshot.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'dart:io' show Platform;
+import 'package:html/parser.dart' as parser;
 
 class ReaderPage extends StatefulWidget {
   const ReaderPage({
@@ -62,7 +69,10 @@ class _ReaderPageState extends State<ReaderPage> {
   DateTime? lastPressed;
   bool _isThick = false;
   bool _isMaxPage = false;
+  bool _isMinPage = false;
   String EpID = '';
+  Timer? _debounce;
+  late User user;
   List<Map<String, dynamic>> TheamSetting = [
     {
       'bg': Colors.white,
@@ -109,6 +119,7 @@ class _ReaderPageState extends State<ReaderPage> {
       'fontFamily': GoogleFonts.sarabun()
     },
   ];
+  final Map<int, GlobalKey> itemKeys = {};
 
   @override
   void initState() {
@@ -116,8 +127,7 @@ class _ReaderPageState extends State<ReaderPage> {
     setTheme();
     _scrollController.addListener(_calculateScrollPercentage);
     _initializeBrightness();
-    setWindowFlags();
-    // _getCurrentBrightness();
+    enableScreenSecurity();
     _fontSizeController.text = '16';
     print('Book ID: ${widget.bookId}');
     print('Episode ID: ${widget.epId}');
@@ -127,22 +137,79 @@ class _ReaderPageState extends State<ReaderPage> {
             epId: widget.epId,
           ),
         );
+    for (var i = 0; i < widget.novelEp.length; i++) {
+      itemKeys[i] = GlobalKey();
+    }
+    getUserData();
+  }
+
+  Future<void> getUserData() async {
+    user = User.fromJson(json.decode(await novelBox.get('user')));
+    Logger().i("User: $user");
+  }
+
+  Future<void> enableScreenSecurity() async {
+    try {
+      bool result = await NoScreenshot.instance.screenshotOff();
+      debugPrint('Screenshot Off: $result');
+    } on PlatformException catch (e) {
+      print("Failed to enable screen security: '${e.message}'.");
+    }
+  }
+
+  // Method to disable screen security
+  Future<void> disableScreenSecurity() async {
+    try {
+      bool result = await NoScreenshot.instance.screenshotOn();
+      debugPrint('Screenshot On: $result');
+      print('Screen security disablexxxd');
+    } on PlatformException catch (e) {
+      print("Failed to disable screen security: '${e.message}'.");
+    }
+  }
+
+  String removeStyleHTML(String strhtml) {
+    // print('Remove Style HTML $strhtml');
+    var document = parser.parse(strhtml);
+    var str = "";
+    var tageP = document.createElement('p');
+    document.querySelectorAll('p').forEach((element) {
+      // element.querySelector('p')?.attributes.remove('style');
+      // element.querySelector('span')?.attributes.remove('style');
+      // element.querySelector('span')?.attributes['style'] = 'color: black;';
+      // print(element.innerHtml);
+      // tageP.innerHtml += element.innerHtml;
+      // str += element.innerHtml;
+    });
+    // var htmltostring = tageP.outerHtml;
+    print('Remove Style HTML $strhtml');
+    return strhtml;
   }
 
   void setWindowFlags() async {
-    SecurityManager.enableSecurity(); // ปิดการแสดงหน้าต่างและการถ่ายภาพ
+    SecurityManager.enableSecurity();
   }
 
   void disableWindowFlags() async {
-    SecurityManager.disableSecurity(); // เปิดการแสดงหน้าต่างและการถ่ายภาพ
+    SecurityManager.disableSecurity();
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_calculateScrollPercentage);
     _scrollController.dispose();
+    _listViewController.dispose();
+    _nestedScrollController.dispose();
+    _debounce?.cancel();
     _resetBrightness();
-    disableWindowFlags();
+    disableScreenSecurity();
+    if (Platform.isIOS) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+          overlays: SystemUiOverlay.values);
+    } else if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+          overlays: SystemUiOverlay.values);
+    }
     super.dispose();
   }
 
@@ -216,33 +283,99 @@ class _ReaderPageState extends State<ReaderPage> {
     }
   }
 
+  bool _isImmersiveModeSet =
+      false; // ตัวแปรนี้ใช้ในการติดตามสถานะการตั้งค่า immersive mode
+
   void _calculateScrollPercentage() {
     final maxScrollExtent = _scrollController.position.maxScrollExtent;
     final currentScrollPosition = _scrollController.position.pixels;
-    // print('Scroll Position: $currentScrollPosition');
-    setState(() {
-      _isScrollingDown = currentScrollPosition < _previousScrollPosition;
-      _scrollPercentage =
-          (currentScrollPosition / maxScrollExtent).clamp(0.0, 1.0) * 100;
-      _isMaxPage = currentScrollPosition == maxScrollExtent;
-      _previousScrollPosition = currentScrollPosition;
-      _toggleCount = 0;
-      _isToggled = false;
+
+    final scrollPercentage =
+        (currentScrollPosition / maxScrollExtent).clamp(0.0, 1.0) * 100;
+    final isMaxPage = currentScrollPosition == maxScrollExtent;
+    final isMinPage = currentScrollPosition == 0;
+    final isScrollingDown = currentScrollPosition < _previousScrollPosition;
+
+    // Debounce การเรียก setState เพื่อลดการอัปเดตบ่อย ๆ
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 100), () {
+      if (_scrollPercentage != scrollPercentage ||
+          _isScrollingDown != isScrollingDown ||
+          _isMaxPage != isMaxPage ||
+          _isMinPage != isMinPage) {
+        setState(() {
+          _scrollPercentage = scrollPercentage;
+          _isScrollingDown = isScrollingDown;
+          _isMaxPage = isMaxPage;
+          _previousScrollPosition = currentScrollPosition;
+          _toggleCount = 0;
+          _isToggled = false;
+          _isMinPage = isMinPage;
+        });
+      }
+
+      // Handle immersive mode
+      if (!_isScrollingDown) {
+        _setImmersiveMode(false); // Scrolling up
+      } else {
+        _setImmersiveMode(true); // Scrolling down
+      }
+
+      if (_isMaxPage) {
+        _setImmersiveMode(true);
+      }
     });
-    // print('Scroll Percentage: $_scrollPercentage');
-    // print('Scrolling Down: $_isScrollingDown');
   }
 
-  void _MoveScrollListEP() {
+  void _setImmersiveMode(bool showOverlays) {
+    if (_isImmersiveModeSet == showOverlays) {
+      return;
+    }
+    _isImmersiveModeSet = showOverlays;
+
+    if (Platform.isIOS) {
+      if (showOverlays) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+            overlays: SystemUiOverlay.values);
+      } else {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
+            overlays: []);
+      }
+    }
+    // else if (Platform.isAndroid) {
+    //   if (showOverlays) {
+    //     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+    //         overlays: SystemUiOverlay.values);
+    //   } else {
+    //     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
+    //         overlays: []);
+    //   }
+    // }
+  }
+
+  Future<void> _moveScrollListEP() async {
     var index = widget.novelEp.indexWhere((element) => element.epId == EpID);
     var length = widget.novelEp.length;
-    var positionmove = _listViewController.position.maxScrollExtent / length;
-    // print('Position: ${MediaQuery.of(context).size.height}');
-    _listViewController.animateTo(
-      ((index + 1) * positionmove) - 50,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.ease,
-    );
+
+    if (index == -1 || length == 0) return; // ตรวจสอบกรณีที่ไม่พบหรือรายการว่าง
+
+    // ปรับตำแหน่งเลื่อนตามดัชนีรายการที่ต้องการเลื่อน
+    double positionToMove =
+        (index / (length - 1)) * _listViewController.position.maxScrollExtent;
+
+    if (Platform.isAndroid) {
+      await _listViewController.animateTo(
+        positionToMove - 50,
+        duration: const Duration(milliseconds: 1),
+        curve: Curves.easeInOut,
+      );
+    } else if (Platform.isIOS) {
+      await _listViewController.animateTo(
+        positionToMove - 50,
+        duration: const Duration(milliseconds: 1),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -268,72 +401,99 @@ class _ReaderPageState extends State<ReaderPage> {
       },
       child: Scaffold(
         key: _scaffoldKey,
+        onDrawerChanged: (isOpened) {
+          if (isOpened) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Platform.isAndroid) {
+                _moveScrollListEP();
+              } else {
+                Future.delayed(const Duration(milliseconds: 200), () {
+                  _moveScrollListEP();
+                });
+              }
+            });
+          }
+        },
         drawer: Drawer(
+          width: MediaQuery.of(context).size.width * 0.85,
           backgroundColor: _selectedTheam['bg'],
           child: ListView.builder(
+            shrinkWrap: true,
             controller: _listViewController,
             itemCount: widget.novelEp.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                key: Key('item-$index'),
-                title: Text(
-                  widget.novelEp[index].name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: _selectedTheam['fg'],
-                    fontFamily: _fontFamily[_currentSelectedFont]['fontName'],
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+            // itemExtent: 55,
+            prototypeItem: ListTile(
+              title: Text(
+                'Prototype',
+                style: TextStyle(
+                  color: _selectedTheam['fg'],
+                  fontFamily: _fontFamily[_currentSelectedFont]['fontName'],
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                tileColor: EpID == widget.novelEp[index].epId
-                    ? _selectedTheam['fg']?.withOpacity(0.1)
-                    : _selectedTheam['bg'],
-                trailing: widget.novelEp[index].typeRead.name == 'FREE'
-                    ? Text(
+              ),
+            ),
+            itemBuilder: (context, index) {
+              return RepaintBoundary(
+                child: ListTile(
+                  key: itemKeys[index],
+                  title: Text(
+                    widget.novelEp[index].name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _selectedTheam['fg'],
+                      fontFamily: _fontFamily[_currentSelectedFont]['fontName'],
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  tileColor: EpID == widget.novelEp[index].epId
+                      ? _selectedTheam['fg']?.withOpacity(0.1)
+                      : _selectedTheam['bg'],
+                  trailing: IndexedStack(
+                    alignment: Alignment.centerRight,
+                    index: widget.novelEp[index].typeRead.name == 'FREE'
+                        ? 0
+                        : user.detail.roles[1] == 'public'
+                            ? 1
+                            : 2,
+                    children: [
+                      Text(
                         'อ่านฟรี',
                         style: TextStyle(
-                            color: _selectedTheam['fg']?.withOpacity(0.5),
-                            fontWeight: FontWeight.w600,
-                            fontFamily: _fontFamily[_currentSelectedFont]
-                                ['fontName'],
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic),
-                      )
-                    : Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.yellow[700],
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          'VIP',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: _fontFamily[_currentSelectedFont]
-                                  ['fontName'],
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic),
+                          color: _selectedTheam['fg']?.withOpacity(0.5),
+                          fontWeight: FontWeight.w600,
+                          fontFamily: _fontFamily[_currentSelectedFont]
+                              ['fontName'],
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
-                onTap: () {
-                  context.read<ReadnovelBloc>().add(
-                        FetchReadnovel(
-                          bookId: widget.bookId,
-                          epId: widget.novelEp[index].epId,
-                        ),
-                      );
-                  setState(() {
-                    _isToggled = false;
-                    _toggleCount = 0;
-                  });
-                  Navigator.pop(context);
-                },
+                      SvgPicture.asset(
+                        'assets/svg/Unlock_duotone@3x.svg',
+                        color: _selectedTheam['fg']?.withOpacity(0.5),
+                      ),
+                      SvgPicture.asset(
+                        'assets/svg/Lock_duotone@3x.svg',
+                        color: _selectedTheam['fg']?.withOpacity(0.5),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    context.read<ReadnovelBloc>().add(
+                          FetchReadnovel(
+                            bookId: widget.bookId,
+                            epId: widget.novelEp[index].epId,
+                          ),
+                        );
+                    setState(() {
+                      _isToggled = false;
+                      _toggleCount = 0;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
               );
             },
           ),
@@ -342,6 +502,7 @@ class _ReaderPageState extends State<ReaderPage> {
         body: Stack(children: [
           CustomScrollView(
             controller: _scrollController,
+            physics: const ClampingScrollPhysics(),
             slivers: [
               SliverAppBar(
                 floating: true,
@@ -366,8 +527,10 @@ class _ReaderPageState extends State<ReaderPage> {
                 actions: [
                   IconButton(
                     icon: const Icon(Iconsax.setting_2),
-                    onPressed: () {
+                    onPressed: () async {
                       _showSettingsModal();
+                      // enableScreenSecurity();
+                      // disableScreenSecurity();
                     },
                   ),
                   IconButton(
@@ -410,8 +573,10 @@ class _ReaderPageState extends State<ReaderPage> {
                         } else if (state is ReadnovelLoaded) {
                           _bookfetRead = state.bookfetNovelRead;
                           EpID = state.bookfetNovelRead.readnovel.novelEp.epId;
-                          print(
-                              'EpID: ${state.bookfetNovelRead.readnovel.novelEp.epId}');
+                          // print(
+                          //     '_buildContent ID: ${state.bookfetNovelRead.readnovel.novelEp.detail}');
+                          // removeStyleHTML(
+                          //     state.bookfetNovelRead.readnovel.novelEp.detail!);
                           return _buildContent(state.bookfetNovelRead);
                         } else if (state is ReadnovelError) {
                           return Center(
@@ -429,7 +594,7 @@ class _ReaderPageState extends State<ReaderPage> {
               ),
             ],
           ),
-          if (_isScrollingDown || _isMaxPage) ...[
+          ...[
             BlocBuilder<ReadnovelBloc, ReadnovelState>(
                 builder: (context, state) {
               if (state is ReadnovelLoaded) {
@@ -438,14 +603,14 @@ class _ReaderPageState extends State<ReaderPage> {
                 return const SizedBox.shrink();
               }
             }),
-            BlocBuilder<ReadnovelBloc, ReadnovelState>(
-                builder: (context, state) {
-              if (state is ReadnovelLoaded) {
-                return _buildCircularMenu();
-              } else {
-                return const SizedBox.shrink();
-              }
-            }),
+            // BlocBuilder<ReadnovelBloc, ReadnovelState>(
+            //     builder: (context, state) {
+            //   if (state is ReadnovelLoaded) {
+            //     return _buildCircularMenu();
+            //   } else {
+            //     return const SizedBox.shrink();
+            //   }
+            // }),
           ],
         ]),
       ),
@@ -453,6 +618,7 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   Widget _buildContent(BookfetNovelRead bookfetNovelRead) {
+    Logger().i('Build Content ${bookfetNovelRead.readnovel.novelEp.detail}');
     return GestureDetector(
       onTap: () {
         print('Tapped');
@@ -468,24 +634,88 @@ class _ReaderPageState extends State<ReaderPage> {
           top: 20,
           left: 20,
           right: 20,
-          bottom: 80,
+          bottom: 130,
         ),
-        child: HtmlWidget(
-          bookfetNovelRead.readnovel.novelEp.detail ?? '',
-          customWidgetBuilder: (element) {
-            if (element.localName == 'br') {
-              return const SizedBox(height: 5);
-            }
-            return null;
+        child: Html(
+          data: bookfetNovelRead.readnovel.novelEp.detail ?? '',
+          style: {
+            'body': Style(
+              backgroundColor: _selectedTheam['bg'],
+              fontFamily:
+                  _fontFamily[_currentSelectedFont]['fontFamily'].fontFamily,
+              fontSize: FontSize(double.parse(_fontSizeController.text)),
+              color: _selectedTheam['fg'],
+              fontWeight: _isThick ? FontWeight.bold : FontWeight.normal,
+            ),
+            'p': Style(
+              backgroundColor: _selectedTheam['bg'],
+              // fontFamily: _fontFamily[_currentSelectedFont]['fontName'],
+              fontSize: FontSize(double.parse(_fontSizeController.text)),
+              color: _selectedTheam['fg'],
+              fontWeight: _isThick ? FontWeight.bold : FontWeight.normal,
+              margin: Margins(bottom: Margin(50)),
+            ),
+            'span': Style(
+              backgroundColor: _selectedTheam['bg'],
+              // fontFamily: _fontFamily[_currentSelectedFont]['fontName'],
+              fontSize: FontSize(double.parse(_fontSizeController.text)),
+              color: _selectedTheam['fg'],
+              fontWeight: _isThick ? FontWeight.bold : FontWeight.normal,
+            ),
+            'br': Style(
+              display: Display.none,
+            ),
           },
-          textStyle: GoogleFonts.getFont(
-            _fontFamily[_currentSelectedFont]['fontName'],
-            fontSize: double.parse(_fontSizeController.text),
-            color: _selectedTheam['fg'],
-            fontWeight: _isThick ? FontWeight.bold : FontWeight.normal,
-          ),
-          renderMode: RenderMode.column,
         ),
+        // child: HtmlWidget(
+        //   bookfetNovelRead.readnovel.novelEp.detail ?? '',
+        //   customStylesBuilder: (element) {
+        //     if (element.localName == 'p') {
+        //       return {
+        //         'font-family': _fontFamily[_currentSelectedFont]['fontName'],
+        //         'font-size': '${double.parse(_fontSizeController.text)}px',
+        //         'color': _selectedTheam['fg'].toString(),
+        //         'font-weight': _isThick ? 'bold' : 'normal',
+        //         'background-color': _selectedTheam['bg'].toString(),
+        //       };
+        //     }
+        //     if (element.localName == 'span') {
+        //       return {
+        //         'font-family': _fontFamily[_currentSelectedFont]['fontName'],
+        //         'font-size': '${double.parse(_fontSizeController.text)}px',
+        //         'color': _selectedTheam['fg'].toString(),
+        //         'font-weight': _isThick ? 'bold' : 'normal',
+        //         'background-color': _selectedTheam['bg'].toString(),
+        //       };
+        //     }
+        //     return null;
+        //   },
+        //   customWidgetBuilder: (element) {
+        //     if (element.localName == 'br') {
+        //       return const SizedBox(height: 5);
+        //     }
+        //     if (element.localName == 'span') {
+        //       return Text(
+        //         element.innerHtml,
+        //         style: GoogleFonts.getFont(
+        //           _fontFamily[_currentSelectedFont]['fontName'],
+        //           fontSize: double.parse(_fontSizeController.text),
+        //           color: _selectedTheam['fg'],
+        //           fontWeight: _isThick ? FontWeight.bold : FontWeight.normal,
+        //           backgroundColor: _selectedTheam['bg'],
+        //         ),
+        //       );
+        //     }
+        //     return null;
+        //   },
+        //   textStyle: GoogleFonts.getFont(
+        //     _fontFamily[_currentSelectedFont]['fontName'],
+        //     fontSize: double.parse(_fontSizeController.text),
+        //     color: _selectedTheam['fg'],
+        //     fontWeight: _isThick ? FontWeight.bold : FontWeight.normal,
+        //   ),
+        //   renderMode: RenderMode.column,
+        // ),
       ),
     );
   }
@@ -495,105 +725,171 @@ class _ReaderPageState extends State<ReaderPage> {
       bottom: 0,
       left: 0,
       right: 0,
-      child: Container(
-        margin: const EdgeInsets.all(15),
-        padding: const EdgeInsets.only(
-          left: 0,
-          right: 10,
-        ),
-        width: MediaQuery.of(context).size.width,
-        height: 60,
-        decoration: BoxDecoration(
-          color: _selectedTheam['bg'],
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: _selectedTheam['name'] == 'Dark'
-                  ? Colors.black
-                  : _selectedTheam['name'] == 'Light'
-                      ? Colors.grey
-                      : _selectedTheam['name'] == 'Blue'
-                          ? Colors.blue[200] ?? Colors.blue
-                          : const Color(0xFFDABF8C),
-              spreadRadius: 1,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
+      child: AnimatedOpacity(
+        opacity: _isScrollingDown || _isMaxPage || _isMinPage ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          // height: 100,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(Platform.isAndroid ? 5 : 0),
+              topRight: Radius.circular(Platform.isAndroid ? 5 : 0),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new,
-                color: _selectedTheam['fg'],
+            color: _selectedTheam['bg'],
+            boxShadow: [
+              BoxShadow(
+                color: _selectedTheam['name'] == 'Dark'
+                    ? Colors.black
+                    : _selectedTheam['name'] == 'Light'
+                        ? Colors.grey
+                        : _selectedTheam['name'] == 'Blue'
+                            ? Colors.blue[200] ?? Colors.blue
+                            : const Color(0xFFDABF8C),
+                spreadRadius: 1,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
               ),
-              onPressed: () async {
-                if (bookfet.readnovel.previousOrNext.previous != null) {
-                  context.read<ReadnovelBloc>().add(
-                        FetchReadnovel(
-                          bookId: bookfet.readnovel.novelBook.bookId,
-                          epId: bookfet.readnovel.previousOrNext.previous!.epId,
+            ],
+          ),
+          padding: EdgeInsets.only(
+            top: 10,
+            left: 10,
+            right: 10,
+            bottom: Platform.isAndroid ? 0 : 10,
+          ),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  width: MediaQuery.of(context).size.width - 20,
+                  decoration: BoxDecoration(
+                    color: _selectedTheam['fg']?.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          bookfet.readnovel.novelEp.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.athiti(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _selectedTheam['fg'],
+                          ),
+                          textAlign: TextAlign.start,
                         ),
-                      );
-                  _scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 1),
-                    curve: Curves.ease,
-                  );
-                } else {
-                  BookmarkManager(context, (bool checkAdd) {}).showToast(
-                    'ไม่มีตอนก่อนหน้านี้',
-                    gravity: ToastGravity.CENTER,
-                  );
-                }
-              },
-            ),
-            Text(
-              '${bookfet.readnovel.novelEp.ep} / ${bookfet.readnovel.allep.length}',
-              style: GoogleFonts.athiti(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: _selectedTheam['fg'],
-              ),
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.arrow_forward_ios,
-                color: _selectedTheam['fg'],
-              ),
-              onPressed: () {
-                if (bookfet.readnovel.previousOrNext.next != null) {
-                  context.read<ReadnovelBloc>().add(
-                        FetchReadnovel(
-                          bookId: bookfet.readnovel.novelBook.bookId,
-                          epId: bookfet.readnovel.previousOrNext.next!.epId,
+                      ),
+                      const SizedBox(width: 10),
+                      SvgPicture.asset(
+                        'assets/svg/up-and-down-arrows-svgrepo-com.svg',
+                        colorFilter: ColorFilter.mode(
+                          _selectedTheam['fg']!,
+                          BlendMode.srcIn,
                         ),
-                      );
-                  _scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 1),
-                    curve: Curves.ease,
-                  );
-                } else {
-                  BookmarkManager(context, (bool checkAdd) {}).showToast(
-                    'ไม่มีตอนถัดไป',
-                    gravity: ToastGravity.CENTER,
-                  );
-                }
-              },
-            ),
-            const Spacer(),
-            Text(
-              'บทที่ ${bookfet.readnovel.novelEp.ep} / ${_scrollPercentage.toStringAsFixed(0)} %',
-              style: GoogleFonts.athiti(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: _selectedTheam['fg'],
+                        width: 15,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
-        ).animate().fade(),
+              const SizedBox(height: 12),
+              LinearPercentIndicator(
+                width: MediaQuery.of(context).size.width - 20,
+                lineHeight: 12.0,
+                percent: _scrollPercentage / 100,
+                backgroundColor: _selectedTheam['fg']?.withOpacity(0.2),
+                progressColor: _selectedTheam['fg'],
+                barRadius: const Radius.circular(10),
+              ),
+              // const SizedBox(height: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: IconButton(
+                      alignment: Alignment.centerLeft,
+                      icon: Icon(
+                        Icons.arrow_back_ios_new,
+                        color: _selectedTheam['fg'],
+                      ),
+                      onPressed: () async {
+                        if (bookfet.readnovel.previousOrNext.previous != null) {
+                          context.read<ReadnovelBloc>().add(
+                                FetchReadnovel(
+                                  bookId: bookfet.readnovel.novelBook.bookId,
+                                  epId: bookfet
+                                      .readnovel.previousOrNext.previous!.epId,
+                                ),
+                              );
+                          _scrollController.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 1),
+                            curve: Curves.ease,
+                          );
+                        } else {
+                          BookmarkManager(context, (bool checkAdd) {})
+                              .showToast(
+                            'ไม่มีตอนก่อนหน้านี้',
+                            gravity: ToastGravity.CENTER,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  Text(
+                    'บทที่ ${bookfet.readnovel.novelEp.ep} / ${bookfet.readnovel.allep.length}',
+                    style: GoogleFonts.athiti(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _selectedTheam['fg'],
+                    ),
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      alignment: Alignment.centerRight,
+                      icon: Icon(
+                        Icons.arrow_forward_ios,
+                        color: _selectedTheam['fg'],
+                      ),
+                      onPressed: () async {
+                        if (bookfet.readnovel.previousOrNext.next != null) {
+                          context.read<ReadnovelBloc>().add(
+                                FetchReadnovel(
+                                  bookId: bookfet.readnovel.novelBook.bookId,
+                                  epId: bookfet
+                                      .readnovel.previousOrNext.next!.epId,
+                                ),
+                              );
+                          _scrollController.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 1),
+                            curve: Curves.ease,
+                          );
+                        } else {
+                          BookmarkManager(context, (bool checkAdd) {})
+                              .showToast(
+                            'ไม่มีตอนถัดไป',
+                            gravity: ToastGravity.CENTER,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -652,9 +948,9 @@ class _ReaderPageState extends State<ReaderPage> {
               //open drawer
               _buildMenuItem(Icons.list, onTap: () {
                 _scaffoldKey.currentState?.openDrawer();
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _MoveScrollListEP();
-                });
+                // WidgetsBinding.instance.addPostFrameCallback((_) {
+                //   _MoveScrollListEP();
+                // });
               }),
               _buildMenuItem(Iconsax.message_text),
               _buildMenuItem(Iconsax.setting_2, onTap: _showSettingsModal),

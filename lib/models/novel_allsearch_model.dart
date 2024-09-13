@@ -189,6 +189,16 @@ class Searchnovel {
         "update_ep": updateEp.toIso8601String(),
         "Allep": allep,
       };
+
+  // Override == and hashCode for content comparison
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Searchnovel && other.id == id && other.bookId == bookId;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ bookId.hashCode;
 }
 
 enum Type { MAIN }

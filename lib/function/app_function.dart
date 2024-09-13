@@ -6,6 +6,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:toastification/toastification.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io' show Platform;
 
 const storage = FlutterSecureStorage();
 
@@ -37,9 +38,20 @@ String abbreviateNumber(num number) {
 }
 
 Future<String> getDevice() async {
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-  return androidInfo.model;
+  // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  // AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+  // return androidInfo.model;
+  if (Platform.isAndroid) {
+    final deviceInfo = DeviceInfoPlugin();
+    final androidInfo = await deviceInfo.androidInfo;
+    return androidInfo.model;
+  } else if (Platform.isIOS) {
+    final deviceInfo = DeviceInfoPlugin();
+    final iosInfo = await deviceInfo.iosInfo;
+    return iosInfo.utsname.machine;
+  } else {
+    return 'Unknown';
+  }
 }
 
 void showToastification({
@@ -76,7 +88,7 @@ void showToastification({
   );
 }
 
-void showLoadingDialog(BuildContext context) {
+void showLoadingDialog(BuildContext context, {bool canPop = false}) {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: Colors.black.withOpacity(0.5),
     statusBarIconBrightness: Brightness.light,
@@ -87,7 +99,7 @@ void showLoadingDialog(BuildContext context) {
     barrierDismissible: false,
     builder: (context) {
       return PopScope(
-        canPop: false,
+        canPop: canPop,
         child: Center(
           child: LoadingAnimationWidget.discreteCircle(
             color: Colors.white,

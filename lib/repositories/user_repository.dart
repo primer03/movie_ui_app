@@ -1,11 +1,16 @@
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:io';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/user_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/web.dart';
+import 'package:path/path.dart' as path;
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
 
 class UserRepository {
   final String url = 'https://pzfbh88v-3002.asse.devtunnels.ms/api/';
@@ -98,6 +103,92 @@ class UserRepository {
     } catch (e) {
       Logger().e('Error during user registration', error: e);
       throw Exception(e.toString());
+    }
+  }
+
+  Future<void> updateImageUser({required File image}) async {
+    final urlx = Uri.parse('${url}update/member/img');
+    final token = novelBox.get('usertoken');
+
+    try {
+      var request = http.MultipartRequest('POST', urlx);
+      // Headers
+      request.headers['x-api-key'] = apiKey;
+      request.headers['x-client-domain'] = clientDomain;
+      request.headers['Authorization'] = '$token';
+
+      // File information
+      String fileName = path.basename(image.path);
+
+      // Adding file to request
+      var fileStream = await http.MultipartFile.fromPath(
+        'image',
+        image.path,
+      );
+      request.files.add(fileStream);
+
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        print('Uploaded!');
+      } else {
+        var responseData = await response.stream.bytesToString();
+        var decodedResponse = json.decode(responseData);
+        print(decodedResponse);
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Failed to upload image: $e');
+    }
+  }
+
+  Future<bool> updateProfileUser({
+    required String username,
+    required String date,
+    required String gender,
+    required String phone,
+    required String address,
+    required String FB,
+    required String twitter,
+  }) async {
+    final urlx = Uri.parse('${url}update/member');
+    final token = novelBox.get('usertoken');
+    final genderCode = gender == 'ชาย' ? 'm' : 'f';
+    print('username: $username');
+    print('gender: $genderCode');
+    print('phone: $phone');
+    print('address: $address');
+    print('FB: $FB');
+    print('date: ${convertThaiDateToISO(date)}');
+    try {
+      final response = await http.post(urlx, headers: {
+        'x-api-key': apiKey,
+        'x-client-domain': clientDomain,
+        'Authorization': token
+      }, body: {
+        "username": username,
+        "birthday_date": convertThaiDateToISO(date),
+        "gender": 'f',
+        "about_me": '',
+        "phone": phone,
+        "address": address,
+        "FB": FB,
+        "twitter": twitter
+      });
+
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+        Logger().i(res);
+        if (res['status'] == 'error') {
+          throw Exception(res['message']);
+        }
+        return true;
+      } else {
+        final res = json.decode(response.body);
+        throw Exception(res['message'] ?? 'เกิดข้อผิดพลาด');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Failed to update profile: $e');
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_bookmark_model.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_read_model.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
@@ -26,9 +27,14 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shimmer/shimmer.dart';
 
 class NovelDetail extends StatefulWidget {
-  const NovelDetail({super.key, required this.novelId, required this.allep});
+  const NovelDetail(
+      {super.key,
+      required this.novelId,
+      required this.allep,
+      required this.user});
   final int novelId;
   final int allep;
+  final User user;
 
   @override
   State<NovelDetail> createState() => _NovelDetailState();
@@ -110,7 +116,9 @@ class _NovelDetailState extends State<NovelDetail>
   @override
   void initState() {
     super.initState();
+
     getnoveldetail();
+    // getRoleUser();
     _scrollController.addListener(_checkIfAtTop);
     _tabController = TabController(length: 3, vsync: this);
     print(widget.allep);
@@ -129,6 +137,21 @@ class _NovelDetailState extends State<NovelDetail>
     // _bookmarkManager.fToast.init(context);
     Logger().i(groupList);
   }
+
+  // Future<void> getRoleUser() async {
+  //   try {
+  //     final userData = await novelBox.get('user');
+  //     if (userData != null) {
+  //       user = User.fromJson(json.decode(userData));
+  //       setState(() {
+  //         user = user;
+  //       });
+  //       print('User Role: ${user?.detail.roles}');
+  //     }
+  //   } catch (e) {
+  //     print('Error loading user data: $e');
+  //   }
+  // }
 
   void _updateBookmarkState(bool newState) {
     setState(() {
@@ -194,6 +217,7 @@ class _NovelDetailState extends State<NovelDetail>
               );
             } else if (state is NovelDetailLoaded) {
               print(state.dataNovel.novelEp[0].typeRead.name);
+              Logger().i(state.dataNovel);
               var bytes = utf8.encode(state.dataNovel.novel.btId.toString());
               String url =
                   'https://bookfet.com/noveldetail/${base64.encode(bytes)}_${Uri.encodeComponent(state.dataNovel.novel.btName)}';
@@ -483,6 +507,7 @@ class _NovelDetailState extends State<NovelDetail>
                       groupList: groupList,
                       novelEp: state.dataNovel.novelEp,
                       bookname: state.dataNovel.novel.btName,
+                      role: widget.user.detail.roles[1] ?? '',
                     ),
                     Container(
                       key: const PageStorageKey<String>('novel_recommend'),
@@ -527,15 +552,18 @@ class _NovelDetailState extends State<NovelDetail>
 }
 
 class Epview extends StatelessWidget {
-  const Epview(
-      {super.key,
-      required this.groupList,
-      required this.novelEp,
-      required this.bookname});
+  const Epview({
+    super.key,
+    required this.groupList,
+    required this.novelEp,
+    required this.bookname,
+    required this.role,
+  });
 
   final List<String> groupList;
   final List<NovelEp> novelEp;
   final String bookname;
+  final String role;
 
   @override
   Widget build(BuildContext context) {
@@ -564,6 +592,7 @@ class Epview extends StatelessWidget {
                 allEP: novelEp.length,
                 bookname: bookname,
                 novelEpAll: novelEp,
+                role: role,
               ),
               const SizedBox(height: 10),
             ],
@@ -608,6 +637,7 @@ class ExpansionTileEpisode extends StatefulWidget {
   final List<NovelEp> novelEpAll;
   final int allEP;
   final String bookname;
+  final String role;
 
   const ExpansionTileEpisode({
     super.key,
@@ -618,6 +648,7 @@ class ExpansionTileEpisode extends StatefulWidget {
     required this.novelEpAll,
     required this.allEP,
     required this.bookname,
+    required this.role,
   });
 
   @override
@@ -683,7 +714,8 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 final episode = widget.novelEp[index];
-                // Logger().i("Episode ${episode.bookId}_${episode.epId}");
+                // Logger().i("Episode ${episode.publish.name}");
+                // print('Episode ${episode.publish.name} tapped');
                 return Material(
                   color: Colors.white,
                   child: InkWell(
@@ -736,10 +768,19 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                                     fontStyle: FontStyle.italic,
                                   ),
                                 )
-                              : SvgPicture.asset(
-                                  'assets/svg/crown-user-svgrepo-com.svg',
-                                  width: 20,
-                                ),
+                              : widget.role == 'public'
+                                  ? Text(
+                                      'อ่าน',
+                                      style: GoogleFonts.athiti(
+                                        color: Colors.grey[400],
+                                        fontWeight: FontWeight.w600,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    )
+                                  : SvgPicture.asset(
+                                      'assets/svg/crown-user-svgrepo-com.svg',
+                                      width: 20,
+                                    )
                         ],
                       ),
                     ),

@@ -29,11 +29,19 @@ class _ExplorePageState extends State<ExplorePage> {
     'แนวระบบ',
     'ผจญภัย',
   ];
+  final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // ปิด keyboard ทันทีเมื่อเปิดหน้านี้
+    FocusScope.of(context).requestFocus(FocusNode());
   }
 
   @override
@@ -69,6 +77,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 onTap: () {
                   Navigator.pushNamed(context, '/search');
                 },
+                // focusNode: _focusNode,
                 cursorColor: Colors.black,
                 decoration: InputDecoration(
                   hintText: 'ค้นหา',

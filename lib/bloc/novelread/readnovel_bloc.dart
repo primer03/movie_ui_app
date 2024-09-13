@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_read_model.dart';
 import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:equatable/equatable.dart';
@@ -22,6 +23,18 @@ class ReadnovelBloc extends Bloc<ReadnovelEvent, ReadnovelState> {
       if (bookfetNovelRead.readnovel.novelBook.id == 0) {
         emit(ReadnovelNoData());
       } else {
+        var readLast = await novelBox.get('ReadLast');
+        print('Readlast: $readLast');
+        if (readLast == null) {
+          novelBox.put('ReadLast', [
+            {
+              'bookID': event.bookId,
+              'epID': event.epId,
+              'bookName': bookfetNovelRead.readnovel.novelBook.name,
+              'novelEp': bookfetNovelRead.readnovel.novelEp.toJson(),
+            }
+          ]);
+        }
         emit(ReadnovelLoaded(bookfetNovelRead: bookfetNovelRead));
       }
     } catch (e) {

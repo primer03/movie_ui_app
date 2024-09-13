@@ -30,6 +30,7 @@ class _CategoryPageState extends State<CategoryPage>
   late PageController pageController;
   late AutoScrollController autoScrollController;
   final ScrollController scrollController = ScrollController();
+  final List<ScrollController> scrollControllers = [];
 
   bool isMenuVisible = true;
   bool isCateVisible = false;
@@ -46,9 +47,12 @@ class _CategoryPageState extends State<CategoryPage>
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients &&
           scrollController.position.pixels != 0) {
-        setState(() {
-          isShowFloating = true;
-        });
+        // Update the floating button only when it's not already shown
+        if (!isShowFloating) {
+          setState(() {
+            isShowFloating = true;
+          });
+        }
       }
     });
 
@@ -57,27 +61,34 @@ class _CategoryPageState extends State<CategoryPage>
           ScrollDirection.reverse;
       final isAtTop = scrollController.position.pixels == 0;
 
-      if (isScrollingDown) {
-        if (!isShowFloating) {
-          setState(() {
-            isShowFloating = true;
-          });
-        }
+      // Handle showing and hiding the floating button efficiently
+      if (isScrollingDown && !isShowFloating) {
+        // Only update if the floating button is not already shown
+        setState(() {
+          isShowFloating = true;
+        });
+      } else if (!isScrollingDown && isShowFloating && isAtTop) {
+        // Only hide if the floating button is currently shown
+        setState(() {
+          isShowFloating = false;
+        });
+      }
+
+      // Handle menu visibility efficiently
+      if (isScrollingDown && isMenuVisible) {
+        // Only hide the menu if it's currently visible
         setState(() {
           isMenuVisible = false;
         });
-      } else if (!isScrollingDown && isAtTop) {
-        if (isShowFloating) {
-          setState(() {
-            isShowFloating = false;
-          });
-        }
+      } else if (!isScrollingDown && !isMenuVisible) {
+        // Only show the menu if it's currently hidden
         setState(() {
           isMenuVisible = true;
         });
       }
     });
 
+    // Fetch the initial data for NovelCate
     context.read<NovelCateBloc>().add(FetchNovelCate(cateID: widget.cateId));
   }
 
@@ -174,7 +185,18 @@ class _CategoryPageState extends State<CategoryPage>
           ),
         ),
       ),
-      body: BlocBuilder<NovelCateBloc, NovelCateState>(
+      body: BlocConsumer<NovelCateBloc, NovelCateState>(
+        listener: (context, state) {
+          if (state is NovelCateError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${state.message}')),
+            );
+          } else if (state is NovelCateLoaded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              pageController.jumpToPage(widget.cateId);
+            });
+          }
+        },
         builder: (context, state) {
           if (state is NovelCateLoading) {
             return CateSkeleton().animate().fade();
@@ -298,7 +320,7 @@ class _CategoryPageState extends State<CategoryPage>
                 borderRadius: BorderRadius.circular(100),
               ),
               mini: true,
-              elevation: 8.0,
+              elevation: 2.0,
               child: SvgPicture.asset(
                 'assets/svg/Expand_up@3x.svg',
                 width: 20,

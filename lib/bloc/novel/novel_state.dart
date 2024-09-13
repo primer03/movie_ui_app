@@ -20,7 +20,14 @@ final class NovelLoaded extends NovelState {
   List<Object> get props => [novels];
 }
 
-final class NovelNoData extends NovelState {}
+final class NovelNoData extends NovelState {
+  final String message;
+
+  const NovelNoData(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
 
 final class NovelError extends NovelState {
   final String message;
@@ -30,4 +37,3 @@ final class NovelError extends NovelState {
   @override
   List<Object> get props => [message];
 }
-

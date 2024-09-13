@@ -70,6 +70,8 @@ class newUpdateNovel extends StatelessWidget {
                                         BorderRadius.all(Radius.circular(10)),
                                   ),
                                 ),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
                               ),
                             )),
                         const SizedBox(width: 10),

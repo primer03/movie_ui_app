@@ -1,4 +1,4 @@
-import 'package:bloctest/pages/movie_detail.dart';
+import 'package:bloctest/pages/detail/movie_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

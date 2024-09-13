@@ -1,24 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/novelsearch/novelsearch_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_allsearch_model.dart';
 import 'package:bloctest/models/novel_model.dart';
-import 'package:bloctest/widgets/ContainerSkeltion.dart';
+import 'package:bloctest/widgets/InitLastSearch.dart';
+import 'package:bloctest/widgets/ItemNovelSearch.dart';
 import 'package:bloctest/widgets/gridskeleton.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:logger/web.dart';
-import 'package:shimmer/shimmer.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -35,6 +32,7 @@ class _SearchPageState extends State<SearchPage> {
   FocusNode focusNode = FocusNode();
   int selectCate = 0;
   List<Searchnovel> novelSearch = [];
+  List<Searchnovel> lastSearchListData = [];
 
   Future<void> _onSearch(String value) async {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
@@ -58,6 +56,8 @@ class _SearchPageState extends State<SearchPage> {
         });
       } else {
         focusNode.unfocus();
+        print('Search: $value');
+        _onFetchLastSearch();
         setState(() {});
       }
     });
@@ -100,6 +100,21 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  Future<void> _onFetchLastSearch() async {
+    List<Searchnovel> lastSearchNovel = [];
+    if (novelBox.containsKey('lastsearchnoval')) {
+      lastSearchNovel = (json.decode(novelBox.get('lastsearchnoval')) as List)
+          .map((e) => Searchnovel.fromJson(e))
+          .toList();
+    }
+    lastSearchNovel
+        .forEach((element) => print('lastSearchNovel: ${element.name}'));
+    print('lastSearchNovel: ${lastSearchNovel.length}');
+    setState(() {
+      lastSearchListData = lastSearchNovel;
+    });
+  }
+
   String getCategoryName(String id) => id.isEmpty
       ? ''
       : cate
@@ -113,6 +128,7 @@ class _SearchPageState extends State<SearchPage> {
     // novelBox.delete('lastSearch');
     novelBox.delete('searchDatabyName');
     _onFetch();
+    _onFetchLastSearch();
   }
 
   Future<void> _clearcach() async {
@@ -236,6 +252,7 @@ class _SearchPageState extends State<SearchPage> {
                                   // print('value: $value');
                                   if (value == 'ล้างการค้นหา') {
                                     searchController.clear();
+                                    _onSearch('');
                                     focusNode.unfocus();
                                     setState(() {});
                                     return;
@@ -367,6 +384,8 @@ class _SearchPageState extends State<SearchPage> {
                   onClear: _onClear,
                   onRemove: _onRemove,
                   changeSearch: changSearch,
+                  lastSearchListData: lastSearchListData,
+                  context: context,
                 )
               : SearchDatawidget(
                   width: width,
@@ -468,399 +487,6 @@ class SearchDatawidget extends StatelessWidget {
           return Text('Search: ${searchController.text}');
         },
       ),
-    );
-  }
-}
-
-class ItemNovelSearch extends StatelessWidget {
-  const ItemNovelSearch({
-    super.key,
-    required this.width,
-    required this.getCategoryName,
-    required this.searchnovel,
-  });
-
-  final double width;
-  final String Function(String id) getCategoryName;
-  final List<Searchnovel> searchnovel;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlignedGridView.count(
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      crossAxisCount: width > 600 ? 4 : 3,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      itemCount: searchnovel.length,
-      itemBuilder: (context, index) => _buildNovelItem(context, index),
-    );
-  }
-
-  Widget _buildNovelItem(BuildContext context, int index) {
-    final novel = searchnovel[index];
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(
-          '/noveldetail',
-          arguments: {
-            'novelId': novel.id,
-            'allep': novel.allep,
-            'bloc': BlocProvider.of<NovelDetailBloc>(context),
-          },
-        );
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              _buildCoverImage(novel.img),
-              if (novel.end.name == 'END') _buildEndBadge(),
-              _buildInfoOverlay(novel),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Text(
-            novel.name,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.athiti(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            '${getCategoryName(novel.cat1)} ${getCategoryName(novel.cat2)}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.athiti(
-              color: Colors.grey,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn();
-  }
-
-  Widget _buildCoverImage(String imageUrl) {
-    return Container(
-      width: 120,
-      height: 170,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: CachedNetworkImage(
-          imageUrl: imageUrl,
-          fit: BoxFit.fill,
-          width: double.infinity,
-          height: 170,
-          placeholder: (context, url) => Shimmer.fromColors(
-            baseColor: Colors.grey[400]!,
-            highlightColor: Colors.grey[100]!,
-            period: const Duration(milliseconds: 1000),
-            child: ContainerSkeltion(
-              height: 170,
-              width: double.infinity,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEndBadge() {
-    return Positioned(
-      top: 5,
-      left: 3,
-      child: Stack(
-        children: [
-          Image.asset(
-            'assets/images/label.png',
-            width: 55,
-          ),
-          Positioned(
-            top: 1,
-            left: 10,
-            child: Text(
-              'จบแล้ว',
-              style: GoogleFonts.athiti(
-                color: Colors.red[700],
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoOverlay(Searchnovel novel) {
-    return Positioned(
-      bottom: 0,
-      right: 0,
-      left: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          gradient: const LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [Colors.black, Colors.transparent],
-          ),
-        ),
-        padding: const EdgeInsets.all(5),
-        child: Row(
-          children: [
-            _buildInfoItem(Icons.remove_red_eye_rounded, novel.view),
-            const Spacer(),
-            _buildInfoItem(Icons.list, novel.allep),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoItem(IconData icon, int value) {
-    return Row(
-      children: [
-        Icon(icon, size: 10, color: Colors.white),
-        const SizedBox(width: 2),
-        Text(
-          abbreviateNumber(value),
-          style: GoogleFonts.athiti(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            shadows: const [
-              Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 1)
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class InitLastSearch extends StatelessWidget {
-  final List<String> lastSearch;
-  final VoidCallback onClear;
-  final ValueChanged<String> onRemove;
-  final ValueChanged<String> changeSearch;
-
-  const InitLastSearch({
-    super.key,
-    required this.lastSearch,
-    required this.onRemove,
-    required this.onClear,
-    required this.changeSearch,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        _buildHeader(),
-        const SizedBox(height: 10),
-        _buildSearchChips(),
-        const SizedBox(height: 20),
-        _buildRecentReads(),
-      ],
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'ค้นหาล่าสุด',
-            style: GoogleFonts.athiti(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Spacer(),
-          GestureDetector(
-            onTap: onClear,
-            child: Text(
-              'ลบทั้งหมด',
-              style: GoogleFonts.athiti(
-                color: Colors.red[900],
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchChips() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Wrap(
-        spacing: 5,
-        runSpacing: -10,
-        children: lastSearch.map((value) {
-          return GestureDetector(
-            onTap: () => changeSearch(value),
-            child: Chip(
-              deleteButtonTooltipMessage: 'ลบ',
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              label: Text(
-                value,
-                style: GoogleFonts.athiti(
-                  color: const Color(0xFF96979B),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              backgroundColor: Colors.white,
-              onDeleted: () => onRemove(value),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              deleteIcon: SvgPicture.asset(
-                'assets/svg/close_ring_duotone_line@3x.svg',
-                width: 25,
-                height: 25,
-                color: const Color(0xff96979B),
-              ),
-              side: const BorderSide(
-                color: Color(0xFF9D9D9D9),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildRecentReads() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: ListView.builder(
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return _buildRecentReadCard();
-        },
-      ),
-    );
-  }
-
-  Widget _buildRecentReadCard() {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      margin: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        children: [
-          _buildImage(),
-          const SizedBox(width: 15),
-          Expanded(
-            child: _buildCardContent(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImage() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 6,
-            spreadRadius: 0.1,
-            offset: const Offset(4, 5),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Image.asset(
-          'assets/images/20240708021924.png',
-          height: 120,
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCardContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'หวนกลับมาเป็นคนโปรดของฮ่องเต้',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 5),
-        const Text(
-          'ความแค้นในใจนั้นยากจะลบเลือน... หากมีโอกาสอีกคราผู้ใดเล่าจะไม่คิดหวนคืนมา ความชิงชังที่สุมอยู่เต็มทรวงของ \'อันหรูอี้\' นั้นมิเคยเสื่อมคลาย โอกาสที่ฟ้าประทานมานางย่อมคว้าไว้ไม่ให้หลุดมือ ทว่าท่ามกลางไฟแค้นที่ลุกโชนกลับมีตัวแปรอื่นที่ทำให้นางผันเปลี่ยนไป',
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
-        ),
-        const SizedBox(height: 5),
-        _buildStatsRow(),
-      ],
-    );
-  }
-
-  Widget _buildStatsRow() {
-    return Row(
-      children: [
-        _buildStatItemx(Icons.remove_red_eye, '1.2k'),
-        const SizedBox(width: 10),
-        _buildStatItemx(Icons.list, '1,250'),
-        const SizedBox(width: 10),
-        _buildStatItemx(Icons.thumb_up, '100'),
-      ],
-    );
-  }
-
-  Widget _buildStatItemx(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16),
-        const SizedBox(width: 5),
-        Text(
-          text,
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
-        ),
-      ],
     );
   }
 }

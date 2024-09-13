@@ -80,6 +80,15 @@ dependencies:
   modal_bottom_sheet: ^3.0.0
   screen_brightness: ^1.0.1
   flutter_widget_from_html: ^0.15.2
+  salomon_bottom_bar: ^3.3.2
+  custom_sliding_segmented_control: ^1.8.3
+  animated_segmented_tab_control: ^2.0.0
+  expandable_page_view: ^1.0.17
+  no_screenshot: ^0.3.1
+  video_player: ^2.9.1
+  percent_indicator: ^4.2.3
+  custom_refresh_indicator: ^4.0.1
+  # secure_application: ^4.0.1
   # flutter_windowmanager: ^0.2.0
   # flutter_screen_wake: ^1.0.2
   # flash: ^3.1.1

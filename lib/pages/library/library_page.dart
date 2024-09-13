@@ -8,11 +8,9 @@ import 'package:bloctest/models/novel_model.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ItemGridBookmark.dart';
 import 'package:bloctest/widgets/gridskeleton.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:logger/web.dart';
@@ -95,6 +93,7 @@ class _LibraryPageState extends State<LibraryPage> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SmartRefresher(
         controller: _refreshController,
         enablePullDown: true,

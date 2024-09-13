@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -105,15 +109,21 @@ class Toptennovelnew extends StatelessWidget {
                       bottom: 0,
                       left: (index + 1) < 10 ? 50 : 60,
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed(
-                            '/noveldetail',
-                            arguments: {
-                              'novelId': item.id,
-                              'allep': item.allep,
-                              'bloc': BlocProvider.of<NovelDetailBloc>(context),
-                            },
-                          );
+                        onTap: () async {
+                          final userData = await novelBox.get('user');
+                          if (userData != null) {
+                            User user = User.fromJson(json.decode(userData));
+                            Navigator.of(context).pushNamed(
+                              '/noveldetail',
+                              arguments: {
+                                'novelId': item.id,
+                                'allep': item.allep,
+                                'bloc':
+                                    BlocProvider.of<NovelDetailBloc>(context),
+                                'user': user,
+                              },
+                            );
+                          }
                         },
                         child: Container(
                           // height: 170,

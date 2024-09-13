@@ -198,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 color: Colors.grey, fontWeight: FontWeight.w800)),
         const SizedBox(width: 5),
         GestureDetector(
-          onTap: () => Navigator.pushNamed(context, '/login'),
+          onTap: () => Navigator.pop(context),
           child: Text('เข้าสู่ระบบ',
               style: GoogleFonts.athiti(
                   color: Colors.black,

@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_bookmark_model.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -38,15 +42,20 @@ class Itemgridbookmark extends StatelessWidget {
   Widget _buildNovelItem(BuildContext context, int index) {
     final novel = bookmarkList[index];
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(
-          '/noveldetail',
-          arguments: {
-            'novelId': novel.sbtId,
-            'allep': novel.sbtAllep,
-            'bloc': BlocProvider.of<NovelDetailBloc>(context),
-          },
-        );
+      onTap: () async {
+        final userData = await novelBox.get('user');
+        if (userData != null) {
+          User user = User.fromJson(json.decode(userData));
+          Navigator.of(context).pushNamed(
+            '/noveldetail',
+            arguments: {
+              'novelId': novel.sbtId,
+              'allep': novel.sbtAllep,
+              'bloc': BlocProvider.of<NovelDetailBloc>(context),
+              'user': user,
+            },
+          );
+        }
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

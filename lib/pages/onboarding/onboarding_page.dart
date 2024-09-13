@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
-import 'package:bloctest/pages/onboard_one.dart';
-import 'package:bloctest/pages/onboard_three.dart';
-import 'package:bloctest/pages/onboard_two.dart';
+import 'package:bloctest/pages/onboarding/onboard_one.dart';
+import 'package:bloctest/pages/onboarding/onboard_three.dart';
+import 'package:bloctest/pages/onboarding/onboard_two.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';

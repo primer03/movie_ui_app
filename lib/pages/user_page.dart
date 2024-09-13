@@ -33,7 +33,7 @@ class _UserPageState extends State<UserPage> {
             const SizedBox(height: 20),
             Listmeneuser(
               icon: SvgPicture.asset('assets/svg/User.svg', width: 30),
-              title: 'แก้ไขข้อมูลผู้ใช้',
+              title: 'ข้อมูลผู้ใช้',
               onTap: () {
                 Navigator.pushNamed(context, '/profile');
               },

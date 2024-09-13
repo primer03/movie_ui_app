@@ -3,24 +3,22 @@ import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/models/user_model.dart';
-import 'package:bloctest/pages/library_page.dart';
+import 'package:bloctest/pages/library/library_page.dart';
+import 'package:bloctest/pages/novel_special_page.dart';
 import 'package:bloctest/pages/user_page.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
-import 'package:bloctest/pages/explore_page.dart';
 import 'package:bloctest/pages/novel_home.dart';
-import 'package:bloctest/pages/search_page.dart';
 import 'package:bloctest/widgets/IconBottombar.dart';
-import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:bloctest/main.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive/hive.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:logger/web.dart';
 import 'package:shimmer/shimmer.dart';
+import 'dart:io' show Platform;
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -31,6 +29,7 @@ class Mainpage extends StatefulWidget {
 
 class _MainpageState extends State<Mainpage> {
   bool closeloading = true;
+  var now = DateTime.now();
   @override
   void initState() {
     super.initState();
@@ -78,15 +77,45 @@ class _MainpageState extends State<Mainpage> {
                   SliverAppBar(
                     surfaceTintColor: Colors.white,
                     backgroundColor: Colors.white,
-                    leading: Container(
-                      margin: const EdgeInsets.only(left: 20),
-                      child: const CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.grey,
-                        backgroundImage: NetworkImage(
-                            'https://avatar.iran.liara.run/public'),
-                      ),
+                    leading: BlocConsumer<UserBloc, UserState>(
+                      listener: (context, state) {
+                        if (state is UserLoginrememberSate) {
+                          setState(() {
+                            now = DateTime.now();
+                          });
+                        }
+                      },
+                      builder: (context, state) {
+                        if (state is UserLoginrememberSate) {
+                          return Container(
+                            margin: const EdgeInsets.only(left: 20),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.grey[300],
+                              backgroundImage: CachedNetworkImageProvider(
+                                state.user.img +
+                                    '?time=${now.millisecondsSinceEpoch}',
+                              ),
+                            ),
+                          );
+                        } else if (state is UserLoading) {
+                          return IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Iconsax.user),
+                          );
+                        }
+                        return Container(
+                          margin: const EdgeInsets.only(left: 20),
+                          child: const CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.grey,
+                            backgroundImage: NetworkImage(
+                                'https://avatar.iran.liara.run/public'),
+                          ),
+                        );
+                      },
                     ),
+
                     title: BlocBuilder<UserBloc, UserState>(
                       builder: (context, state) {
                         if (state is UserLoginrememberSate) {
@@ -202,12 +231,22 @@ class _MainpageState extends State<Mainpage> {
               ),
             ),
             bottomNavigationBar: Container(
+              padding: Platform.isIOS
+                  ? const EdgeInsets.only(
+                      bottom: 15,
+                    )
+                  : const EdgeInsets.only(
+                      bottom: 0,
+                    ),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
+                borderRadius: BorderRadius.only(
+                    topLeft: Platform.isIOS
+                        ? const Radius.circular(0)
+                        : const Radius.circular(20),
+                    topRight: Platform.isIOS
+                        ? const Radius.circular(0)
+                        : const Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
@@ -233,7 +272,8 @@ class _MainpageState extends State<Mainpage> {
                     IconBottombar(
                       state: state,
                       tabIndex: 1,
-                      icon: 'assets/svg/search-lg.svg',
+                      size: 27,
+                      icon: 'assets/svg/Star_duotone.svg',
                     ),
                     IconBottombar(
                       state: state,
@@ -260,7 +300,7 @@ class _MainpageState extends State<Mainpage> {
       case 0:
         return const MovieHome();
       case 1:
-        return const ExplorePage();
+        return const NovelSpecialPage();
       case 2:
         return const LibraryPage();
       case 3:

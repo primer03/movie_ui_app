@@ -4,6 +4,7 @@ import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/novelread/readnovel_bloc.dart';
 import 'package:bloctest/bloc/novelsearch/novelsearch_bloc.dart';
+import 'package:bloctest/bloc/novelspecial/novelspecial_bloc.dart';
 import 'package:bloctest/bloc/onboarding/onboarding_bloc.dart';
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
@@ -11,7 +12,6 @@ import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -33,6 +33,8 @@ void main() async {
   novelBox.delete('searchDatabyName');
   novelBox.delete('bookmarkData');
   novelBox.delete('categoryData');
+  novelBox.delete('ReadLast');
+  novelBox.delete('specialData');
   runApp(MyApp(initialRoute: hasData ? '/main' : '/'));
   WidgetsBinding.instance.addObserver(AppLifecycleObserver());
 }
@@ -46,6 +48,9 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
       print('inactive'); // คือเมื่อ app อยู่ในสถานะที่ไม่ได้ใช้งาน
     } else if (state == AppLifecycleState.paused) {
       print("App moved to background"); // คือเมื่อ app อยู่ในสถานะที่ถูกปิดไป
+    } else if (state == AppLifecycleState.resumed) {
+      print(
+          "App moved to foreground"); // คือเมื่อ app อยู่ในสถานะที่ถูกเปิดขึ้นมา
     }
   }
 }
@@ -79,6 +84,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<NovelbookmarkBloc>(
           create: (context) => NovelbookmarkBloc(),
         ),
+        BlocProvider<NovelspecialBloc>(create: (context) => NovelspecialBloc()),
         BlocProvider<ReadnovelBloc>(create: (context) => ReadnovelBloc()),
         initialRoute != '/'
             ? BlocProvider<NovelBloc>(

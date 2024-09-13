@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
-import 'package:bloctest/pages/novel_detail.dart';
+import 'package:bloctest/models/user_model.dart';
+import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -36,17 +40,31 @@ class Novelcarditem extends StatelessWidget {
             const SizedBox(width: 20),
             ...items.map((Item item) {
               return GestureDetector(
-                onTap: () {
-                  print('novelId: ${item.id}');
-                  print('allep: ${item.allep}');
-                  Navigator.of(context).pushNamed(
-                    '/noveldetail',
-                    arguments: {
-                      'novelId': item.btcolId,
-                      'allep': item.allep,
-                      'bloc': BlocProvider.of<NovelDetailBloc>(context),
-                    },
-                  );
+                onTap: () async {
+                  // print('novelId: ${item.id}');
+                  // print('allep: ${item.allep}');
+                  // Navigator.of(context).pushNamed(
+                  //   '/noveldetail',
+                  //   arguments: {
+                  //     'novelId': item.btcolId,
+                  //     'allep': item.allep,
+                  //     'bloc': BlocProvider.of<NovelDetailBloc>(context),
+                  //   },
+                  // );
+
+                  final userData = await novelBox.get('user');
+                  if (userData != null) {
+                    User user = User.fromJson(json.decode(userData));
+                    Navigator.of(context).pushNamed(
+                      '/noveldetail',
+                      arguments: {
+                        'novelId': item.btcolId,
+                        'allep': item.allep,
+                        'bloc': BlocProvider.of<NovelDetailBloc>(context),
+                        'user': user,
+                      },
+                    );
+                  }
                 },
                 child: Container(
                   width: 115,
@@ -67,6 +85,14 @@ class Novelcarditem extends StatelessWidget {
                                 imageUrl: item.btcolImg,
                                 fit: BoxFit.fill,
                                 height: double.infinity,
+                                errorWidget: (context, url, error) =>
+                                    const Center(child: Icon(Icons.error)),
+                                fadeOutDuration:
+                                    const Duration(milliseconds: 500),
+                                fadeInDuration:
+                                    const Duration(milliseconds: 1000
+                                        // 1000
+                                        ),
                                 placeholder: (context, url) =>
                                     Shimmer.fromColors(
                                   baseColor: Colors.grey[400]!,

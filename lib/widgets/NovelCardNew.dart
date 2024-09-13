@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_model.dart';
-import 'package:bloctest/pages/movie_detail.dart';
-import 'package:bloctest/pages/novel_detail.dart';
+import 'package:bloctest/models/user_model.dart';
+import 'package:bloctest/pages/detail/movie_detail.dart';
+import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -37,15 +41,20 @@ class Novelcardnew extends StatelessWidget {
             const SizedBox(width: 20),
             ...items.map((Recomnovel item) {
               return GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed(
-                    '/noveldetail',
-                    arguments: {
-                      'novelId': item.id,
-                      'allep': item.allep,
-                      'bloc': BlocProvider.of<NovelDetailBloc>(context),
-                    },
-                  );
+                onTap: () async {
+                  final userData = await novelBox.get('user');
+                  if (userData != null) {
+                    User user = User.fromJson(json.decode(userData));
+                    Navigator.of(context).pushNamed(
+                      '/noveldetail',
+                      arguments: {
+                        'novelId': item.id,
+                        'allep': item.allep,
+                        'bloc': BlocProvider.of<NovelDetailBloc>(context),
+                        'user': user,
+                      },
+                    );
+                  }
                 },
                 child: Container(
                   width: 115,
@@ -66,6 +75,8 @@ class Novelcardnew extends StatelessWidget {
                                 imageUrl: item.img,
                                 fit: BoxFit.fill,
                                 height: double.infinity,
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
                                 placeholder: (context, url) =>
                                     Shimmer.fromColors(
                                   baseColor: Colors.grey[400]!,

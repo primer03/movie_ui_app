@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_allsearch_model.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +105,7 @@ class _CateviewState extends State<Cateview> {
 
   Widget _buildAnimatedMenu() {
     return AnimatedSlide(
-      offset: widget.isMenuVisible ? Offset(0, 0) : Offset(0, -1),
+      offset: widget.isMenuVisible ? const Offset(0, 0) : const Offset(0, -1),
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       child: Container(
@@ -182,15 +186,20 @@ class NovelItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(
-          '/noveldetail',
-          arguments: {
-            'novelId': novel.id,
-            'allep': novel.allep,
-            'bloc': BlocProvider.of<NovelDetailBloc>(context),
-          },
-        );
+      onTap: () async {
+        final userData = await novelBox.get('user');
+        if (userData != null) {
+          User user = User.fromJson(json.decode(userData));
+          Navigator.of(context).pushNamed(
+            '/noveldetail',
+            arguments: {
+              'novelId': novel.id,
+              'allep': novel.allep,
+              'bloc': BlocProvider.of<NovelDetailBloc>(context),
+              'user': user,
+            },
+          );
+        }
       },
       child: Card(
         elevation: 0,
@@ -236,6 +245,9 @@ class NovelItemCard extends StatelessWidget {
               fit: BoxFit.fill,
               height: 140,
               width: 100,
+              errorWidget: (context, url, error) => const Center(
+                child: Icon(Icons.error),
+              ),
               placeholder: (context, url) => const NovelImageShimmer(),
             ),
             if (novel.end.name == 'END')

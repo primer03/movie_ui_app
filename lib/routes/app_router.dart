@@ -2,12 +2,13 @@ import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/pages/category_page.dart';
-import 'package:bloctest/pages/login_page.dart';
-import 'package:bloctest/pages/novel_detail.dart';
-import 'package:bloctest/pages/profile_page.dart';
-import 'package:bloctest/pages/reader_page.dart';
-import 'package:bloctest/pages/register_page.dart';
-import 'package:bloctest/pages/search_page.dart';
+import 'package:bloctest/pages/auth/login_page.dart';
+import 'package:bloctest/pages/detail/novel_detail.dart';
+import 'package:bloctest/pages/detail/novel_detail_new.dart';
+import 'package:bloctest/pages/profile/profile_page.dart';
+import 'package:bloctest/pages/reader/reader_page.dart';
+import 'package:bloctest/pages/auth/register_page.dart';
+import 'package:bloctest/pages/search/search_page.dart';
 import 'package:bloctest/widgets/SlideLeftPageRoute.dart';
 import 'package:flutter/material.dart';
 import 'package:bloctest/pages/main_page.dart';
@@ -41,15 +42,17 @@ class AppRouter {
           child: BlocProvider.value(
             // รับ Bloc จาก arguments แทนที่จะเรียกใช้ context โดยตรง
             value: args['bloc'] as NovelDetailBloc,
-            child: NovelDetail(
+            child: NovelDetailNew(
               novelId: args['novelId'],
               allep: args['allep'],
+              user: args['user'],
             ),
           ),
         );
       case '/profile':
-        return SlideLeftRoute(
-          page: const ProfilePage(),
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: const ProfilePage(),
         );
       case '/category':
         final args = settings.arguments as Map<String, dynamic>;

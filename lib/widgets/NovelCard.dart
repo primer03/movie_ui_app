@@ -1,5 +1,5 @@
-import 'package:bloctest/pages/movie_detail.dart';
-import 'package:bloctest/pages/novel_detail.dart';
+import 'package:bloctest/pages/detail/movie_detail.dart';
+import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

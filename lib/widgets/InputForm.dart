@@ -183,9 +183,19 @@ class _InputFormState extends State<InputForm> {
                   return 'ชื่อผู้ใช้ต้องมีความยาว 3-20 ตัวอักษร';
                 }
               }
+
               return null;
             }
-          : null,
+          : (value) {
+              if (widget.labelText.contains('ลิงก์')) {
+                if (value!.isNotEmpty) {
+                  if (!RegExp(r'^http[s]?://').hasMatch(value)) {
+                    return 'ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://';
+                  }
+                }
+              }
+              return null;
+            },
       style: GoogleFonts.athiti(
         color: Colors.black,
         fontWeight: FontWeight.w800,

@@ -174,28 +174,46 @@ class BookfetNovelBook {
 }
 
 class BookfetNovelEp {
-  final String epId;
-  final String bookId;
-  final String? detail;
+  // final String epId;
+  // final String bookId;
+  // final String? detail;
+  // final String name;
+  // final int? ep;
+  // final DateTime publishDate;
+  // final String publishTime;
+  // final BookfetPublish publish;
+
+  final int? id;
   final String name;
-  final int? ep;
+  final String epId;
+  final int? orderBy;
+  final BookfetTypeRead typeRead;
+  final String bookId;
   final DateTime publishDate;
   final String publishTime;
   final BookfetPublish publish;
+  final String? detail;
+  final int? ep;
 
   BookfetNovelEp({
-    required this.epId,
-    required this.bookId,
-    this.detail,
+    this.id,
     required this.name,
-    this.ep,
+    required this.epId,
+    this.orderBy,
+    required this.typeRead,
+    required this.bookId,
     required this.publishDate,
     required this.publishTime,
     required this.publish,
+    this.detail,
+    this.ep,
   });
 
   factory BookfetNovelEp.fromJson(Map<String, dynamic> json) => BookfetNovelEp(
+        id: json["id"],
         epId: json["epID"],
+        orderBy: json["order_by"],
+        typeRead: bookfetTypeReadValues.map[json["typeRead"]]!,
         bookId: json["bookID"],
         detail: json["detail"],
         name: json["name"],
@@ -241,6 +259,11 @@ class BookfetPreviousOrNext {
         "Next": next?.toJson(),
       };
 }
+
+// enum TypeRead { COIN, FREE }
+
+// final typeReadValues =
+//     BookfetEnumValues({"coin": TypeRead.COIN, "free": TypeRead.FREE});
 
 class BookfetEnumValues<T> {
   Map<String, T> map;

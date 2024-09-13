@@ -13,11 +13,12 @@ final class NovelDetailLoading extends NovelDetailState {}
 
 final class NovelDetailLoaded extends NovelDetailState {
   final DataNovel dataNovel;
+  final List<dynamic>? hisRead;
 
-  const NovelDetailLoaded(this.dataNovel);
+  const NovelDetailLoaded(this.dataNovel, this.hisRead);
 
   @override
-  List<Object> get props => [dataNovel];
+  List<Object> get props => [dataNovel, hisRead ?? []];
 }
 
 final class NovelDetailError extends NovelDetailState {

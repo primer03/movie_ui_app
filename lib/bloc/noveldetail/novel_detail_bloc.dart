@@ -19,9 +19,12 @@ class NovelDetailBloc extends Bloc<NovelDetailEvent, NovelDetailState> {
     print('Fetching novel detail...');
     emit(NovelDetailLoading());
     try {
-      final dataNovel = await _novelRepository.getnovelById(event.novelId);
+      final dataNovel =
+          await _novelRepository.getNovelById(event.novelId.toString());
       // Logger().i('dataNovel: ${dataNovel.novel}');
-      emit(NovelDetailLoaded(dataNovel));
+      // Logger().i('dataNovel: ${dataNovel['novel'].runtimeType}');
+      // Logger().i('hisRead: ${dataNovel['hisRead'].runtimeType}');
+      emit(NovelDetailLoaded(dataNovel['novel'], dataNovel['hisRead']));
     } catch (e) {
       Logger().e('Error: $e');
       emit(const NovelDetailError('เกิดข้อผิดพลาด'));

@@ -5,8 +5,11 @@ import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/user_model.dart';
+import 'package:bloctest/repositories/novel_repository.dart';
+import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/widgets/InputForm.dart';
 import 'package:bloctest/widgets/InputThem.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +18,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:toastification/toastification.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -35,7 +39,9 @@ class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final List<String> gender = ['ชาย', 'หญิง'];
   final picker = ImagePicker();
+  String userImage = '';
   File? _image;
+  var now = DateTime.now();
 
   Future<void> _getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -53,6 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
             toolbarColor: Colors.black,
             toolbarWidgetColor: Colors.white,
             activeControlsWidgetColor: Colors.white,
+
             // hideBottomControls: true,
             // backgroundColor: Colors.red,
             // lockAspectRatio: false,
@@ -66,17 +73,39 @@ class _ProfilePageState extends State<ProfilePage> {
               CropAspectRatioPreset.values[1],
             ],
           ),
+          IOSUiSettings(
+            // resetAspectRatioEnabled: true, //
+            aspectRatioPresets: [
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.square,
+            ],
+          ),
         ],
       );
-
-      setState(() {
-        if (croppedFile != null) {
-          _image = File(croppedFile.path);
-          print('Cropped image path: ${_image!.path}');
-        } else {
-          print('No image selected.');
-        }
-      });
+      try {
+        showLoadingDialog(context);
+        UserRepository repository = UserRepository();
+        await repository.updateImageUser(image: File(croppedFile!.path));
+        context.read<UserBloc>().add(LoadProfile(
+              user: User.fromJson(jsonDecode(novelBox.get('user'))),
+              password: await getPassword(),
+            ));
+        setState(() {
+          if (croppedFile != null) {
+            _image = File(croppedFile.path);
+            print('Cropped image path: ${_image!.path}');
+          } else {
+            print('No image selected.');
+          }
+        });
+      } catch (e) {
+        showToastification(
+          context: context,
+          message: 'เกิดข้อผิดพลาด',
+          type: ToastificationType.error,
+          style: ToastificationStyle.minimal,
+        );
+      }
     } else {
       print('No image selected.');
     }
@@ -143,7 +172,8 @@ class _ProfilePageState extends State<ProfilePage> {
           if (state is UserLoadedProfile) {
             Navigator.pop(context);
             setState(() {
-              _selectedGender = "ชาย"; // Update the gender inside setState
+              _selectedGender =
+                  state.user.detail.gender == 'm' ? 'ชาย' : 'หญิง';
               _usernameController.text = state.user.username;
               _dateController.text = convertISOToThaiDate(
                 state.user.detail.birthdayDate.toString().substring(0, 10),
@@ -152,6 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
               _addressController.text = state.user.detail.address ?? '';
               _facebookController.text = state.user.detail.fbLink ?? '';
               _twitterController.text = state.user.detail.twitterLink ?? '';
+              userImage = state.user.img;
             });
           }
         },
@@ -187,7 +218,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   isEmptyValue: true,
                 ),
                 const SizedBox(height: 20),
-                _buildAddressField(),
+                _buildAddressField(3),
                 const SizedBox(height: 20),
                 _buildInputField(
                   _facebookController,
@@ -227,15 +258,17 @@ class _ProfilePageState extends State<ProfilePage> {
         Container(
           width: 150,
           height: 150,
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(0),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [Colors.black, Colors.red[900]!],
-              stops: const [0.3, 1.0],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 1,
+                offset: const Offset(2, 3),
+              ),
+            ],
           ),
           child: Material(
             color: Colors.white,
@@ -252,13 +285,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                 ),
-                child: Ink.image(
-                  image: _image != null
-                      ? FileImage(_image!)
-                      : const NetworkImage(
-                          'https://avatar.iran.liara.run/public'),
-                  width: 150,
-                  height: 150,
+                child: ClipOval(
+                  // ใช้ ClipOval เพื่อทำให้รูปภาพเป็นวงกลม
+                  child: _image != null
+                      ? Image.file(
+                          _image!,
+                          height: 150,
+                          width: 150,
+                          fit: BoxFit.cover,
+                        )
+                      : userImage.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: userImage +
+                                  '?time=${now.millisecondsSinceEpoch}',
+                              height: 150,
+                              width: 150,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              'https://www.pngkey.com/png/full/114-1149878_setting-user-avatar-in-specific-size-without-breaking.png',
+                              height: 150,
+                              width: 150,
+                              fit: BoxFit.cover,
+                            ),
                 ),
               ),
             ),
@@ -364,11 +413,55 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildSaveButton() {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         if (_formKey.currentState!.validate()) {
           print('Submit');
           for (var i = 0; i < _focusNodes.length; i++) {
             _focusNodes[i].unfocus();
+          }
+          showLoadingDialog(context);
+          try {
+            UserRepository repository = UserRepository();
+            bool check = await repository.updateProfileUser(
+              username: _usernameController.text,
+              date: _dateController.text,
+              gender: _selectedGender,
+              phone: _phoneController.text,
+              address: _addressController.text,
+              FB: _facebookController.text,
+              twitter: _twitterController.text,
+            );
+            if (check) {
+              final userstr = novelBox.get('user');
+              print(userstr);
+              final user = User.fromJson(jsonDecode(userstr));
+              final password = await getPassword();
+              BlocProvider.of<UserBloc>(context)
+                  .add(LoadProfile(user: user, password: password));
+              print('Update profile success');
+              showToastification(
+                context: context,
+                message: 'อัพเดทข้อมูลสำเร็จ',
+                type: ToastificationType.success,
+                style: ToastificationStyle.minimal,
+              );
+            } else {
+              print('Update profile fail');
+              showToastification(
+                context: context,
+                message: 'อัพเดทข้อมูลไม่สำเร็จ',
+                type: ToastificationType.error,
+                style: ToastificationStyle.minimal,
+              );
+            }
+          } catch (e) {
+            showToastification(
+              context: context,
+              message: 'เกิดข้อผิดพลาด',
+              type: ToastificationType.error,
+              style: ToastificationStyle.minimal,
+            );
+            print('Error: $e');
           }
         }
       },
@@ -391,9 +484,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildAddressField() {
+  Widget _buildAddressField(int focusIndex) {
     return InputThem(
       child: TextFormField(
+        focusNode: _focusNodes[focusIndex],
+        controller: _addressController,
         minLines: 4,
         maxLines: null,
         keyboardType: TextInputType.multiline,
