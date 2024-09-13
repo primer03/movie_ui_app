@@ -99,7 +99,7 @@ class _NovelSpecialPageState extends State<NovelSpecialPage> {
             if (state is NovelspecialFailure) {
               // หากเกิดข้อผิดพลาด สามารถทำการแสดง SnackBar หรือแจ้งเตือนผู้ใช้ได้
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error occurred while fetching data!')),
+                const SnackBar(content: Text('Error occurred while fetching data!')),
               );
             } else if (state is NovelspecialSuccess) {
               if (!isVideoInitialized) {

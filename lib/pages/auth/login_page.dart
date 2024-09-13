@@ -243,19 +243,31 @@ class _LoginPageState extends State<LoginPage> {
         _buildDivider(),
         const SizedBox(height: 20),
         BtnSocial(
-            color: Colors.red.withOpacity(0.1),
-            text: 'เข้าสู่ระบบด้วย Google   ',
-            icon: 'assets/svg/Google.svg'),
+          color: Colors.red.withOpacity(0.1),
+          text: 'เข้าสู่ระบบด้วย Google   ',
+          icon: 'assets/svg/Google.svg',
+          onPressed: () async {
+            signInWithGoogle();
+          },
+        ),
         const SizedBox(height: 10),
         BtnSocial(
-            color: const Color(0xFF06C755).withOpacity(0.1),
-            text: 'เข้าสู่ระบบด้วย Line       ',
-            icon: 'assets/svg/Line.svg'),
+          color: const Color(0xFF06C755).withOpacity(0.1),
+          text: 'เข้าสู่ระบบด้วย Line       ',
+          icon: 'assets/svg/Line.svg',
+          onPressed: () {
+            signOut();
+          },
+        ),
         const SizedBox(height: 10),
         BtnSocial(
-            color: const Color(0xFF0866FF).withOpacity(0.1),
-            text: 'เข้าสู่ระบบด้วย Facebook',
-            icon: 'assets/svg/Facebook.svg'),
+          color: const Color(0xFF0866FF).withOpacity(0.1),
+          text: 'เข้าสู่ระบบด้วย Facebook',
+          icon: 'assets/svg/Facebook.svg',
+          onPressed: () {
+            signInWithFacebook();
+          },
+        ),
       ],
     );
   }
@@ -282,15 +294,17 @@ class BtnSocial extends StatelessWidget {
     required this.color,
     required this.text,
     required this.icon,
+    required this.onPressed,
   });
   final Color color;
   final String text;
   final String icon;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,

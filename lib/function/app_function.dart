@@ -1,7 +1,10 @@
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:toastification/toastification.dart';
@@ -39,9 +42,6 @@ String abbreviateNumber(num number) {
 }
 
 Future<String> getDevice() async {
-  // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  // AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-  // return androidInfo.model;
   if (Platform.isAndroid) {
     final deviceInfo = DeviceInfoPlugin();
     final androidInfo = await deviceInfo.androidInfo;
@@ -200,4 +200,99 @@ Future<void> getAppVersion() async {
 
   print('App Version: $version');
   print('Build Number: $buildNumber');
+}
+
+Future<UserCredential?> signInWithGoogle() async {
+  try {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Check if the user canceled the sign-in process
+    if (googleUser == null) {
+      print('Sign in aborted by user');
+      return null; // Return null if user cancels the sign-in
+    }
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    UserCredential userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+
+    // Access the user information
+    User? user = userCredential.user;
+
+    if (user != null) {
+      // Print the user's display name
+      print('Login successful! User: ${user.displayName}');
+    } else {
+      print('No user information found');
+    }
+
+    return userCredential;
+  } catch (e) {
+    print('Error during Google sign-in: $e');
+    return null;
+  }
+}
+
+Future<void> signOut() async {
+  try {
+    // Sign out from Firebase
+    await FirebaseAuth.instance.signOut();
+
+    // Sign out from Google
+    await GoogleSignIn().signOut();
+
+    print('User successfully logged out');
+  } catch (e) {
+    print('Error during sign out: $e');
+  }
+}
+
+Future<UserCredential?> signInWithFacebook() async {
+  try {
+    // Trigger the sign-in flow
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+
+    // Check if login was successful
+    if (loginResult.status == LoginStatus.success) {
+      // Create a credential from the access token
+      final OAuthCredential facebookAuthCredential =
+          FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
+
+      // Once signed in, return the UserCredential
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(facebookAuthCredential);
+
+      // Access the user information
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Print the user's display name
+        print('Login successful! User: ${user.displayName}');
+      } else {
+        print('No user information found');
+      }
+
+      return userCredential;
+    } else if (loginResult.status == LoginStatus.cancelled) {
+      print('Login cancelled by user');
+      return null; // User cancelled the login
+    } else {
+      print('Login failed: ${loginResult.message}');
+      return null;
+    }
+  } catch (e) {
+    print('Error during Facebook sign-in: $e');
+    return null;
+  }
 }

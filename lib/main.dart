@@ -12,6 +12,7 @@ import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: depend_on_referenced_packages
@@ -23,7 +24,7 @@ import 'package:path_provider/path_provider.dart';
 late Box novelBox;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Firebase.initializeApp();
   // กำหนด path สำหรับ Hive
   final appDocumentDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDir.path);
