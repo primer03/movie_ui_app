@@ -9,6 +9,14 @@ PODS:
     - Flutter
   - device_info_plus (0.0.1):
     - Flutter
+  - FBAEMKit (17.1.0):
+    - FBSDKCoreKit_Basics (= 17.1.0)
+  - FBSDKCoreKit (17.1.0):
+    - FBAEMKit (= 17.1.0)
+    - FBSDKCoreKit_Basics (= 17.1.0)
+  - FBSDKCoreKit_Basics (17.1.0)
+  - FBSDKLoginKit (17.1.0):
+    - FBSDKCoreKit (= 17.1.0)
   - Firebase/Auth (11.0.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 11.0.0)
@@ -67,6 +75,12 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
   - Flutter (1.0.0)
+  - flutter_facebook_auth (7.1.1):
+    - FBSDKLoginKit (~> 17.1.0)
+    - Flutter
+  - flutter_line_sdk (2.3.8):
+    - Flutter
+    - LineSDKSwift (~> 5.3)
   - flutter_localization (0.0.1):
     - Flutter
   - flutter_secure_storage (6.0.0):
@@ -146,6 +160,9 @@ PODS:
     - Flutter
   - just_audio (0.0.1):
     - Flutter
+  - LineSDKSwift (5.11.1):
+    - LineSDKSwift/Core (= 5.11.1)
+  - LineSDKSwift/Core (5.11.1)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -190,11 +207,14 @@ PODS:
 DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
+  - FBSDKLoginKit
   - Firebase/Auth
   - Firebase/Core
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
+  - flutter_facebook_auth (from `.symlinks/plugins/flutter_facebook_auth/ios`)
+  - flutter_line_sdk (from `.symlinks/plugins/flutter_line_sdk/ios`)
   - flutter_localization (from `.symlinks/plugins/flutter_localization/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
@@ -219,6 +239,10 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - AppAuth
+    - FBAEMKit
+    - FBSDKCoreKit
+    - FBSDKCoreKit_Basics
+    - FBSDKLoginKit
     - Firebase
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
@@ -233,6 +257,7 @@ SPEC REPOS:
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
+    - LineSDKSwift
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
@@ -251,6 +276,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
     :path: Flutter
+  flutter_facebook_auth:
+    :path: ".symlinks/plugins/flutter_facebook_auth/ios"
+  flutter_line_sdk:
+    :path: ".symlinks/plugins/flutter_line_sdk/ios"
   flutter_localization:
     :path: ".symlinks/plugins/flutter_localization/ios"
   flutter_secure_storage:
@@ -294,6 +323,10 @@ SPEC CHECKSUMS:
   AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
   audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
+  FBAEMKit: cb719c53575a3be86ea873279f30d6a2c4e15881
+  FBSDKCoreKit: ecdb980a24633ccb012700299ceb16d0235e14d2
+  FBSDKCoreKit_Basics: 045101c4a9ef10c845347424d73a29aae02c3e43
+  FBSDKLoginKit: 69eb59b2f839aba635616df6e422acd0ca88030a
   Firebase: 9f574c08c2396885b5e7e100ed4293d956218af9
   firebase_auth: 78dab5e2826921865b33799c66ce7868542beed0
   firebase_core: ba84e940cf5cbbc601095f86556560937419195c
@@ -306,6 +339,8 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: 0c569513412da9f3b31bd0b340013bbee8f295c5
   FirebaseInstallations: 771177d89d6c451dc6e50085ec82e2fc77ed0a4a
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_facebook_auth: 48be46091bd1a5cc5a66055f1228a9d99a28bfaa
+  flutter_line_sdk: 266c756b2223ca2645a7c302f8c4101e3e2b8e12
   flutter_localization: f43b18844a2b3d2c71fd64f04ffd6b1e64dd54d4
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
   fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
@@ -318,6 +353,7 @@ SPEC CHECKSUMS:
   image_cropper: 37d40f62177c101ff4c164906d259ea2c3aa70cf
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
+  LineSDKSwift: a3396147600cd9f2548fea88f31f49d928384bcb
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   no_screenshot: 67d110f12466f4913b488803d4e498d03ef2889e
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
@@ -337,6 +373,6 @@ SPEC CHECKSUMS:
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
   webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
 
-PODFILE CHECKSUM: b949c2c6cbd3d0635624f3734501239f7a08a102
+PODFILE CHECKSUM: 3fa02ec60d69302f21e3f63e4a4d9a2cc999a609
 
 COCOAPODS: 1.15.2

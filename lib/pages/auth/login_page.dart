@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/widgets/InputForm.dart';
 import 'package:bloctest/widgets/InputThem.dart';
@@ -28,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    // lineSDKInit();
     for (var node in _focusNodes) {
       node.addListener(() => setState(() {}));
     }
@@ -256,7 +258,8 @@ class _LoginPageState extends State<LoginPage> {
           text: 'เข้าสู่ระบบด้วย Line       ',
           icon: 'assets/svg/Line.svg',
           onPressed: () {
-            signOut();
+            // signOut();
+            startLineLogin(context);
           },
         ),
         const SizedBox(height: 10),

@@ -10,11 +10,13 @@ import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/bloc/visibility/visibility_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_line_sdk/flutter_line_sdk.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive/hive.dart';
@@ -24,6 +26,9 @@ import 'package:path_provider/path_provider.dart';
 late Box novelBox;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  LineSDK.instance.setup('2002469697').then((_) {
+    print('LineSDK Prepared');
+  });
   await Firebase.initializeApp();
   // กำหนด path สำหรับ Hive
   final appDocumentDir = await getApplicationDocumentsDirectory();
