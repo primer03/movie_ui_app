@@ -185,7 +185,7 @@ class InitLastSearch extends StatelessWidget {
               imageUrl: novel.img,
               fit: BoxFit.cover,
               height: 120,
-              errorWidget: (context, url, error) => Icon(Icons.error),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
               placeholder: (context, url) => Shimmer.fromColors(
                 baseColor: Colors.grey[400]!,
                 highlightColor: Colors.grey[100]!,
@@ -200,25 +200,21 @@ class InitLastSearch extends StatelessWidget {
             Positioned(
               top: 5,
               left: 3,
-              child: Stack(
-                children: [
-                  Image.asset(
-                    'assets/images/label.png',
-                    width: 40,
+              child: Container(
+                padding: const EdgeInsets.only(
+                    left: 10, right: 10, top: 2, bottom: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFdc3545),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text(
+                  'จบ',
+                  style: GoogleFonts.athiti(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Positioned(
-                    top: 1,
-                    left: 9,
-                    child: Text(
-                      'จบแล้ว',
-                      style: GoogleFonts.athiti(
-                        color: Colors.red[700],
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],
