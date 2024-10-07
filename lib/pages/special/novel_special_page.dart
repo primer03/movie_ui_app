@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/novelspecial/novelspecial_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +103,8 @@ class _NovelSpecialPageState extends State<NovelSpecialPage> {
             if (state is NovelspecialFailure) {
               // หากเกิดข้อผิดพลาด สามารถทำการแสดง SnackBar หรือแจ้งเตือนผู้ใช้ได้
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Error occurred while fetching data!')),
+                const SnackBar(
+                    content: Text('Error occurred while fetching data!')),
               );
             } else if (state is NovelspecialSuccess) {
               if (!isVideoInitialized) {
@@ -219,7 +224,23 @@ class _NovelSpecialPageState extends State<NovelSpecialPage> {
                           horizontal: 20,
                         ),
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            final userData = await novelBox.get('user');
+                            if (userData != null) {
+                              User user = User.fromJson(json.decode(userData));
+                              Navigator.of(context).pushNamed(
+                                '/noveldetail',
+                                arguments: {
+                                  'novelId': state
+                                      .specialPage.specialBanner![0].sb!.id,
+                                  'allep': 0,
+                                  'bloc':
+                                      BlocProvider.of<NovelDetailBloc>(context),
+                                  'user': user,
+                                },
+                              );
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white.withOpacity(0.8),
                             padding: const EdgeInsets.symmetric(
