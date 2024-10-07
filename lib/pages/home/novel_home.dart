@@ -194,9 +194,10 @@ class _MovieHomeState extends State<MovieHome> {
                             ),
                           ),
                           style: GoogleFonts.athiti(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold),
+                            fontSize: 14,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
