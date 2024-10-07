@@ -7,9 +7,11 @@ class gridskeleton extends StatelessWidget {
   const gridskeleton({
     super.key,
     required this.width,
+    this.itemCount = 12,
   });
 
   final double width;
+  final int itemCount;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class gridskeleton extends StatelessWidget {
       crossAxisCount: width > 600 ? 4 : 3,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      itemCount: 12,
+      itemCount: itemCount,
       itemBuilder: (BuildContext context, int index) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
