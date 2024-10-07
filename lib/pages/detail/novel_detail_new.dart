@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
+import 'package:bloctest/bloc/novelrec/novelrec_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_bookmark_model.dart';
@@ -10,6 +11,8 @@ import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:bloctest/widgets/Epview.dart';
 import 'package:bloctest/widgets/ExpansionTileEpisode.dart';
+import 'package:bloctest/widgets/ItemGridRec.dart';
+import 'package:bloctest/widgets/gridskeleton.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:expandable_page_view/expandable_page_view.dart';
@@ -17,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -135,6 +139,9 @@ class _NovelDetailNewState extends State<NovelDetailNew>
       body: BlocConsumer<NovelDetailBloc, NovelDetailState>(
         listener: (context, state) {
           if (state is NovelDetailLoaded) {
+            context
+                .read<NovelrecBloc>()
+                .add(NovelrecLoad(state.dataNovel.novel.btName));
             setState(() {
               var allEPList = state.dataNovel.novelEp.where((element) {
                 DateTime publishDateTime =
@@ -478,6 +485,78 @@ class _NovelDetailNewState extends State<NovelDetailNew>
         ),
         const SizedBox(height: 10),
         ..._buildEpisodeList(dataNovel),
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Text(
+                'นิยายแนะนำ',
+                style: GoogleFonts.athiti(
+                    fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  print('Refresh');
+                  context
+                      .read<NovelrecBloc>()
+                      .add(NovelrecLoad(dataNovel.novel.btName));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black12,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
+                  ),
+                  overlayColor: Colors.transparent,
+                  minimumSize: const Size(0, 0),
+                ),
+                child: SvgPicture.asset(
+                  'assets/svg/refresh-2.svg',
+                  color: Colors.black,
+                  width: 15,
+                ),
+              )
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        BlocBuilder<NovelrecBloc, NovelrecState>(builder: (context, state) {
+          print(state);
+          if (state is NovelrecLoading) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: gridskeleton(
+                width: MediaQuery.of(context).size.width,
+                itemCount: 6,
+              ),
+            );
+          } else if (state is NovelrecLoaded) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Itemgridrec(
+                width: MediaQuery.of(context).size.width,
+                recList: state.dataNovel,
+              ),
+            );
+          } else if (state is NovelrecError) {
+            return Center(
+              child: Text(state.message),
+            );
+          } else if (state is NovelrecEmpty) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text('ไม่มีข้อมูล'),
+            );
+          }
+          return SizedBox();
+        }),
+        const SizedBox(height: 20),
       ],
     );
   }
