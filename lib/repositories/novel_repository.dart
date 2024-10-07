@@ -53,31 +53,31 @@ class NovelRepository {
 
   Future<List<Searchnovel>> recNovels(String name) async {
     final url = Uri.parse('$_baseUrl/Allsearch');
-    List<Searchnovel> search;
     try {
       final response = await _getRequest(url);
       final decodedData = _decodeResponse(response);
       Allsearch allsearch = Allsearch.fromJson(decodedData);
-      final cateNovel =
-          allsearch.searchnovel.where((e) => e.name == name).first;
-      search = allsearch.searchnovel.where((e) {
-        return e.cat1 == cateNovel.cat1 || e.cat2 == cateNovel.cat2;
-      }).toList();
-      search = search.where((e) => e.name != name).toList();
 
-      search.shuffle(); // Shuffle the list in-place
-      // search = search.length < 6 ? search : search.sublist(0, 6);
+      // หา novel ที่ตรงกับชื่อ
+      final cateNovel = allsearch.searchnovel.firstWhere((e) => e.name == name);
+
+      // ค้นหา novel ที่มี cat1 หรือ cat2 เหมือนกัน แต่ไม่ใช่ novel ที่กำหนด
+      List<Searchnovel> search = allsearch.searchnovel
+          .where((e) =>
+              (e.cat1 == cateNovel.cat1 || e.cat2 == cateNovel.cat2) &&
+              e.name != name)
+          .toList();
+
+      search.shuffle(); // Shuffle รายการ
       if (search.length < 6) {
-        print('search: ${search.length}');
-        int diff = 6 - search.length;
-        for (var i = 0; i < diff; i++) {
-          allsearch.searchnovel.shuffle();
-          search.add(allsearch.searchnovel[i]);
-          print('search: $i');
-        }
+        // เพิ่ม novel จาก allsearch ถ้าจำนวนไม่ถึง 6
+        search.addAll(allsearch.searchnovel
+            .where((e) => !search.contains(e))
+            .take(6 - search.length));
       } else {
-        search = search.sublist(0, 6);
+        search = search.sublist(0, 6); // จำกัดจำนวนที่ 6
       }
+
       return search;
     } catch (e) {
       throw Exception('Failed to search novels: $e');
