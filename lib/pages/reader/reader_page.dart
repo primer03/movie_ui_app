@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:bloctest/bloc/novelread/readnovel_bloc.dart';
+import 'package:bloctest/bloc/novelrec/novelrec_bloc.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_read_model.dart';
@@ -9,6 +10,7 @@ import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/service/SecurityManager.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:circular_menu/circular_menu.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,8 +73,10 @@ class _ReaderPageState extends State<ReaderPage> {
   bool _isThick = false;
   bool _isMaxPage = false;
   bool _isMinPage = false;
+  bool _isautoScroll = false;
   String EpID = '';
   Timer? _debounce;
+  Timer? _timer;
   late User user;
   List<Map<String, dynamic>> TheamSetting = [
     {
@@ -86,11 +90,11 @@ class _ReaderPageState extends State<ReaderPage> {
       'fg': const Color(0xFFE0E0E0),
       'name': 'Dark',
     },
-    {
-      'bg': const Color(0xFFE3F2FD),
-      'fg': const Color(0xFF0D47A1),
-      'name': 'Blue',
-    },
+    // {
+    //   'bg': const Color(0xFFE3F2FD),
+    //   'fg': const Color(0xFF0D47A1),
+    //   'name': 'Blue',
+    // },
     {
       'bg': const Color(0xFFFAF3E0),
       'fg': const Color(0xFF6F4F28),
@@ -121,6 +125,30 @@ class _ReaderPageState extends State<ReaderPage> {
     },
   ];
   final Map<int, GlobalKey> itemKeys = {};
+  int _scrollSpeed = 3000;
+  String _scrollSpeedName = 'ปกติ';
+  final List<Map<String, dynamic>> _speedscroll = [
+    {
+      'name': 'ช้ามาก',
+      'speed': 5000,
+    },
+    {
+      'name': 'ช้า',
+      'speed': 4000,
+    },
+    {
+      'name': 'ปกติ',
+      'speed': 3000,
+    },
+    {
+      'name': 'เร็ว',
+      'speed': 2000,
+    },
+    {
+      'name': 'เร็วมาก',
+      'speed': 1000,
+    },
+  ];
 
   @override
   void initState() {
@@ -143,6 +171,25 @@ class _ReaderPageState extends State<ReaderPage> {
       itemKeys[i] = GlobalKey();
     }
     getUserData();
+  }
+
+  void startAutoScroll() {
+    _timer = Timer.periodic(Duration(milliseconds: _scrollSpeed), (timer) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.offset + 100,
+          duration: Duration(milliseconds: _scrollSpeed),
+          curve: Curves.linear,
+        );
+      }
+    });
+  }
+
+  void stopAutoScroll() {
+    _timer?.cancel();
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.offset); // หยุดการเลื่อนทันที
+    }
   }
 
   Future<void> getUserData() async {
@@ -332,6 +379,8 @@ class _ReaderPageState extends State<ReaderPage> {
         setState(() {
           _toggleCount = 0;
           _isToggled = false;
+          _isautoScroll = false;
+          stopAutoScroll();
           _previousScrollPosition = currentScrollPosition;
         });
       }
@@ -645,6 +694,25 @@ class _ReaderPageState extends State<ReaderPage> {
             // }),
           ],
         ]),
+        floatingActionButton: _isautoScroll
+            ? FloatingActionButton(
+                onPressed: () {
+                  if (_isautoScroll) {
+                    stopAutoScroll();
+                  } else {
+                    startAutoScroll();
+                  }
+                  setState(() {
+                    _isautoScroll = !_isautoScroll;
+                  });
+                },
+                child: Icon(
+                  _isautoScroll ? Icons.pause : Icons.play_arrow,
+                  color: _selectedTheam['bg'],
+                ),
+                backgroundColor: _selectedTheam['fg'],
+              )
+            : null,
       ),
     );
   }
@@ -764,10 +832,15 @@ class _ReaderPageState extends State<ReaderPage> {
       left: 0,
       right: 0,
       child: AnimatedOpacity(
-        opacity: _isScrollingDown || _isMaxPage || _isMinPage ? 1.0 : 0.0,
+        opacity: !_isautoScroll
+            ? (_isScrollingDown || _isMaxPage || _isMinPage)
+                ? 1.0
+                : 0.0
+            : 0.0,
         duration: const Duration(milliseconds: 300),
         child: IgnorePointer(
-          ignoring: !(_isScrollingDown || _isMaxPage || _isMinPage),
+          ignoring:
+              !(_isScrollingDown || _isMaxPage || _isMinPage) || _isautoScroll,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
@@ -1071,6 +1144,71 @@ class _ReaderPageState extends State<ReaderPage> {
                     const SizedBox(height: 5),
                     _buildSpacingRow(states),
                     const SizedBox(height: 5),
+                    _buildScrollAuto(states),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        const SizedBox(width: 20),
+                        Text(
+                          'ความเร็ว',
+                          style: GoogleFonts.athiti(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: _selectedTheam['fg'],
+                          ),
+                        ),
+                        const Spacer(),
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton2(
+                            value: _speedscroll
+                                .where((element) =>
+                                    element['speed'] == _scrollSpeed)
+                                .first['name'],
+                            items: _speedscroll
+                                .map((e) => DropdownMenuItem(
+                                      value: e['name'],
+                                      child: Text(
+                                        e['name'],
+                                        style: GoogleFonts.athiti(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: _selectedTheam['fg'],
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              print(_speedscroll.where(
+                                  (element) => element['name'] == value));
+                              setState(() {
+                                _scrollSpeed = _speedscroll.where((element) {
+                                  return element['name'] == value;
+                                }).first['speed'];
+                              });
+                              states(() {
+                                _scrollSpeed = _speedscroll.where((element) {
+                                  return element['name'] == value;
+                                }).first['speed'];
+                              });
+                            },
+                            dropdownStyleData: DropdownStyleData(
+                              decoration: BoxDecoration(
+                                color: _selectedTheam['bg'],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              // elevation: 5,
+                              padding: const EdgeInsets.all(10),
+                            ),
+                            style: GoogleFonts.athiti(
+                              fontSize: 14,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
                     _buildFontSizeControls(states),
                     const SizedBox(height: 10),
                     _buildThemeSelectors(states),
@@ -1117,6 +1255,39 @@ class _ReaderPageState extends State<ReaderPage> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildScrollAuto(StateSetter states) {
+    return Row(
+      children: [
+        const SizedBox(width: 20),
+        Text(
+          'เลื่อนอัตโนมัติ',
+          style: GoogleFonts.athiti(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: _selectedTheam['fg'],
+          ),
+        ),
+        const Spacer(),
+        Switch(
+          value: _isautoScroll,
+          onChanged: (value) {
+            value ? startAutoScroll() : stopAutoScroll();
+            setState(() {
+              _isautoScroll = value;
+            });
+            states(() {
+              _isautoScroll = value;
+            });
+          },
+          activeColor: _selectedTheam['fg'],
+          activeTrackColor: _selectedTheam['fg']?.withOpacity(0.5),
+          inactiveThumbColor: _selectedTheam['fg'],
+          inactiveTrackColor: _selectedTheam['fg']?.withOpacity(0.5),
+        ),
+      ],
     );
   }
 
@@ -1540,45 +1711,52 @@ class _ReaderPageState extends State<ReaderPage> {
                     });
                     novelBox.put('theme', e.value['name']);
                   },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Container(
-                        height: 80,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: e.value['bg'],
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: _selectedTheam['name'] == e.value['name']
-                                ? Colors.black
-                                : Colors.transparent,
-                            width: 2,
+                  child: Padding(
+                    padding: e.key == 0
+                        ? const EdgeInsets.only(right: 20)
+                        : e.key == TheamSetting.length - 1
+                            ? const EdgeInsets.only(left: 20)
+                            : const EdgeInsets.symmetric(horizontal: 5),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          height: 80,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: e.value['bg'],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: _selectedTheam['name'] == e.value['name']
+                                  ? Colors.black
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            Iconsax.textalign_justifycenter,
+                            size: 60,
+                            color: e.value['fg'],
                           ),
                         ),
-                        child: Icon(
-                          Iconsax.textalign_justifycenter,
-                          size: 60,
-                          color: e.value['fg'],
+                        Text(
+                          e.value['name'],
+                          style: GoogleFonts.athiti(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _selectedTheam['fg'],
+                          ),
                         ),
-                      ),
-                      Text(
-                        e.value['name'],
-                        style: GoogleFonts.athiti(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: _selectedTheam['fg'],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
             })
             .toList()
             .expand((element) => [
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 0),
                   element,
                 ])
             .toList(),
