@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_line_sdk/flutter_line_sdk.dart';
+import 'package:logger/web.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
@@ -22,22 +25,39 @@ Future getAccessToken() async {
   }
 }
 
-Future<String> startLineLogin(BuildContext context) async {
+Future<String?> startLineLogin(BuildContext context) async {
   try {
-    final result = await LineSDK.instance.login(scopes: ["profile"]);
+    final result =
+        await LineSDK.instance.login(scopes: ["profile", "openid", "email"]);
     // Navigator.of(context).pop();
-    print(result.toString());
+    Logger().i(result.accessToken.email);
     var accesstoken = await getAccessToken();
     var displayname = result.userProfile?.displayName;
     var statusmessage = result.userProfile?.statusMessage;
     var imgUrl = result.userProfile?.pictureUrl;
     var userId = result.userProfile?.userId;
+    var email = result.accessToken.email;
 
     print("AccessToken> " + accesstoken);
     print("DisplayName> " + displayname!);
     print("StatusMessage> " + statusmessage!);
     print("ProfileURL> " + imgUrl!);
     print("userId> " + userId!);
+    print("email> " + email!);
+    UserRepository userRepository = UserRepository();
+    // var user = await userRepository.registerUser(
+    //   username: displayname,
+    //   email: email ?? userId,
+    //   password: userId,
+    //   date: '2021-10-10',
+    //   gender: 'M',
+    // );
+    await userRepository.loginUser(
+      email: email,
+      password: userId,
+      identifier: await getDevice(),
+    );
+
     return downloadImage(imgUrl);
   } on PlatformException catch (e) {
     print(e);
@@ -52,7 +72,6 @@ Future<String> startLineLogin(BuildContext context) async {
         print("Unknown but failed to login");
         break;
     }
-    return '';
   }
 }
 
