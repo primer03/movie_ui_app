@@ -1,16 +1,12 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/user_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/web.dart';
 import 'package:path/path.dart' as path;
-import 'package:mime/mime.dart';
-import 'package:http_parser/http_parser.dart';
 
 class UserRepository {
   final String url = 'https://pzfbh88v-3002.asse.devtunnels.ms/api/';
