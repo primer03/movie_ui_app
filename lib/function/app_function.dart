@@ -275,9 +275,7 @@ Future<UserCredential?> signInWithFacebook() async {
 
       // Access the user information
       User? user = userCredential.user;
-
       if (user != null) {
-        // Print the user's display name
         print('Login successful! User: ${user.displayName}');
       } else {
         print('No user information found');
