@@ -296,3 +296,17 @@ Future<UserCredential?> signInWithFacebook() async {
     return null;
   }
 }
+
+Future<void> signOutFacebook() async {
+  try {
+    // Sign out from Firebase
+    await FirebaseAuth.instance.signOut();
+
+    // Sign out from Facebook
+    await FacebookAuth.instance.logOut();
+
+    print('User successfully logged out');
+  } catch (e) {
+    print('Error during sign out: $e');
+  }
+}
