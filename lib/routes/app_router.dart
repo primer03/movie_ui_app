@@ -21,6 +21,7 @@ class AppRouter {
   Route onGenerateRoute(RouteSettings settings) {
     print(hasData);
     if (hasData) {
+      print('user ${novelBox.get('user')}');
       novelBox.put('loginType', 'remember');
     }
     switch (settings.name) {
