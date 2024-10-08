@@ -4,6 +4,8 @@ import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/pages/auth/social_last_regis.dart';
+import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/widgets/InputForm.dart';
 import 'package:bloctest/widgets/InputThem.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -258,9 +260,17 @@ class _LoginPageState extends State<LoginPage> {
           color: const Color(0xFF06C755).withOpacity(0.1),
           text: 'เข้าสู่ระบบด้วย Line       ',
           icon: 'assets/svg/Line.svg',
-          onPressed: () {
+          onPressed: () async {
             // signOut();
-            startLineLogin(context);
+            // String? imageUrl = await startLineLogin(context);
+            // if (imageUrl != null) {
+            //   UserRepository().registerUser(
+            //     username: 'Line User',
+            //     email: '
+            // }
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return SocialLastRegis(displayName: '', email: '', imgUrl: '', userId: '',);
+            }));
           },
         ),
         const SizedBox(height: 10),
