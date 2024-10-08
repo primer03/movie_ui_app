@@ -631,9 +631,9 @@ class _ReaderPageState extends State<ReaderPage> {
                       listenWhen: (previous, current) => previous != current,
                       listener: (context, state) {
                         if (state is ReadnovelError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(state.message)),
-                          );
+                          // ScaffoldMessenger.of(context).showSnackBar(
+                          //   SnackBar(content: Text(state.message)),
+                          // );
                         } else if (state is ReadnovelLoaded) {
                           setState(() {
                             _scrollPercentage = 0.0;
@@ -663,7 +663,11 @@ class _ReaderPageState extends State<ReaderPage> {
                           return Center(
                             child: Text(
                               state.message.split(':').last,
-                              style: const TextStyle(color: Colors.red),
+                              style: GoogleFonts.athiti(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                              ),
                             ),
                           );
                         }
