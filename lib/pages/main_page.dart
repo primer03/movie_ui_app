@@ -22,6 +22,8 @@ import 'package:logger/web.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:io' show Platform;
 
+import 'package:toastification/toastification.dart';
+
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
 
@@ -40,7 +42,8 @@ class _MainpageState extends State<Mainpage> {
   }
 
   void getUser() async {
-    final userstr = novelBox.get('user');
+    final userstr = await novelBox.get('user');
+
     Logger().i(await novelBox.get('usertoken'));
     final logintype = await novelBox.get('loginType');
     if (userstr == null) {
