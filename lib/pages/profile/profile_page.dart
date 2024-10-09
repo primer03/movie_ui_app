@@ -85,10 +85,13 @@ class _ProfilePageState extends State<ProfilePage> {
       try {
         showLoadingDialog(context);
         UserRepository repository = UserRepository();
-        await repository.updateImageUser(image: File(croppedFile!.path));
+        await repository.updateImageUser(
+            image: File(croppedFile!.path), type: 'profile');
+        final isSocial = await novelBox.get('issocial');
         context.read<UserBloc>().add(LoadProfile(
               user: User.fromJson(jsonDecode(novelBox.get('user'))),
               password: await getPassword(),
+              type: isSocial != null ? 'social' : 'normal',
             ));
         setState(() {
           if (croppedFile != null) {
@@ -130,8 +133,13 @@ class _ProfilePageState extends State<ProfilePage> {
     print(userstr);
     final user = User.fromJson(jsonDecode(userstr));
     final password = await getPassword();
-    BlocProvider.of<UserBloc>(context)
-        .add(LoadProfile(user: user, password: password));
+    final isSocial = await novelBox.get('issocial');
+    BlocProvider.of<UserBloc>(context).add(
+      LoadProfile(
+          user: user,
+          password: password,
+          type: isSocial != null ? 'social' : 'normal'),
+    );
   }
 
   @override
@@ -436,8 +444,13 @@ class _ProfilePageState extends State<ProfilePage> {
               print(userstr);
               final user = User.fromJson(jsonDecode(userstr));
               final password = await getPassword();
-              BlocProvider.of<UserBloc>(context)
-                  .add(LoadProfile(user: user, password: password));
+              final isSocial = await novelBox.get('issocial');
+              BlocProvider.of<UserBloc>(context).add(
+                LoadProfile(
+                    user: user,
+                    password: password,
+                    type: isSocial != null ? 'social' : 'normal'),
+              );
               print('Update profile success');
               showToastification(
                 context: context,
