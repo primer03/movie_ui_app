@@ -34,11 +34,13 @@ class LoginUser extends UserEvent {
 class UserLoginremember extends UserEvent {
   final User user;
   final String? password;
+  final String type;
 
-  const UserLoginremember({required this.user, this.password});
+  const UserLoginremember(
+      {required this.user, this.password, required this.type});
 
   @override
-  List<Object> get props => [user, if (password != null) password!];
+  List<Object> get props => [user, if (password != null) password!, type];
 }
 
 class RegisterUser extends UserEvent {
@@ -66,11 +68,12 @@ class ResetStateEvent extends UserEvent {
 class LoadProfile extends UserEvent {
   final User user;
   final String? password;
+  final String type;
 
-  const LoadProfile({required this.user, this.password});
+  const LoadProfile({required this.user, this.password, required this.type});
 
   @override
-  List<Object> get props => [user, if (password != null) password!];
+  List<Object> get props => [user, if (password != null) password!, type];
 }
 
 
