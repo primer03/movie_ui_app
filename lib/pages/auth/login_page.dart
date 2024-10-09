@@ -261,6 +261,7 @@ class _LoginPageState extends State<LoginPage> {
           text: 'เข้าสู่ระบบด้วย Line       ',
           icon: 'assets/svg/Line.svg',
           onPressed: () async {
+            await startLineLogin(context);
             // signOut();
             // String? imageUrl = await startLineLogin(context);
             // if (imageUrl != null) {
@@ -268,9 +269,9 @@ class _LoginPageState extends State<LoginPage> {
             //     username: 'Line User',
             //     email: '
             // }
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return SocialLastRegis(displayName: '', email: '', imgUrl: '', userId: '',);
-            }));
+            // Navigator.push(context, MaterialPageRoute(builder: (context) {
+            //   return SocialLastRegis(displayName: '', email: '', imgUrl: '', userId: '',);
+            // }));
           },
         ),
         const SizedBox(height: 10),
