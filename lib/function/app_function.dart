@@ -233,6 +233,7 @@ Future<UserCredential?> signInWithGoogle() async {
     if (user != null) {
       // Print the user's display name
       print('Login successful! User: ${user.displayName}');
+      
     } else {
       print('No user information found');
     }
