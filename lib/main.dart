@@ -1,3 +1,4 @@
+import 'package:bloctest/bloc/lineauth/lineauth_bloc.dart';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/novelbookmark/novelbookmark_bloc.dart';
 import 'package:bloctest/bloc/novelcate/novel_cate_bloc.dart';
@@ -96,6 +97,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<NovelspecialBloc>(create: (context) => NovelspecialBloc()),
         BlocProvider<NovelrecBloc>(create: (context) => NovelrecBloc()),
         BlocProvider<ReadnovelBloc>(create: (context) => ReadnovelBloc()),
+        BlocProvider<LineauthBloc>(create: (context) => LineauthBloc()),
         initialRoute != '/'
             ? BlocProvider<NovelBloc>(
                 create: (context) => NovelBloc()..add(FetchNovels()))
