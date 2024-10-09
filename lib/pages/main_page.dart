@@ -43,7 +43,8 @@ class _MainpageState extends State<Mainpage> {
 
   void getUser() async {
     final userstr = await novelBox.get('user');
-
+    final isSocial = await novelBox.get('loginsocial');
+    print('isSocial: $isSocial');
     Logger().i(await novelBox.get('usertoken'));
     final logintype = await novelBox.get('loginType');
     if (userstr == null) {
@@ -54,8 +55,13 @@ class _MainpageState extends State<Mainpage> {
     final user = User.fromJson(jsonDecode(userstr));
     final password = logintype == 'remember' ? await getPassword() : null;
     // ignore: use_build_context_synchronously
-    BlocProvider.of<UserBloc>(context)
-        .add(UserLoginremember(user: user, password: password));
+    print('img: ${user.img}');
+    // BlocProvider.of<UserBloc>(context)
+    //     .add(UserLoginremember(user: user, password: password));
+    context.read<UserBloc>().add(UserLoginremember(
+        user: user,
+        password: password,
+        type: isSocial != null ? 'social' : 'nomal'));
   }
 
   @override
@@ -104,10 +110,24 @@ class _MainpageState extends State<Mainpage> {
                       surfaceTintColor: Colors.white,
                       backgroundColor: Colors.white,
                       leading: BlocConsumer<UserBloc, UserState>(
-                        listener: (context, state) {
+                        listener: (context, state) async {
                           if (state is UserLoginrememberSate) {
+                            print('state.user.img: ${state.user.img}');
+                            print(
+                                'state.user.img: ${state.user.img.split('/').last}');
+                            if (state.user.img.split('/').last ==
+                                'default_profile.jpg') {
+                              final password = await getPassword();
+                              context.read<UserBloc>().add(UserLoginremember(
+                                  user: state.user,
+                                  password: password,
+                                  type: ''));
+                            }
                             setState(() {
-                              now = DateTime.now();
+                              now = DateTime.now()
+                                  .add(const Duration(seconds: 3));
+                              print(
+                                  '${state.user.img}?time=${now.millisecondsSinceEpoch}');
                             });
                           }
                         },
@@ -119,8 +139,7 @@ class _MainpageState extends State<Mainpage> {
                                 radius: 30,
                                 backgroundColor: Colors.grey[300],
                                 backgroundImage: CachedNetworkImageProvider(
-                                  state.user.img +
-                                      '?time=${now.millisecondsSinceEpoch}',
+                                  '${state.user.img}?time=${now.millisecondsSinceEpoch}',
                                 ),
                               ),
                             );
