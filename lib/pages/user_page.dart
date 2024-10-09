@@ -1,5 +1,6 @@
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -104,6 +105,13 @@ class _UserPageState extends State<UserPage> {
               onTap: () async {
                 // ลบข้อมูลจาก Hive
                 // String token = novelBox.get('usertoken');
+                final socialtype = await novelBox.get('socialType');
+                if (socialtype != null) {
+                  print('socialtype: $socialtype');
+                  if (socialtype == 'line') {
+                    await logoutLine();
+                  }
+                }
                 await deletePassword();
                 // print(token);
                 await novelBox.clear();
