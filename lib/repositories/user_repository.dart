@@ -56,6 +56,55 @@ class UserRepository {
     }
   }
 
+  Future<String> loginCheckSocial({
+    required String email,
+    required String password,
+    required String identifier,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${url}login/member'),
+        body: {'email': email, 'password': password, 'identifier': identifier},
+        headers: {'x-api-key': apiKey, 'x-client-domain': clientDomain},
+      );
+
+      final res = json.decode(response.body);
+      Logger().i(res);
+
+      // if (res['status'] == 'error') throw Exception(res['message']);
+      if (res['status'] == 'error') {
+        return res['message'];
+      } else {
+        final tokenData;
+        if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
+          if (res['data'].runtimeType == String) {
+            tokenData = json.decode(res['data'])['token'];
+          } else {
+            tokenData = res['data']['token'];
+          }
+        } else {
+          if (res['data'].runtimeType == String) {
+            tokenData = json.decode(res['data'])['token'];
+          } else {
+            tokenData = res['data']['token'];
+          }
+        }
+        final decodedToken = JwtDecoder.decode(tokenData);
+        Logger().i(decodedToken);
+
+        await novelBox.put('usertoken', tokenData);
+        await novelBox.put('loginType', 'normal');
+        await novelBox.put(
+            'user', json.encode(User.fromJson(decodedToken).toJson()));
+        savePassword(password);
+        return 'เข้าสู่ระบบสำเร็จ';
+      }
+    } catch (e) {
+      print('error: ${e.toString()}');
+      throw Exception(e.toString());
+    }
+  }
+
   Future<bool> registerUser({
     required String username,
     required String email,
@@ -102,9 +151,91 @@ class UserRepository {
     }
   }
 
-  Future<void> updateImageUser({required File image}) async {
+  Future<bool> registersocial({
+    required String username,
+    required String email,
+    required String identifier,
+    required bool firstRegis,
+  }) async {
+    final urlx = Uri.parse('${url}login/social');
+
+    try {
+      print('username: $username');
+      print('email: $email');
+      print('identifier: $identifier');
+      final response = await http.post(
+        urlx,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          "username": username,
+          "email": email,
+          "identifier": identifier,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+        Logger().i(res);
+
+        if (res['status'] == 'error') {
+          throw Exception(res['message']);
+        }
+        final tokenData;
+        if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
+          if (res['data'].runtimeType == String) {
+            tokenData = json.decode(res['data'])['token'];
+          } else {
+            tokenData = res['data']['token'];
+          }
+        } else {
+          if (res['data'].runtimeType == String) {
+            tokenData = json.decode(res['data'])['token'];
+          } else {
+            tokenData = res['data']['token'];
+          }
+        }
+
+        final decodedToken = JwtDecoder.decode(tokenData);
+        Logger().i(decodedToken);
+        await novelBox.put('usertoken', tokenData);
+        // await novelBox.put('loginType', 'social');
+        Logger().i('user: ${tokenData}');
+        if (!firstRegis) {
+          print('firstRegis: $firstRegis');
+          await novelBox.put(
+              'user', json.encode(User.fromJson(decodedToken).toJson()));
+        }
+        // await novelBox.put(
+        //     'user', json.encode(User.fromJson(decodedToken).toJson()));
+        return true;
+      } else {
+        final res = json.decode(response.body);
+        throw Exception(res['message'] ?? 'เกิดข้อผิดพลาด');
+      }
+    } catch (e) {
+      Logger().e('Error during user registration', error: e);
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> deleteFile(String filePath) async {
+    try {
+      File file = File(filePath);
+      if (await file.exists()) {
+        await file.delete();
+        print('File deleted successfully');
+      } else {
+        print('File does not exist');
+      }
+    } catch (e) {
+      print('Error deleting file: $e');
+    }
+  }
+
+  Future<void> updateImageUser(
+      {required File image, required String type}) async {
     final urlx = Uri.parse('${url}update/member/img');
-    final token = novelBox.get('usertoken');
+    final token = await novelBox.get('usertoken');
 
     try {
       var request = http.MultipartRequest('POST', urlx);
@@ -126,6 +257,9 @@ class UserRepository {
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
         print('Uploaded!');
+        if (type == 'social') {
+          deleteFile(image.path);
+        }
       } else {
         var responseData = await response.stream.bytesToString();
         var decodedResponse = json.decode(responseData);
