@@ -21,11 +21,23 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   void _onLoadProfile(LoadProfile event, Emitter<UserState> emit) async {
     // emit(UserLoadingProfile());
     try {
-      User user = await userRepository.loginUser(
-        email: event.user.detail.email,
-        password: event.password!,
-        identifier: event.user.ag,
-      );
+      final User user;
+
+      if (event.type == 'social') {
+        print('social');
+        user = await userRepository.loadprofilesocial(
+          email: event.user.detail.email,
+          identifier: event.user.ag,
+          username: event.user.username,
+          firstRegis: false,
+        );
+      } else {
+        user = await userRepository.loginUser(
+          email: event.user.detail.email,
+          password: event.password!,
+          identifier: event.user.ag,
+        );
+      }
       emit(UserLoadedProfile(user));
       emit(UserLoginrememberSate(user));
     } catch (e) {
@@ -56,11 +68,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       User user = event.user;
       User userlogin;
       if (event.password != null) {
-        userlogin = await userRepository.loginUser(
+        // userlogin = await userRepository.loginUser(
+        //     email: user.detail.email,
+        //     password: event.password!,
+        //     identifier: user.ag);
+        if (event.type == 'social') {
+          userlogin = await userRepository.loadprofilesocial(
+            email: user.detail.email,
+            identifier: user.ag,
+            username: user.username,
+            firstRegis: false,
+          );
+        } else {
+          userlogin = await userRepository.loginUser(
             email: user.detail.email,
             password: event.password!,
-            identifier: user.ag);
+            identifier: user.ag,
+          );
+        }
       } else {
+        print('no password');
         userlogin = user;
       }
       emit(UserLoginrememberSate(userlogin));
