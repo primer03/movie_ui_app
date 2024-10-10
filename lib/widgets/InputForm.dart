@@ -179,7 +179,7 @@ class _InputFormState extends State<InputForm> {
                 }
               }
               if (widget.labelText == 'ชื่อผู้ใช้') {
-                if (!RegExp(r'^[a-zA-Z0-9_]{3,20}$').hasMatch(value)) {
+                if (value.length < 3 || value.length > 30) {
                   return 'ชื่อผู้ใช้ต้องมีความยาว 3-20 ตัวอักษร';
                 }
               }
