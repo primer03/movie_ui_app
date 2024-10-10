@@ -105,6 +105,7 @@ class _UserPageState extends State<UserPage> {
               onTap: () async {
                 // ลบข้อมูลจาก Hive
                 // String token = novelBox.get('usertoken');
+                disconnectSocket();
                 final socialtype = await novelBox.get('socialType');
                 if (socialtype != null) {
                   print('socialtype: $socialtype');
