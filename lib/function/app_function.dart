@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:bloctest/main.dart';
+import 'package:bloctest/models/user_model.dart' as userModel;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -10,7 +15,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:toastification/toastification.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:io' show Platform;
+import '';
 
 const storage = FlutterSecureStorage();
 
@@ -233,7 +240,6 @@ Future<UserCredential?> signInWithGoogle() async {
     if (user != null) {
       // Print the user's display name
       print('Login successful! User: ${user.displayName}');
-      
     } else {
       print('No user information found');
     }
@@ -307,5 +313,52 @@ Future<void> signOutFacebook() async {
     print('User successfully logged out');
   } catch (e) {
     print('Error during sign out: $e');
+  }
+}
+
+IO.Socket? socket;
+
+void setupSocket() async {
+  socket = IO.io(
+    'https://pzfbh88v-3002.asse.devtunnels.ms',
+    IO.OptionBuilder()
+        .setTransports(['websocket'])
+        .disableAutoConnect()
+        .build(),
+  );
+
+  // Listen to connection events
+  socket!.onConnect((_) async {
+    print('Connected');
+    print('User token: ${await novelBox.get('usertoken')}');
+    userModel.User user =
+        userModel.User.fromJson(json.decode(await novelBox.get('user')));
+    print('User ID: ${user.userid}');
+    socket!.emit('usermobile_online', user.userid);
+  });
+
+  socket!.on('message', (data) {
+    print('Message from server: $data');
+  });
+
+  socket!.onDisconnect((_) {
+    print('Disconnected');
+  });
+
+  socket!.connect();
+}
+
+void disconnectSocket() {
+  if (socket != null) {
+    socket!.disconnect();
+    print('Socket disconnected');
+  }
+}
+
+// ฟังก์ชันสำหรับการเชื่อมต่อ socket ใหม่
+void reconnectSocket() {
+  if (socket != null && !socket!.connected) {
+    socket!.connect();
+    print('Socket connected');
   }
 }
