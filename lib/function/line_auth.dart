@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/pages/auth/social_last_regis.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +79,22 @@ Future<void> startLineLogin(BuildContext context) async {
                 userId: userId!,
               );
             }));
+          } else {
+            showToastification(
+              context: context,
+              message: 'เข้าสู่ระบบสำเร็จ',
+              type: ToastificationType.success,
+              style: ToastificationStyle.minimal,
+            );
+            await novelBox.put('loginsocial', true);
+            await novelBox.put('socialType', 'line');
+            await novelBox.put(
+                'user', json.encode(User.fromJson(user).toJson()));
+            BlocProvider.of<NovelBloc>(context).add(FetchNovels());
+            await Future.delayed(const Duration(seconds: 2));
+            await Future.delayed(const Duration(milliseconds: 500));
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/main', (route) => false);
           }
 
           // final user = await novelBox.get('user');
@@ -104,6 +122,13 @@ Future<void> startLineLogin(BuildContext context) async {
           //     userId: userId!,
           //   );
           // }));
+        } else {
+          showToastification(
+            context: context,
+            message: 'เกิดข้อผิดพลาดในการลงทะเบียน',
+            type: ToastificationType.error,
+            style: ToastificationStyle.minimal,
+          );
         }
         // String check = await userRepository.loginCheckSocial(
         //   email: email,
