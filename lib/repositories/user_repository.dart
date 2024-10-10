@@ -12,6 +12,7 @@ class UserRepository {
   final String url = 'https://pzfbh88v-3002.asse.devtunnels.ms/api/';
   final String apiKey = 'NGYyMDNlYmMtYjYyZi00OWMzLTg0NmItYThiZmI4NjhhYzUx';
   final String clientDomain = 'https://bookfet.com';
+
   Future<User> loginUser({
     required String email,
     required String password,
@@ -158,7 +159,6 @@ class UserRepository {
     required bool firstRegis,
   }) async {
     final urlx = Uri.parse('${url}login/social');
-
     try {
       print('username: $username');
       print('email: $email');
@@ -208,6 +208,72 @@ class UserRepository {
         // await novelBox.put(
         //     'user', json.encode(User.fromJson(decodedToken).toJson()));
         return true;
+      } else {
+        final res = json.decode(response.body);
+        throw Exception(res['message'] ?? 'เกิดข้อผิดพลาด');
+      }
+    } catch (e) {
+      Logger().e('Error during user registration', error: e);
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<User> loadprofilesocial({
+    required String username,
+    required String email,
+    required String identifier,
+    required bool firstRegis,
+  }) async {
+    final urlx = Uri.parse('${url}login/social');
+    try {
+      print('username: $username');
+      print('email: $email');
+      print('identifier: $identifier');
+      final response = await http.post(
+        urlx,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          "username": username,
+          "email": email,
+          "identifier": identifier,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+        Logger().i(res);
+
+        if (res['status'] == 'error') {
+          throw Exception(res['message']);
+        }
+        final tokenData;
+        if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
+          if (res['data'].runtimeType == String) {
+            tokenData = json.decode(res['data'])['token'];
+          } else {
+            tokenData = res['data']['token'];
+          }
+        } else {
+          if (res['data'].runtimeType == String) {
+            tokenData = json.decode(res['data'])['token'];
+          } else {
+            tokenData = res['data']['token'];
+          }
+        }
+
+        final decodedToken = JwtDecoder.decode(tokenData);
+        Logger().i(decodedToken);
+        await novelBox.put('usertoken', tokenData);
+        // await novelBox.put('loginType', 'social');
+        Logger().i('user: ${tokenData}');
+        if (!firstRegis) {
+          print('firstRegis: $firstRegis');
+          await novelBox.put(
+              'user', json.encode(User.fromJson(decodedToken).toJson()));
+        }
+        // await novelBox.put(
+        //     'user', json.encode(User.fromJson(decodedToken).toJson()));
+        return User.fromJson(decodedToken);
       } else {
         final res = json.decode(response.body);
         throw Exception(res['message'] ?? 'เกิดข้อผิดพลาด');
@@ -297,7 +363,7 @@ class UserRepository {
       }, body: {
         "username": username,
         "birthday_date": convertThaiDateToISO(date),
-        "gender": 'f',
+        "gender": genderCode,
         "about_me": '',
         "phone": phone,
         "address": address,
