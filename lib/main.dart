@@ -21,13 +21,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_line_sdk/flutter_line_sdk.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
 // ignore: prefer_typing_uninitialized_variables
 late Box novelBox;
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   LineSDK.instance.setup('2002469697').then((_) {
     print('LineSDK Prepared');
   });
@@ -47,6 +49,7 @@ void main() async {
   getAppVersion();
   runApp(MyApp(initialRoute: hasData ? '/main' : '/'));
   WidgetsBinding.instance.addObserver(AppLifecycleObserver());
+  FlutterNativeSplash.remove();
 }
 
 class AppLifecycleObserver extends WidgetsBindingObserver {
@@ -54,11 +57,14 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.detached) {
       print('close your app');
+      disconnectSocket();
     } else if (state == AppLifecycleState.inactive) {
       print('inactive'); // คือเมื่อ app อยู่ในสถานะที่ไม่ได้ใช้งาน
     } else if (state == AppLifecycleState.paused) {
       print("App moved to background"); // คือเมื่อ app อยู่ในสถานะที่ถูกปิดไป
+      disconnectSocket();
     } else if (state == AppLifecycleState.resumed) {
+      reconnectSocket();
       print(
           "App moved to foreground"); // คือเมื่อ app อยู่ในสถานะที่ถูกเปิดขึ้นมา
     }
