@@ -38,6 +38,7 @@ class _MainpageState extends State<Mainpage> {
   @override
   void initState() {
     super.initState();
+    setupSocket();
     getUser();
   }
 
@@ -138,8 +139,25 @@ class _MainpageState extends State<Mainpage> {
                               child: CircleAvatar(
                                 radius: 30,
                                 backgroundColor: Colors.grey[300],
-                                backgroundImage: CachedNetworkImageProvider(
-                                  '${state.user.img}?time=${now.millisecondsSinceEpoch}',
+                                child: CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                  imageUrl:
+                                      '${state.user.img}?time=${now.millisecondsSinceEpoch}',
+                                  imageBuilder: (context, imageProvider) =>
+                                      ClipRRect(
+                                    borderRadius: BorderRadius.circular(50),
+                                    child: Image(
+                                      image: imageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Iconsax.user),
                                 ),
                               ),
                             );
@@ -229,7 +247,12 @@ class _MainpageState extends State<Mainpage> {
                           },
                           icon: Stack(
                             children: [
-                              const Icon(Iconsax.notification_bing),
+                              IconButton(
+                                onPressed: () {
+                                  disconnectSocket();
+                                },
+                                icon: const Icon(Iconsax.notification_bing),
+                              ),
                               Positioned(
                                 right: 0,
                                 top: 0,
