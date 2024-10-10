@@ -87,11 +87,11 @@ class _ProfilePageState extends State<ProfilePage> {
         UserRepository repository = UserRepository();
         await repository.updateImageUser(
             image: File(croppedFile!.path), type: 'profile');
-        final isSocial = await novelBox.get('issocial');
+        final loginsocial = await novelBox.get('loginsocial');
         context.read<UserBloc>().add(LoadProfile(
               user: User.fromJson(jsonDecode(novelBox.get('user'))),
               password: await getPassword(),
-              type: isSocial != null ? 'social' : 'normal',
+              type: loginsocial != null ? 'social' : 'normal',
             ));
         setState(() {
           if (croppedFile != null) {
@@ -133,12 +133,13 @@ class _ProfilePageState extends State<ProfilePage> {
     print(userstr);
     final user = User.fromJson(jsonDecode(userstr));
     final password = await getPassword();
-    final isSocial = await novelBox.get('issocial');
+    final loginsocial = await novelBox.get('loginsocial');
+    print('loginsocial: $loginsocial');
     BlocProvider.of<UserBloc>(context).add(
       LoadProfile(
           user: user,
           password: password,
-          type: isSocial != null ? 'social' : 'normal'),
+          type: loginsocial != null ? 'social' : 'normal'),
     );
   }
 
@@ -180,8 +181,9 @@ class _ProfilePageState extends State<ProfilePage> {
           if (state is UserLoadedProfile) {
             Navigator.pop(context);
             setState(() {
-              _selectedGender =
-                  state.user.detail.gender == 'm' ? 'ชาย' : 'หญิง';
+              _selectedGender = state.user.detail.gender.toLowerCase() == 'm'
+                  ? 'ชาย'
+                  : 'หญิง';
               _usernameController.text = state.user.username;
               _dateController.text = convertISOToThaiDate(
                 state.user.detail.birthdayDate.toString().substring(0, 10),
@@ -395,7 +397,12 @@ class _ProfilePageState extends State<ProfilePage> {
               ))
           .toList(),
       validator: (value) => value == null ? '   กรุณาเลือกเพศ' : null,
-      onChanged: (value) => setState(() => _selectedGender = value!),
+      onChanged: (value) => {
+        setState(() {
+          print(value);
+          _selectedGender = value!;
+        })
+      },
       buttonStyleData:
           const ButtonStyleData(padding: EdgeInsets.only(right: 8)),
       iconStyleData: const IconStyleData(
@@ -429,6 +436,7 @@ class _ProfilePageState extends State<ProfilePage> {
           }
           showLoadingDialog(context);
           try {
+            print('${_selectedGender}');
             UserRepository repository = UserRepository();
             bool check = await repository.updateProfileUser(
               username: _usernameController.text,
@@ -444,12 +452,14 @@ class _ProfilePageState extends State<ProfilePage> {
               print(userstr);
               final user = User.fromJson(jsonDecode(userstr));
               final password = await getPassword();
-              final isSocial = await novelBox.get('issocial');
+              final loginsocial = await novelBox.get('loginsocial');
+
               BlocProvider.of<UserBloc>(context).add(
                 LoadProfile(
-                    user: user,
-                    password: password,
-                    type: isSocial != null ? 'social' : 'normal'),
+                  user: user,
+                  password: password,
+                  type: loginsocial != null ? 'social' : 'normal',
+                ),
               );
               print('Update profile success');
               showToastification(
