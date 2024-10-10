@@ -247,11 +247,11 @@ class _MainpageState extends State<Mainpage> {
                           },
                           icon: Stack(
                             children: [
-                              IconButton(
-                                onPressed: () {
-                                  disconnectSocket();
+                              GestureDetector(
+                                onTap: () {
+                                  // disconnectSocket();
                                 },
-                                icon: const Icon(Iconsax.notification_bing),
+                                child: const Icon(Iconsax.notification_bing),
                               ),
                               Positioned(
                                 right: 0,
