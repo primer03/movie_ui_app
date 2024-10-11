@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
@@ -15,7 +14,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/web.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
+
 import 'package:toastification/toastification.dart';
 
 void lineSDKInit() async {
@@ -77,6 +76,7 @@ Future<void> startLineLogin(BuildContext context) async {
                 email: email,
                 imgUrl: downloadedImagePath,
                 userId: userId!,
+                socialType: 'line',
               );
             }));
           } else {
@@ -202,49 +202,5 @@ Future<void> logoutLine() async {
     print("Logout Success");
   } on PlatformException catch (e) {
     print(e.message);
-  }
-}
-
-Future<String> downloadImage(String imageUrl) async {
-  try {
-    final response = await http.get(Uri.parse(imageUrl));
-
-    if (response.statusCode == 200) {
-      final contentType = response.headers['content-type'];
-      String fileExtension = '.jpg'; // Default extension
-
-      if (contentType != null) {
-        switch (contentType.toLowerCase()) {
-          case 'image/jpeg':
-            fileExtension = '.jpg';
-            break;
-          case 'image/png':
-            fileExtension = '.png';
-            break;
-          case 'image/gif':
-            fileExtension = '.gif';
-            break;
-          case 'image/webp':
-            fileExtension = '.webp';
-            break;
-          // Add more cases as needed
-        }
-      }
-
-      final directory = await getApplicationDocumentsDirectory();
-      final fileName = 'downloaded_image$fileExtension';
-      final filePath = path.join(directory.path, fileName);
-
-      final file = File(filePath);
-      await file.writeAsBytes(response.bodyBytes);
-      return filePath;
-      // print('Image saved at $filePath');
-    } else {
-      print('Failed to load image: ${response.statusCode}');
-      return '';
-    }
-  } catch (e) {
-    print('Error downloading image: $e');
-    return '';
   }
 }
