@@ -82,32 +82,37 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       );
-      try {
-        showLoadingDialog(context);
-        UserRepository repository = UserRepository();
-        await repository.updateImageUser(
-            image: File(croppedFile!.path), type: 'profile');
-        final loginsocial = await novelBox.get('loginsocial');
-        context.read<UserBloc>().add(LoadProfile(
-              user: User.fromJson(jsonDecode(novelBox.get('user'))),
-              password: await getPassword(),
-              type: loginsocial != null ? 'social' : 'normal',
-            ));
-        setState(() {
-          if (croppedFile != null) {
-            _image = File(croppedFile.path);
-            print('Cropped image path: ${_image!.path}');
-          } else {
-            print('No image selected.');
-          }
-        });
-      } catch (e) {
-        showToastification(
-          context: context,
-          message: 'เกิดข้อผิดพลาด',
-          type: ToastificationType.error,
-          style: ToastificationStyle.minimal,
-        );
+      if (croppedFile != null) {
+        try {
+          showLoadingDialog(context);
+          UserRepository repository = UserRepository();
+          await repository.updateImageUser(
+              image: File(croppedFile!.path), type: 'profile');
+          final loginsocial = await novelBox.get('loginsocial');
+          context.read<UserBloc>().add(LoadProfile(
+                user: User.fromJson(jsonDecode(novelBox.get('user'))),
+                password: await getPassword(),
+                type: loginsocial != null ? 'social' : 'normal',
+              ));
+          setState(() {
+            if (croppedFile != null) {
+              _image = File(croppedFile.path);
+              print('Cropped image path: ${_image!.path}');
+            } else {
+              print('No image selected.');
+            }
+          });
+        } catch (e) {
+          Navigator.pop(context);
+          showToastification(
+            context: context,
+            message: 'เกิดข้อผิดพลาด',
+            type: ToastificationType.error,
+            style: ToastificationStyle.minimal,
+          );
+        }
+      } else {
+        print('No image selected.');
       }
     } else {
       print('No image selected.');
