@@ -65,11 +65,7 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
       print("App moved to background"); // คือเมื่อ app อยู่ในสถานะที่ถูกปิดไป
       disconnectSocket();
     } else if (state == AppLifecycleState.resumed) {
-      bool hasData = await novelBox.get('user') != null;
-      if (hasData) {
-        print('reconnect socket');
-        reconnectSocket();
-      }
+      reconnectSocket();
       print(
           "App moved to foreground"); // คือเมื่อ app อยู่ในสถานะที่ถูกเปิดขึ้นมา
     }
