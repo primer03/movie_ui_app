@@ -25,6 +25,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/web.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
@@ -64,6 +65,10 @@ class _NovelDetailNewState extends State<NovelDetailNew>
   List<String> groupList = [];
   List<int> epList = [];
   Map<String, dynamic> readLast = {};
+  DateTime? lastRefreshTime;
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+  bool isEror = false;
 
   final PageStorageKey pageKey = PageStorageKey('pageViewKey');
 
@@ -132,9 +137,32 @@ class _NovelDetailNewState extends State<NovelDetailNew>
     return dateFormat.format(dateTime);
   }
 
+  Future<void> _onRefresh() async {
+    final now = DateTime.now();
+    if (lastRefreshTime == null ||
+        now.difference(lastRefreshTime!) > const Duration(seconds: 10)) {
+      getnoveldetail();
+      lastRefreshTime = now;
+    } else {
+      BookmarkManager(context, (bool checkAdd) {})
+          .showToast('กรุณารอสักครู่ก่อนดำเนินการอีกครั้ง');
+      _refreshController.refreshCompleted();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: isEror
+          ? AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            )
+          : null,
       backgroundColor: Colors.white,
       body: BlocConsumer<NovelDetailBloc, NovelDetailState>(
         listener: (context, state) {
@@ -171,6 +199,12 @@ class _NovelDetailNewState extends State<NovelDetailNew>
                     'ID: ${element.name} publishDate : ${element.publishDate} publishtimw : ${element.publishTime}');
               },
             );
+          } else if (state is NovelDetailError) {
+            setState(() {
+              isEror = true;
+            });
+            BookmarkManager(context, (bool checkAdd) {})
+                .showToast(state.message);
           }
         },
         builder: (context, state) {
@@ -207,8 +241,36 @@ class _NovelDetailNewState extends State<NovelDetailNew>
               ],
             );
           } else if (state is NovelDetailError) {
-            return Center(
-              child: Text(state.message),
+            return SmartRefresher(
+              controller: _refreshController,
+              onRefresh: _onRefresh,
+              header: const WaterDropMaterialHeader(),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/mascot/error.png',
+                      width: 200,
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context
+                            .read<NovelDetailBloc>()
+                            .add(FetchNovelDetail(widget.novelId));
+                      },
+                      child: Text(
+                        'ลองอีกครั้ง',
+                        style: GoogleFonts.athiti(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
           return Center(
@@ -221,19 +283,21 @@ class _NovelDetailNewState extends State<NovelDetailNew>
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red[900],
-        foregroundColor: Colors.white,
-        elevation: 2,
-        onPressed: () async {
-          // print('Read Last: $readLast');
-          // Navigator.pushNamed(context, 'reader', arguments: readLast);
-          var ReadlastXD = await novelBox.get('ReadLast');
-          print('ReadlastXD: $ReadlastXD');
-        },
-        tooltip: 'อ่านตอนล่าสุด',
-        child: const Icon(Iconsax.book_1),
-      ),
+      floatingActionButton: isEror
+          ? null
+          : FloatingActionButton(
+              backgroundColor: Colors.red[900],
+              foregroundColor: Colors.white,
+              elevation: 2,
+              onPressed: () async {
+                // print('Read Last: $readLast');
+                // Navigator.pushNamed(context, 'reader', arguments: readLast);
+                var ReadlastXD = await novelBox.get('ReadLast');
+                print('ReadlastXD: $ReadlastXD');
+              },
+              tooltip: 'อ่านตอนล่าสุด',
+              child: const Icon(Iconsax.book_1),
+            ),
     );
   }
 
