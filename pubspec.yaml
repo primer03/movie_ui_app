@@ -127,6 +127,7 @@ flutter:
     - assets/svg/
     - assets/images/
     - assets/mascot/
+    - assets/genre/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
