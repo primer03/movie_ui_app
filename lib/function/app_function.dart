@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:bloctest/main.dart';
-import 'package:bloctest/models/user_model.dart' as userModel;
+
+import 'package:bloctest/repositories/user_repository.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
@@ -10,14 +11,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'dart:io' show Platform;
-import '';
+import 'dart:io' show File, Platform;
+import 'package:path/path.dart' as path;
+import 'package:http/http.dart' as http;
 
 const storage = FlutterSecureStorage();
 
@@ -209,62 +213,6 @@ Future<void> getAppVersion() async {
   print('Build Number: $buildNumber');
 }
 
-Future<UserCredential?> signInWithGoogle() async {
-  try {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    // Check if the user canceled the sign-in process
-    if (googleUser == null) {
-      print('Sign in aborted by user');
-      return null; // Return null if user cancels the sign-in
-    }
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    // Once signed in, return the UserCredential
-    UserCredential userCredential =
-        await FirebaseAuth.instance.signInWithCredential(credential);
-
-    // Access the user information
-    User? user = userCredential.user;
-
-    if (user != null) {
-      // Print the user's display name
-      print('Login successful! User: ${user.displayName}');
-    } else {
-      print('No user information found');
-    }
-
-    return userCredential;
-  } catch (e) {
-    print('Error during Google sign-in: $e');
-    return null;
-  }
-}
-
-Future<void> signOut() async {
-  try {
-    // Sign out from Firebase
-    await FirebaseAuth.instance.signOut();
-
-    // Sign out from Google
-    await GoogleSignIn().signOut();
-
-    print('User successfully logged out');
-  } catch (e) {
-    print('Error during sign out: $e');
-  }
-}
-
 Future<UserCredential?> signInWithFacebook() async {
   try {
     // Trigger the sign-in flow
@@ -316,49 +264,99 @@ Future<void> signOutFacebook() async {
   }
 }
 
-IO.Socket? socket;
+// IO.Socket? socket;
 
-void setupSocket() async {
-  socket = IO.io(
-    'https://pzfbh88v-3002.asse.devtunnels.ms',
-    IO.OptionBuilder()
-        .setTransports(['websocket'])
-        .disableAutoConnect()
-        .build(),
-  );
+// void setupSocket() async {
+//   if (socket != null && socket!.connected) {
+//     return;
+//   }
 
-  // Listen to connection events
-  socket!.onConnect((_) async {
-    print('Connected');
-    print('User token: ${await novelBox.get('usertoken')}');
-    userModel.User user =
-        userModel.User.fromJson(json.decode(await novelBox.get('user')));
-    print('User ID: ${user.userid}');
-    socket!.emit('usermobile_online', user.userid);
-  });
+//   socket = IO.io(
+//     'https://pzfbh88v-3002.asse.devtunnels.ms',
+//     IO.OptionBuilder()
+//         .setTransports(['websocket'])
+//         .disableAutoConnect()
+//         .build(),
+//   );
 
-  socket!.on('message', (data) {
-    print('Message from server: $data');
-  });
+//   // Listen to connection events
+//   socket!.onConnect((_) async {
+//     print('Connected');
+//     print('User token: ${await novelBox.get('usertoken')}');
+//     userModel.User user =
+//         userModel.User.fromJson(json.decode(await novelBox.get('user')));
+//     print('User ID: ${user.userid}');
+//     socket!.emit('usermobile_online', user.userid);
+//     novelBox.put('isSocketConnected', true);
+//   });
 
-  socket!.onDisconnect((_) {
-    print('Disconnected');
-  });
+//   socket!.on('message', (data) {
+//     print('Message from server: $data');
+//   });
 
-  socket!.connect();
-}
+//   socket!.onDisconnect((_) {
+//     novelBox.put('isSocketConnected', false);
+//     print('Disconnected');
+//   });
 
-void disconnectSocket() {
-  if (socket != null) {
-    socket!.disconnect();
-    print('Socket disconnected');
-  }
-}
+//   socket!.connect();
+// }
 
-// ฟังก์ชันสำหรับการเชื่อมต่อ socket ใหม่
-void reconnectSocket() {
-  if (socket != null && !socket!.connected) {
-    socket!.connect();
-    print('Socket connected');
+// void disconnectSocket() {
+//   if (socket != null) {
+//     socket!.disconnect();
+//     print('Socket disconnected');
+//   }
+// }
+
+// // ฟังก์ชันสำหรับการเชื่อมต่อ socket ใหม่
+// void reconnectSocket() {
+//   if (socket != null && !socket!.connected) {
+//     socket!.connect();
+//     print('Socket connected');
+//   }
+// }
+
+Future<String> downloadImage(String imageUrl) async {
+  try {
+    final response = await http.get(Uri.parse(imageUrl));
+
+    if (response.statusCode == 200) {
+      final contentType = response.headers['content-type'];
+      String fileExtension = '.jpg'; // Default extension
+
+      if (contentType != null) {
+        switch (contentType.toLowerCase()) {
+          case 'image/jpeg':
+            fileExtension = '.jpg';
+            break;
+          case 'image/png':
+            fileExtension = '.png';
+            break;
+          case 'image/gif':
+            fileExtension = '.gif';
+            break;
+          case 'image/webp':
+            fileExtension = '.webp';
+            break;
+          // Add more cases as needed
+        }
+      }
+
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = 'downloaded_image$fileExtension';
+      final filePath = path.join(directory.path, fileName);
+
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+      return filePath;
+      // print('Image saved at $filePath');
+    } else {
+      print('Failed to load image: ${response.statusCode}');
+      return '';
+    }
+  } catch (e) {
+    print('Error downloading image: $e');
+    return '';
   }
 }
