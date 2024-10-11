@@ -96,6 +96,7 @@ dependencies:
   flutter_line_sdk: ^2.3.8
   flutter_native_splash: ^2.4.1
   flutter_launcher_icons: ^0.14.1
+  wakelock_plus: ^1.2.8
   # secure_application: ^4.0.1
   # flutter_windowmanager: ^0.2.0
   # flutter_screen_wake: ^1.0.2
