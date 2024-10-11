@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
@@ -10,6 +12,7 @@ import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/service/SocketService.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,9 +39,37 @@ class _MainpageState extends State<Mainpage> {
   bool closeloading = true;
   var now = DateTime.now();
   DateTime? lastPressed;
+  late StreamSubscription<List<ConnectivityResult>> subscription;
+  bool isConnect = false;
+
   @override
   void initState() {
     super.initState();
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> result) {
+      if (result.contains(ConnectivityResult.none)) {
+        disconnectSocket();
+        if (isConnect) {
+          isConnect = false;
+        }
+
+        // print('ไม่มีการเชื่อมต่ออินเทอร์เน็ต');
+        // BookmarkManager(context, (bool checkAdd) {})
+        //     .showToast('ไม่มีการเชื่อมต่ออินเทอร์เน็ต');
+      } else if (result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi)) {
+        if (!isConnect) {
+          setupSocket();
+          isConnect = true;
+        }
+        // print('กำลังเชื่อมต่ออินเทอร์เน็ต');
+
+        // BookmarkManager(context, (bool checkAdd) {})
+        //     .showToast('เชื่อมต่ออินเทอร์เน็ตแล้ว');
+        // getUser();
+      }
+    });
     getUser();
   }
 
@@ -46,7 +77,6 @@ class _MainpageState extends State<Mainpage> {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    setupSocket();
   }
 
   void getUser() async {
@@ -74,6 +104,8 @@ class _MainpageState extends State<Mainpage> {
 
   @override
   void dispose() {
+    subscription.cancel();
+    Logger().i('subscription cancel');
     super.dispose();
   }
 
@@ -176,11 +208,9 @@ class _MainpageState extends State<Mainpage> {
                           }
                           return Container(
                             margin: const EdgeInsets.only(left: 20),
-                            child: const CircleAvatar(
+                            child: CircleAvatar(
                               radius: 30,
-                              backgroundColor: Colors.grey,
-                              backgroundImage: NetworkImage(
-                                  'https://avatar.iran.liara.run/public'),
+                              backgroundColor: Colors.grey[300],
                             ),
                           );
                         },
