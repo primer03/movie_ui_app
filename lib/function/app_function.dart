@@ -56,11 +56,13 @@ Future<String> getDevice() async {
   if (Platform.isAndroid) {
     final deviceInfo = DeviceInfoPlugin();
     final androidInfo = await deviceInfo.androidInfo;
+    print('Running on ${androidInfo.model}');
     return androidInfo.model;
   } else if (Platform.isIOS) {
     final deviceInfo = DeviceInfoPlugin();
     final iosInfo = await deviceInfo.iosInfo;
-    return iosInfo.utsname.machine;
+    print('Running on ${iosInfo.utsname.machine}');
+    return iosInfo.utsname.machine; //
   } else {
     return 'Unknown';
   }
