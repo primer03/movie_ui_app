@@ -15,6 +15,7 @@ import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
+import 'package:bloctest/service/SocketService.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,7 +55,7 @@ void main() async {
 
 class AppLifecycleObserver extends WidgetsBindingObserver {
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.detached) {
       print('close your app');
       disconnectSocket();
@@ -64,7 +65,11 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
       print("App moved to background"); // คือเมื่อ app อยู่ในสถานะที่ถูกปิดไป
       disconnectSocket();
     } else if (state == AppLifecycleState.resumed) {
-      reconnectSocket();
+      bool hasData = await novelBox.get('user') != null;
+      if (hasData) {
+        print('reconnect socket');
+        reconnectSocket();
+      }
       print(
           "App moved to foreground"); // คือเมื่อ app อยู่ในสถานะที่ถูกเปิดขึ้นมา
     }
