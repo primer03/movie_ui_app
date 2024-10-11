@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/function/google_auth.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/pages/auth/social_last_regis.dart';
@@ -252,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
           text: 'เข้าสู่ระบบด้วย Google   ',
           icon: 'assets/svg/Google.svg',
           onPressed: () async {
-            signInWithGoogle();
+            signInWithGoogle(context);
           },
         ),
         const SizedBox(height: 10),
@@ -280,16 +281,17 @@ class _LoginPageState extends State<LoginPage> {
           text: 'เข้าสู่ระบบด้วย Facebook',
           icon: 'assets/svg/Facebook.svg',
           onPressed: () async {
-            UserCredential? userCredential = await signInWithFacebook();
-            if (userCredential != null) {
-              User user = userCredential.user!;
-              // show snack bar
-              showToastification(
-                context: context,
-                message: '${user.displayName} ลงชื่อเข้าใช้แล้ว',
-                type: ToastificationType.success,
-              );
-            }
+            await signOut();
+            // UserCredential? userCredential = await signInWithFacebook();
+            // if (userCredential != null) {
+            //   User user = userCredential.user!;
+            //   // show snack bar
+            //   showToastification(
+            //     context: context,
+            //     message: '${user.displayName} ลงชื่อเข้าใช้แล้ว',
+            //     type: ToastificationType.success,
+            //   );
+            // }
           },
         ),
       ],
