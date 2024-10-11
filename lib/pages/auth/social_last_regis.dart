@@ -19,12 +19,14 @@ class SocialLastRegis extends StatefulWidget {
   String email;
   String imgUrl;
   String userId;
+  String socialType;
   SocialLastRegis({
     super.key,
     required this.displayName,
     required this.email,
     required this.imgUrl,
     required this.userId,
+    required this.socialType,
   });
 
   @override
@@ -191,11 +193,12 @@ class _SocialLastRegisState extends State<SocialLastRegis> {
             style: ToastificationStyle.minimal,
           );
           await novelBox.put('loginsocial', true);
-          // BlocProvider.of<NovelBloc>(context).add(FetchNovels());
-          // await Future.delayed(const Duration(seconds: 2));
+          await novelBox.put('socialType', widget.socialType);
+          BlocProvider.of<NovelBloc>(context).add(FetchNovels());
+          await Future.delayed(const Duration(seconds: 2));
           Navigator.pop(context);
-          // await Future.delayed(const Duration(milliseconds: 500));
-          // Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
+          await Future.delayed(const Duration(milliseconds: 500));
+          Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
           // showToastification(
           //   context: context,
           //   message: state.message,
