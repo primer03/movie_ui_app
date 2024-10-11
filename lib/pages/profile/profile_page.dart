@@ -55,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
         uiSettings: [
           AndroidUiSettings(
             // cropStyle: CropStyle.circle,
-            toolbarTitle: 'Cropper',
+            toolbarTitle: 'ปรับขนาดภาพ',
             toolbarColor: Colors.black,
             toolbarWidgetColor: Colors.white,
             activeControlsWidgetColor: Colors.white,
