@@ -29,7 +29,6 @@ void setupSocket() async {
         userModel.User.fromJson(json.decode(await novelBox.get('user')));
     print('User ID: ${user.userid}');
     socket!.emit('usermobile_online', user.userid);
-    novelBox.put('isSocketConnected', true);
   });
 
   socket!.on('message', (data) {
@@ -38,7 +37,6 @@ void setupSocket() async {
 
   socket!.onDisconnect((_) {
     print('Disconnected');
-    novelBox.put('isSocketConnected', false);
   });
 
   socket!.connect();
