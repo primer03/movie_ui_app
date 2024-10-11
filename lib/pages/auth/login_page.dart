@@ -135,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pop(context);
     showToastification(
       context: ctx,
-      message: 'เข้าสู่ระบบล้มเหลว',
+      message: state.message.split(' ').last,
       type: ToastificationType.error,
       style: ToastificationStyle.flat,
       icon: Icon(Icons.error, color: Colors.red[800]),
