@@ -59,9 +59,7 @@ class _MovieHomeState extends State<MovieHome> {
 
     return BlocConsumer<NovelBloc, NovelState>(listener: (context, state) {
       if (state is NovelError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${state.message}')),
-        );
+        BookmarkManager(context, (bool checkAdd) {}).showToast(state.message);
       } else if (state is NovelLoaded) {
         _refreshController.refreshCompleted();
       }
@@ -255,8 +253,41 @@ class _MovieHomeState extends State<MovieHome> {
           ),
         );
       } else if (state is NovelError) {
-        return Center(
-          child: Text(state.message),
+        return SmartRefresher(
+          controller: _refreshController,
+          enablePullDown: true,
+          enablePullUp: false,
+          header: WaterDropMaterialHeader(
+            backgroundColor: Colors.grey[200],
+            color: Colors.black,
+            distance: 60,
+          ),
+          physics: const BouncingScrollPhysics(),
+          onRefresh: _onRefresh,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/mascot/error.png',
+                  width: 200,
+                ),
+                TextButton(
+                  onPressed: () {
+                    context.read<NovelBloc>().add(FetchNovels());
+                  },
+                  child: Text(
+                    'ลองอีกครั้ง',
+                    style: GoogleFonts.athiti(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       } else {
         return const SizedBox();
