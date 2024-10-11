@@ -3,10 +3,12 @@ import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/function/google_auth.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/service/SocketService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class UserPage extends StatefulWidget {
@@ -45,13 +47,27 @@ class _UserPageState extends State<UserPage> {
             Listmeneuser(
               icon: SvgPicture.asset('assets/svg/Lock.svg', width: 30),
               title: 'เปลี่ยนรหัสผ่าน',
-              onTap: () {},
+              onTap: () async {
+                print(await novelBox.get('loginsocial'));
+                if (await novelBox.get('loginsocial')) {
+                  BookmarkManager(context, (bool checkAdd) {}).showToast(
+                      'ไม่สามารถเปลี่ยนรหัสผ่านได้',
+                      gravity: ToastGravity.CENTER);
+                }
+              },
             ),
             const SizedBox(height: 10),
             Listmeneuser(
               icon: SvgPicture.asset('assets/svg/Message.svg', width: 30),
               title: 'เปลี่ยนอีเมล',
-              onTap: () {},
+              onTap: () async {
+                print(await novelBox.get('loginsocial'));
+                if (await novelBox.get('loginsocial')) {
+                  BookmarkManager(context, (bool checkAdd) {}).showToast(
+                      'ไม่สามารถเปลี่ยนอีเมลได้',
+                      gravity: ToastGravity.CENTER);
+                }
+              },
             ),
             const SizedBox(height: 20),
             Text(
