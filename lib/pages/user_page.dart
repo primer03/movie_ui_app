@@ -1,7 +1,9 @@
 import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/function/google_auth.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/service/SocketService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -111,6 +113,8 @@ class _UserPageState extends State<UserPage> {
                   print('socialtype: $socialtype');
                   if (socialtype == 'line') {
                     await logoutLine();
+                  } else if (socialtype == 'google') {
+                    await signOut();
                   }
                 }
                 await deletePassword();
