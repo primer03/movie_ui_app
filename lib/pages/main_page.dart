@@ -7,6 +7,7 @@ import 'package:bloctest/pages/library/library_page.dart';
 import 'package:bloctest/pages/special/novel_special_page.dart';
 import 'package:bloctest/pages/user_page.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
+import 'package:bloctest/service/SocketService.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +39,14 @@ class _MainpageState extends State<Mainpage> {
   @override
   void initState() {
     super.initState();
-    setupSocket();
     getUser();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    setupSocket();
   }
 
   void getUser() async {
