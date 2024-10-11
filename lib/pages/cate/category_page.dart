@@ -31,6 +31,14 @@ class _CategoryPageState extends State<CategoryPage>
   late AutoScrollController autoScrollController;
   final ScrollController scrollController = ScrollController();
   final List<ScrollController> scrollControllers = [];
+  final List<String> cateImg = [
+    'assets/genre/heart-like-svgrepo-com.svg',
+    'assets/genre/castle-svgrepo-com.svg',
+    'assets/genre/holy-scriptures-svgrepo-com.svg',
+    'assets/genre/yin-yang-taiji-diagram-svgrepo-com.svg',
+    'assets/genre/chess-svgrepo-com.svg',
+    'assets/genre/compass-svgrepo-com.svg',
+  ];
 
   bool isMenuVisible = true;
   bool isCateVisible = false;
@@ -245,43 +253,50 @@ class _CategoryPageState extends State<CategoryPage>
                         crossAxisCount: 3,
                         crossAxisSpacing: 5,
                         mainAxisSpacing: 5,
-                        childAspectRatio: 1,
+                        childAspectRatio: 1.5,
                       ),
                       itemCount: widget.cate.where((e) => e.id != 0).length,
                       itemBuilder: (context, index) {
                         final e =
                             widget.cate.where((e) => e.id != 0).toList()[index];
                         return Card(
-                          elevation: 0,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           color: Colors.white,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                isCateVisible = false;
-                              });
-                              tabController.animateTo(index + 1);
-                              pageController.animateToPage(
-                                index + 1,
-                                duration: const Duration(milliseconds: 400),
-                                curve: Curves.easeInOutCubic,
-                              );
-                            },
-                            child: CachedNetworkImage(
-                              key: Key('cateimage-${e.id}'),
-                              imageUrl: e.img,
-                              fit: BoxFit.fill,
-                              height: 50,
-                              placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[400]!,
-                                highlightColor: Colors.grey[100]!,
-                                period: const Duration(milliseconds: 1000),
-                                child: Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    isCateVisible = false;
+                                  });
+                                  tabController.animateTo(index + 1);
+                                  pageController.animateToPage(
+                                    index + 1,
+                                    duration: const Duration(milliseconds: 400),
+                                    curve: Curves.easeInOutCubic,
+                                  );
+                                },
+                                child: Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                      cateImg[index],
+                                      width: 50,
+                                      height: 50,
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      e.name,
+                                      style: GoogleFonts.athiti(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
