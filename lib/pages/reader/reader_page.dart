@@ -32,6 +32,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'dart:io' show Platform;
 import 'package:html/parser.dart' as parser;
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ReaderPage extends StatefulWidget {
   const ReaderPage({
@@ -245,6 +246,7 @@ class _ReaderPageState extends State<ReaderPage> {
 
   @override
   void dispose() {
+    WakelockPlus.disable();
     _scrollController.removeListener(_calculateScrollPercentage);
     _scrollController.dispose();
     _listViewController.dispose();
@@ -381,6 +383,7 @@ class _ReaderPageState extends State<ReaderPage> {
           _isToggled = false;
           _isautoScroll = false;
           stopAutoScroll();
+          WakelockPlus.disable();
           _previousScrollPosition = currentScrollPosition;
         });
       }
@@ -1279,6 +1282,7 @@ class _ReaderPageState extends State<ReaderPage> {
           value: _isautoScroll,
           onChanged: (value) {
             value ? startAutoScroll() : stopAutoScroll();
+            value ? WakelockPlus.enable() : WakelockPlus.disable();
             setState(() {
               _isautoScroll = value;
             });
