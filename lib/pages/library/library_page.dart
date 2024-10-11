@@ -188,8 +188,34 @@ class _LibraryPageState extends State<LibraryPage> {
                       ),
                     );
                   } else if (state is BookmarkError) {
-                    return Center(
-                      child: Text(state.message),
+                    return Container(
+                      alignment: Alignment.center,
+                      height: MediaQuery.of(context).size.height - 400,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/mascot/error.png',
+                            width: 200,
+                          ),
+                          const SizedBox(height: 10),
+                          TextButton(
+                            onPressed: () {
+                              context.read<NovelbookmarkBloc>().add(
+                                    const FetchBookmark(),
+                                  );
+                            },
+                            child: Text(
+                              'ลองใหม่อีกครั้ง',
+                              style: GoogleFonts.athiti(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   } else if (state is BookmarkEmpty) {
                     bookmarkList = [];
