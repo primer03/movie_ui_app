@@ -5,6 +5,7 @@ import 'package:bloctest/pages/cate/category_page.dart';
 import 'package:bloctest/pages/auth/login_page.dart';
 import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:bloctest/pages/detail/novel_detail_new.dart';
+import 'package:bloctest/pages/password/change_password.dart';
 import 'package:bloctest/pages/profile/profile_page.dart';
 import 'package:bloctest/pages/reader/reader_page.dart';
 import 'package:bloctest/pages/auth/register_page.dart';
@@ -76,6 +77,12 @@ class AppRouter {
             bookName: args['bookName'],
             novelEp: args['novelEp'],
           ),
+          type: PageTransitionType.rightToLeft,
+          curve: Curves.easeInOut,
+        );
+      case '/changeemail':
+        return PageTransition(
+          child: const ChangePasswordPage(),
           type: PageTransitionType.rightToLeft,
           curve: Curves.easeInOut,
         );
