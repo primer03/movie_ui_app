@@ -50,10 +50,10 @@ class _UserPageState extends State<UserPage> {
                         'ไม่สามารถเปลี่ยนรหัสผ่านได้',
                         gravity: ToastGravity.CENTER);
                   } else {
-                    Navigator.pushNamed(context, '/changeemail');
+                    Navigator.pushNamed(context, '/changePassword');
                   }
                 } else {
-                  Navigator.pushNamed(context, '/changeemail');
+                  Navigator.pushNamed(context, '/changePassword');
                 }
               },
             ),
@@ -77,10 +77,10 @@ class _UserPageState extends State<UserPage> {
                         'ไม่สามารถเปลี่ยนอีเมลได้',
                         gravity: ToastGravity.CENTER);
                   } else {
-                    Navigator.pushNamed(context, '/changeemail');
+                    Navigator.pushNamed(context, '/changeEmail');
                   }
                 } else {
-                  Navigator.pushNamed(context, '/changeemail');
+                  Navigator.pushNamed(context, '/changeEmail');
                 }
               },
             ),
