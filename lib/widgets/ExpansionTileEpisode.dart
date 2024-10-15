@@ -1,4 +1,5 @@
 import 'package:bloctest/models/novel_detail_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ class ExpansionTileEpisode extends StatefulWidget {
   final String title;
   final List<NovelEp> novelEp;
   final List<NovelEp> novelEpAll;
+  final List<dynamic> hisRead;
   final int allEP;
   final String bookname;
   final String role;
@@ -20,6 +22,7 @@ class ExpansionTileEpisode extends StatefulWidget {
     required this.title,
     required this.novelEp,
     required this.novelEpAll,
+    required this.hisRead,
     required this.allEP,
     required this.bookname,
     required this.role,
@@ -36,6 +39,7 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
   void initState() {
     super.initState();
     _isExpanded = widget.initiallyExpanded;
+    print('EPISODE: ${widget.hisRead}');
   }
 
   String formatDate(String originalDate) {
@@ -101,7 +105,10 @@ class _ExpansionTileEpisodeState extends State<ExpansionTileEpisode> {
                 final episode = widget.novelEp[index];
                 return ListTile(
                   splashColor: Colors.grey,
-                  tileColor: Colors.white,
+                  tileColor: widget.hisRead
+                          .any((element) => element['epID'] == episode.epId)
+                      ? CupertinoColors.lightBackgroundGray
+                      : Colors.white,
                   onTap: () {
                     Navigator.pushNamed(
                       context,
