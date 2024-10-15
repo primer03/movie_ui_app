@@ -5,14 +5,12 @@ import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/user_model.dart';
-import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/widgets/InputForm.dart';
 import 'package:bloctest/widgets/InputThem.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -219,6 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildInputField(
                   _dateController,
                   'วันเดือนปีเกิด',
+                  readOnly: true,
                   const Icon(Icons.calendar_today),
                   1,
                 ),
@@ -483,6 +482,7 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             }
           } catch (e) {
+            Navigator.pop(context);
             showToastification(
               context: context,
               message: 'เกิดข้อผิดพลาด',
@@ -550,9 +550,16 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String label,
-      Widget icon, int focusIndex,
-      {bool isPassword = false, int maxLines = 1, bool isEmptyValue = false}) {
+  Widget _buildInputField(
+    TextEditingController controller,
+    String label,
+    Widget icon,
+    int focusIndex, {
+    bool isPassword = false,
+    int maxLines = 1,
+    bool isEmptyValue = false,
+    bool readOnly = false,
+  }) {
     return InputThem(
       child: InputForm(
         controller: controller,
@@ -563,6 +570,7 @@ class _ProfilePageState extends State<ProfilePage> {
         isPassword: isPassword,
         maxLines: maxLines,
         isEmptyValue: isEmptyValue,
+        readOnly: readOnly,
       ),
     );
   }
