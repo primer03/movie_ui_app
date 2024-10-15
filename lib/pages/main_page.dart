@@ -83,7 +83,7 @@ class _MainpageState extends State<Mainpage> {
     final userstr = await novelBox.get('user');
     final isSocial = await novelBox.get('loginsocial');
     print('isSocial: $isSocial');
-    Logger().i(await novelBox.get('usertoken'));
+    Logger().i('userstr: $userstr');
     final logintype = await novelBox.get('loginType');
     if (userstr == null) {
       await ondispose();
@@ -93,7 +93,7 @@ class _MainpageState extends State<Mainpage> {
     final user = User.fromJson(jsonDecode(userstr));
     final password = logintype == 'remember' ? await getPassword() : null;
     // ignore: use_build_context_synchronously
-    print('img: ${user.img}');
+    // print('img: ${user.img}');
     // BlocProvider.of<UserBloc>(context)
     //     .add(UserLoginremember(user: user, password: password));
     context.read<UserBloc>().add(UserLoginremember(
