@@ -120,10 +120,8 @@ void showLoadingDialog(BuildContext context, {bool canPop = false}) {
       return PopScope(
         canPop: canPop,
         child: Center(
-          child: LoadingAnimationWidget.discreteCircle(
+          child: LoadingAnimationWidget.hexagonDots(
             color: Colors.white,
-            secondRingColor: Colors.black,
-            thirdRingColor: Colors.red[900]!,
             size: 50,
           ),
         ),
