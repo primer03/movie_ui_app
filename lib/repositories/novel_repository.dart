@@ -89,7 +89,10 @@ class NovelRepository {
     String token = novelBox.get('usertoken');
     try {
       final response = await _getRequest(url, token: token);
-      Logger().i('response: ${response.body}');
+      Logger().i('response: ${response.body.runtimeType}');
+      if (response.statusCode != 200) {
+        throw Exception(response.body);
+      }
       final decodedData = _decodeResponse(response);
       Logger().i('decodedData: $decodedData');
       if (decodedData.isNotEmpty) {
