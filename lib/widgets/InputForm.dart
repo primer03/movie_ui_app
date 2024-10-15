@@ -14,6 +14,7 @@ class InputForm extends StatefulWidget {
     this.showPassword = false,
     this.onShowPassword,
     this.maxLines = 1,
+    this.isCheckPassword = true,
     this.isEmptyValue = false,
   });
 
@@ -26,6 +27,7 @@ class InputForm extends StatefulWidget {
   final bool showPassword;
   final VoidCallback? onShowPassword;
   final int maxLines;
+  final bool isCheckPassword;
   final bool isEmptyValue;
 
   @override
@@ -181,6 +183,20 @@ class _InputFormState extends State<InputForm> {
               if (widget.labelText == 'ชื่อผู้ใช้') {
                 if (value.length < 3 || value.length > 30) {
                   return 'ชื่อผู้ใช้ต้องมีความยาว 3-20 ตัวอักษร';
+                }
+              }
+              if (widget.labelText == 'รหัสผ่าน' ||
+                  widget.labelText == 'ยืนยันรหัสผ่าน' ||
+                  widget.labelText == 'รหัสผ่านเดิม' ||
+                  widget.labelText == 'รหัสผ่านใหม่' ||
+                  widget.labelText == 'ยืนยันรหัสผ่านใหม่') {
+                print(value);
+                if (widget.isCheckPassword) {
+                  if (!RegExp(
+                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$')
+                      .hasMatch(value)) {
+                    return 'รหัสผ่านต้องมี 8 ตัวขึ้นไป รวมพิมพ์ใหญ่ เล็ก และตัวเลข';
+                  }
                 }
               }
 
