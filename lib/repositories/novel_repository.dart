@@ -14,7 +14,7 @@ import 'dart:convert';
 import 'package:logger/web.dart';
 
 class NovelRepository {
-  static const String _baseUrl = 'https://pzfbh88v-3002.asse.devtunnels.ms/api';
+  static const String _baseUrl = 'https://pzfbh88v-3004.asse.devtunnels.ms/api';
   static const String _apiKey =
       'NGYyMDNlYmMtYjYyZi00OWMzLTg0NmItYThiZmI4NjhhYzUx';
   static const String _clientDomain = 'https://bookfet.com';
