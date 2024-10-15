@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/novelread/readnovel_bloc.dart';
 import 'package:bloctest/bloc/novelrec/novelrec_bloc.dart';
 import 'package:bloctest/main.dart';
@@ -78,7 +79,9 @@ class _ReaderPageState extends State<ReaderPage> {
   String EpID = '';
   Timer? _debounce;
   Timer? _timer;
+  int? novelID;
   late User user;
+  late NovelDetailBloc _novelDetailBloc;
   List<Map<String, dynamic>> TheamSetting = [
     {
       'bg': Colors.white,
@@ -261,7 +264,18 @@ class _ReaderPageState extends State<ReaderPage> {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
           overlays: SystemUiOverlay.values);
     }
+    // if (novelID != null) {
+    //   print('Dispose Novel ID: $novelID');
+    //   _novelDetailBloc.add(FetchNovelDetail(novelID!));
+    // }
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // เก็บ NovelDetailBloc ไว้ล่วงหน้า
+    _novelDetailBloc = context.read<NovelDetailBloc>();
   }
 
   Future<void> setTheme() async {
@@ -638,8 +652,13 @@ class _ReaderPageState extends State<ReaderPage> {
                           //   SnackBar(content: Text(state.message)),
                           // );
                         } else if (state is ReadnovelLoaded) {
+                          print(
+                              'Loaded ${state.bookfetNovelRead.readnovel.novelBook.id}');
+
                           setState(() {
                             _scrollPercentage = 0.0;
+                            novelID =
+                                state.bookfetNovelRead.readnovel.novelBook.id;
                           });
                           // _calculateScrollPercentage();
                         }
@@ -713,11 +732,11 @@ class _ReaderPageState extends State<ReaderPage> {
                     _isautoScroll = !_isautoScroll;
                   });
                 },
+                backgroundColor: _selectedTheam['fg'],
                 child: Icon(
                   _isautoScroll ? Icons.pause : Icons.play_arrow,
                   color: _selectedTheam['bg'],
                 ),
-                backgroundColor: _selectedTheam['fg'],
               )
             : null,
       ),
