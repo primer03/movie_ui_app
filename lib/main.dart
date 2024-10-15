@@ -1,3 +1,4 @@
+import 'package:bloctest/bloc/changeemail/changeemail_bloc.dart';
 import 'package:bloctest/bloc/changepassword/changepassword_bloc.dart';
 import 'package:bloctest/bloc/lineauth/lineauth_bloc.dart';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
@@ -106,6 +107,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<NovelrecBloc>(create: (context) => NovelrecBloc()),
         BlocProvider<ReadnovelBloc>(create: (context) => ReadnovelBloc()),
         BlocProvider<LineauthBloc>(create: (context) => LineauthBloc()),
+        BlocProvider<ChangeemailBloc>(create: (context) => ChangeemailBloc()),
         BlocProvider<ChangepasswordBloc>(
             create: (context) => ChangepasswordBloc()),
         initialRoute != '/'
