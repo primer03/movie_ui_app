@@ -2,15 +2,20 @@ import 'dart:convert';
 
 import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/bloc/novelspecial/novelspecial_bloc.dart';
+import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/function/google_auth.dart';
+import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
+import 'package:bloctest/service/SocketService.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:google_fonts/google_fonts.dart';
@@ -85,6 +90,7 @@ class _NovelSpecialPageState extends State<NovelSpecialPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SmartRefresher(
         controller: _refreshController,
         enablePullDown: true,
@@ -102,10 +108,37 @@ class _NovelSpecialPageState extends State<NovelSpecialPage> {
           listener: (context, state) async {
             if (state is NovelspecialFailure) {
               // หากเกิดข้อผิดพลาด สามารถทำการแสดง SnackBar หรือแจ้งเตือนผู้ใช้ได้
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Error occurred while fetching data!')),
-              );
+              // ScaffoldMessenger.of(context).showSnackBar(
+
+              // );
+              print(
+                  'NovelspecialFailure ${state.error.split('Exception: ').last}');
+              try {
+                var error = json.decode(state.error.split('Exception: ').last);
+                BookmarkManager(context, (bool checkAdd) {}).showToast(
+                  error['message'],
+                  gravity: ToastGravity.CENTER,
+                );
+                disconnectSocket();
+                final socialtype = await novelBox.get('socialType');
+                if (socialtype != null) {
+                  print('socialtype: $socialtype');
+                  if (socialtype == 'line') {
+                    await logoutLine();
+                  } else if (socialtype == 'google') {
+                    await signOut();
+                  }
+                }
+                await deletePassword();
+                await novelBox.clear();
+                BlocProvider.of<PageBloc>(context)
+                    .add(const PageChanged(tabIndex: 0));
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/login', (route) => false);
+                print('error: $error');
+              } catch (e) {
+                print(e);
+              }
             } else if (state is NovelspecialSuccess) {
               if (!isVideoInitialized) {
                 videoPlayerController = VideoPlayerController.networkUrl(
@@ -538,8 +571,18 @@ class _NovelSpecialPageState extends State<NovelSpecialPage> {
                             imageUrl:
                                 state.specialPage.specialBanner![0].footerImg!,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
+                            placeholder: (context, url) => Container(
+                              height: 800,
+                              width: 1200,
+                              child: Center(
+                                child: LoadingAnimationWidget.discreteCircle(
+                                  color: Colors.grey,
+                                  secondRingColor: Colors.black,
+                                  thirdRingColor: Colors.red[900]!,
+                                  size: 50,
+                                ),
+                              ),
+                            ),
                             errorWidget: (context, url, error) =>
                                 const Icon(Icons.error),
                           ),
