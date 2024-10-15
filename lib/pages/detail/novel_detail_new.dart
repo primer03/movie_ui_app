@@ -10,7 +10,6 @@ import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:bloctest/widgets/Epview.dart';
-import 'package:bloctest/widgets/ExpansionTileEpisode.dart';
 import 'package:bloctest/widgets/ItemGridRec.dart';
 import 'package:bloctest/widgets/gridskeleton.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -64,7 +63,9 @@ class _NovelDetailNewState extends State<NovelDetailNew>
   late BookmarkManager _bookmarkManager;
   List<String> groupList = [];
   List<int> epList = [];
-  Map<String, dynamic> readLast = {};
+  List<dynamic> readLast = [];
+  List<NovelEp> novelEpx = [];
+  String bID = '';
   DateTime? lastRefreshTime;
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -98,6 +99,7 @@ class _NovelDetailNewState extends State<NovelDetailNew>
       // print('password: ${getPassword()}');
       // var password = await getPassword();
       // print('password: $password');
+      print('Novel ID: ${widget.novelId}');
       context.read<NovelDetailBloc>().add(FetchNovelDetail(widget.novelId));
       final bookmarks = parseList<Bookmark>(
           json.decode(await novelBox.get('bookmarkData') ?? '[]'),
@@ -171,6 +173,10 @@ class _NovelDetailNewState extends State<NovelDetailNew>
                 .read<NovelrecBloc>()
                 .add(NovelrecLoad(state.dataNovel.novel.btName));
             setState(() {
+              readLast = state.hisRead ?? [];
+              novelEpx = state.dataNovel.novelEp;
+              bID = state.dataNovel.novel.bookId;
+              Logger().i('readLast: ${state.hisRead}');
               var allEPList = state.dataNovel.novelEp.where((element) {
                 DateTime publishDateTime =
                     combineDateTime(element.publishDate, element.publishTime);
@@ -219,7 +225,7 @@ class _NovelDetailNewState extends State<NovelDetailNew>
               ),
             );
           } else if (state is NovelDetailLoaded) {
-            Logger().i('readLast: ${state.hisRead}');
+            // Logger().i('readLast: ${state.hisRead}');
             return Stack(
               children: [
                 ListView(
@@ -283,21 +289,30 @@ class _NovelDetailNewState extends State<NovelDetailNew>
           );
         },
       ),
-      floatingActionButton: isEror
-          ? null
-          : FloatingActionButton(
-              backgroundColor: Colors.red[900],
-              foregroundColor: Colors.white,
-              elevation: 2,
-              onPressed: () async {
-                // print('Read Last: $readLast');
-                // Navigator.pushNamed(context, 'reader', arguments: readLast);
-                var ReadlastXD = await novelBox.get('ReadLast');
-                print('ReadlastXD: $ReadlastXD');
-              },
-              tooltip: 'อ่านตอนล่าสุด',
-              child: const Icon(Iconsax.book_1),
-            ),
+      // floatingActionButton: isEror
+      //     ? null
+      //     : FloatingActionButton(
+      //         backgroundColor: Colors.red[900],
+      //         foregroundColor: Colors.white,
+      //         elevation: 2,
+      //         onPressed: () async {
+      //           print('Read Last: ${readLast}');
+      //           Navigator.pushNamed(
+      //             context,
+      //             'reader',
+      //             arguments: {
+      //               'bookId': bID,
+      //               'epId': readLast.last['epID'],
+      //               'bookName': '',
+      //               'novelEp': novelEpx,
+      //             },
+      //           );
+      //           // var ReadlastXD = await novelBox.get('ReadLast');
+      //           // print('ReadlastXD: $ReadlastXD');
+      //         },
+      //         tooltip: 'อ่านตอนล่าสุด',
+      //         child: const Icon(Iconsax.book_1),
+      //       ),
     );
   }
 
@@ -813,6 +828,7 @@ class _NovelDetailNewState extends State<NovelDetailNew>
       novelEp: dataNovel.novelEp,
       bookname: dataNovel.novel.btName,
       role: widget.user.detail.roles[1] ?? '',
+      hisRead: readLast,
     );
   }
 
