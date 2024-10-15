@@ -11,7 +11,8 @@ class NovelDetailBloc extends Bloc<NovelDetailEvent, NovelDetailState> {
   NovelDetailBloc() : super(NovelDetailInitial()) {
     on<FetchNovelDetail>(_onFetchNovelDetail);
   }
-  NovelRepository _novelRepository = NovelRepository();
+
+  final NovelRepository _novelRepository = NovelRepository();
 
   void _onFetchNovelDetail(
       FetchNovelDetail event, Emitter<NovelDetailState> emit) async {
