@@ -43,11 +43,17 @@ class _UserPageState extends State<UserPage> {
               icon: SvgPicture.asset('assets/svg/Lock.svg', width: 30),
               title: 'เปลี่ยนรหัสผ่าน',
               onTap: () async {
-                print(await novelBox.get('loginsocial'));
-                if (await novelBox.get('loginsocial')) {
-                  BookmarkManager(context, (bool checkAdd) {}).showToast(
-                      'ไม่สามารถเปลี่ยนรหัสผ่านได้',
-                      gravity: ToastGravity.CENTER);
+                bool? isLoginSocial = await novelBox.get('loginsocial');
+                if (isLoginSocial != null) {
+                  if (isLoginSocial) {
+                    BookmarkManager(context, (bool checkAdd) {}).showToast(
+                        'ไม่สามารถเปลี่ยนรหัสผ่านได้',
+                        gravity: ToastGravity.CENTER);
+                  } else {
+                    Navigator.pushNamed(context, '/changeemail');
+                  }
+                } else {
+                  Navigator.pushNamed(context, '/changeemail');
                 }
               },
             ),
@@ -56,11 +62,25 @@ class _UserPageState extends State<UserPage> {
               icon: SvgPicture.asset('assets/svg/Message.svg', width: 30),
               title: 'เปลี่ยนอีเมล',
               onTap: () async {
-                print(await novelBox.get('loginsocial'));
-                if (await novelBox.get('loginsocial')) {
-                  BookmarkManager(context, (bool checkAdd) {}).showToast(
-                      'ไม่สามารถเปลี่ยนอีเมลได้',
-                      gravity: ToastGravity.CENTER);
+                // print(await novelBox.get('loginsocial'));
+                // if (await novelBox.get('loginsocial')) {
+                //   BookmarkManager(context, (bool checkAdd) {}).showToast(
+                //       'ไม่สามารถเปลี่ยนอีเมลได้',
+                //       gravity: ToastGravity.CENTER);
+                // } else {
+                //   Navigator.pushNamed(context, '/changeemail');
+                // }
+                bool? isLoginSocial = await novelBox.get('loginsocial');
+                if (isLoginSocial != null) {
+                  if (isLoginSocial) {
+                    BookmarkManager(context, (bool checkAdd) {}).showToast(
+                        'ไม่สามารถเปลี่ยนอีเมลได้',
+                        gravity: ToastGravity.CENTER);
+                  } else {
+                    Navigator.pushNamed(context, '/changeemail');
+                  }
+                } else {
+                  Navigator.pushNamed(context, '/changeemail');
                 }
               },
             ),
@@ -130,7 +150,8 @@ class Listmeneuser extends StatelessWidget {
   final SvgPicture icon;
   final String title;
   final Function()? onTap;
-  const Listmeneuser({super.key, 
+  const Listmeneuser({
+    super.key,
     required this.icon,
     required this.title,
     this.onTap,
