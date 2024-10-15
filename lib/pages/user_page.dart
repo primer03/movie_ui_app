@@ -1,12 +1,7 @@
-import 'package:bloctest/bloc/page/page_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
-import 'package:bloctest/function/google_auth.dart';
-import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
-import 'package:bloctest/service/SocketService.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -121,30 +116,7 @@ class _UserPageState extends State<UserPage> {
                   width: 30),
               title: 'ออกจากระบบ',
               onTap: () async {
-                // ลบข้อมูลจาก Hive
-                // String token = novelBox.get('usertoken');
-                disconnectSocket();
-                final socialtype = await novelBox.get('socialType');
-                if (socialtype != null) {
-                  print('socialtype: $socialtype');
-                  if (socialtype == 'line') {
-                    await logoutLine();
-                  } else if (socialtype == 'google') {
-                    await signOut();
-                  }
-                }
-                await deletePassword();
-                // print(token);
-                await novelBox.clear();
-
-                // นำทางไปที่หน้าแรก
-                // ignore: use_build_context_synchronously
-                BlocProvider.of<PageBloc>(context)
-                    .add(const PageChanged(tabIndex: 0));
-                // BlocProvider.of<NovelBloc>(context).add(ResetNovels());
-                // ignore: use_build_context_synchronously
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/login', (route) => false);
+                await logoutAll(context);
               },
             ),
           ],
@@ -158,7 +130,7 @@ class Listmeneuser extends StatelessWidget {
   final SvgPicture icon;
   final String title;
   final Function()? onTap;
-  const Listmeneuser({
+  const Listmeneuser({super.key, 
     required this.icon,
     required this.title,
     this.onTap,
