@@ -9,7 +9,7 @@ import 'package:logger/web.dart';
 import 'package:path/path.dart' as path;
 
 class UserRepository {
-  final String url = 'https://pzfbh88v-3002.asse.devtunnels.ms/api/';
+  final String url = 'https://pzfbh88v-3004.asse.devtunnels.ms/api/';
   final String apiKey = 'NGYyMDNlYmMtYjYyZi00OWMzLTg0NmItYThiZmI4NjhhYzUx';
   final String clientDomain = 'https://bookfet.com';
 
@@ -19,11 +19,18 @@ class UserRepository {
     required String identifier,
   }) async {
     try {
+      print('email: $email');
+      print('password: $password');
+      print('identifier: $identifier');
       final response = await http.post(
         Uri.parse('${url}login/member'),
         body: {'email': email, 'password': password, 'identifier': identifier},
         headers: {'x-api-key': apiKey, 'x-client-domain': clientDomain},
       );
+
+      if (response.statusCode != 200) {
+        print('error: ${response.statusCode}');
+      }
 
       final res = json.decode(response.body);
       Logger().i(res);
@@ -52,7 +59,7 @@ class UserRepository {
       savePassword(password);
       return User.fromJson(decodedToken);
     } catch (e) {
-      print('error: ${e.toString()}');
+      print('error: ${e}');
       throw Exception(e.toString());
     }
   }
@@ -379,6 +386,7 @@ class UserRepository {
         }
         return true;
       } else {
+        print('Error: ${response.statusCode}');
         final res = json.decode(response.body);
         throw Exception(res['message'] ?? 'เกิดข้อผิดพลาด');
       }
@@ -420,6 +428,55 @@ class UserRepository {
       }
     } catch (e) {
       throw Exception('Failed to change password: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> changeEmail({
+    required String newEmail,
+    required String oldEmail,
+  }) async {
+    final Uri urlx = Uri.parse('${url}update/member/email');
+    final String? token = novelBox.get('usertoken');
+
+    if (token == null || token.isEmpty) {
+      throw Exception('User token is missing. Please login again.');
+    }
+
+    try {
+      final response = await http.put(
+        urlx,
+        headers: {
+          'x-api-key': apiKey,
+          'x-client-domain': clientDomain,
+          'Authorization': token,
+        },
+        body: {
+          'oldEmail': oldEmail,
+          'newEmail': newEmail,
+        },
+      );
+
+      final responseBody = response.body.isNotEmpty
+          ? jsonDecode(response.body)
+          : {'message': 'No response body'};
+
+      if (response.statusCode == 200) {
+        Logger().i(responseBody);
+
+        if (responseBody['status'] == 'error') {
+          throw Exception(responseBody['message']);
+        }
+
+        return {
+          'status': 'success',
+          'message': responseBody['message'] ?? 'Email updated successfully',
+        };
+      } else {
+        throw Exception(responseBody['message'] ?? 'เกิดข้อผิดพลาด');
+      }
+    } catch (e) {
+      Logger().e('Failed to change email: $e');
+      throw Exception('Failed to change email: $e');
     }
   }
 
