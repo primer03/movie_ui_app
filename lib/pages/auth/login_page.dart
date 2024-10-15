@@ -166,6 +166,7 @@ class _LoginPageState extends State<LoginPage> {
               labelText: 'รหัสผ่าน',
               isPassword: true,
               showPassword: false,
+              isCheckPassword: false,
             ),
           ),
         ],
