@@ -388,6 +388,41 @@ class UserRepository {
     }
   }
 
+  Future<Map<String, dynamic>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final urlx = Uri.parse('${url}update/member/password');
+    print('url: $urlx');
+    print('oldPassword: $oldPassword');
+    print('newPassword: $newPassword');
+    final token = novelBox.get('usertoken');
+    try {
+      final response = await http.put(urlx, headers: {
+        'x-api-key': apiKey,
+        'x-client-domain': clientDomain,
+        'Authorization': token
+      }, body: {
+        "oldPassword": oldPassword,
+        "newPassword": newPassword,
+      });
+
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+        Logger().i(res);
+        if (res['status'] == 'error') {
+          throw Exception(res['message']);
+        }
+        return {'status': 'success', 'message': res['message']};
+      } else {
+        final res = json.decode(response.body);
+        throw Exception(res['message'] ?? 'เกิดข้อผิดพลาด');
+      }
+    } catch (e) {
+      throw Exception('Failed to change password: $e');
+    }
+  }
+
   // Future<void> createUser({required String name, required String email}) async {
   //   _users.add(User(id: DateTime.now().toString(), name: name, email: email));
   // }
