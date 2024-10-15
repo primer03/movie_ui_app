@@ -57,14 +57,6 @@ void setupSocket() async {
   });
 
   socket!.onDisconnect((_) async {
-    // if (socket != null) {
-    //   if (socket == null) {
-    //     Logger().i('Socket disconnected and cleared');
-    //   }
-    // }
-    // if (!await checkInternetConnection()) {
-    //   Logger().i('No internet connection. Cannot reconnect to socket');
-    // }
     if (!await checkInternetConnection()) {
       Logger().i('Disconnected from socket. No internet connection');
     } else {
