@@ -7,12 +7,14 @@ class Epview extends StatelessWidget {
     super.key,
     required this.groupList,
     required this.novelEp,
+    required this.hisRead,
     required this.bookname,
     required this.role,
   });
 
   final List<String> groupList;
   final List<NovelEp> novelEp;
+  final List<dynamic> hisRead;
   final String bookname;
   final String role;
 
@@ -53,6 +55,7 @@ class Epview extends StatelessWidget {
                 bookname: bookname,
                 novelEpAll: novelEp,
                 role: role,
+                hisRead: hisRead,
               ),
               const SizedBox(height: 10),
             ],
