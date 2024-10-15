@@ -4,6 +4,7 @@ import 'package:bloctest/models/user_model.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 part 'user_event.dart';
 part 'user_state.dart';
@@ -20,9 +21,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   void _onLoadProfile(LoadProfile event, Emitter<UserState> emit) async {
     // emit(UserLoadingProfile());
+    Logger().i('event type: ${event.type}');
     try {
       final User user;
-
       if (event.type == 'social') {
         print('social');
         user = await userRepository.loadprofilesocial(
@@ -64,14 +65,17 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   void _onLoginSuccess(UserLoginremember event, Emitter<UserState> emit) async {
+    Logger().i('event type: ${event.type}');
     try {
       User user = event.user;
       User userlogin;
       if (event.password != null) {
-        // userlogin = await userRepository.loginUser(
-        //     email: user.detail.email,
-        //     password: event.password!,
-        //     identifier: user.ag);
+        userlogin = await userRepository.loginUser(
+          email: user.detail.email,
+          password: event.password!,
+          identifier: user.ag,
+        );
+      } else {
         if (event.type == 'social') {
           userlogin = await userRepository.loadprofilesocial(
             email: user.detail.email,
@@ -80,15 +84,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             firstRegis: false,
           );
         } else {
-          userlogin = await userRepository.loginUser(
-            email: user.detail.email,
-            password: event.password!,
-            identifier: user.ag,
-          );
+          print('no password');
+          userlogin = user;
         }
-      } else {
-        print('no password');
-        userlogin = user;
       }
       emit(UserLoginrememberSate(userlogin));
     } catch (e) {
