@@ -213,6 +213,8 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       _focusNodes.forEach((node) => node.unfocus());
+      print('Email: ${_emailController.text}');
+      print('Password: ${_passwordController.text}');
       BlocProvider.of<UserBloc>(context).add(
         LoginUser(
           email: _emailController.text,
