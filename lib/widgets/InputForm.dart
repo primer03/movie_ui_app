@@ -12,6 +12,7 @@ class InputForm extends StatefulWidget {
     required this.prefixIcon,
     this.isPassword = false,
     this.showPassword = false,
+    this.readOnly = false,
     this.onShowPassword,
     this.maxLines = 1,
     this.isCheckPassword = true,
@@ -25,6 +26,7 @@ class InputForm extends StatefulWidget {
   final Widget prefixIcon;
   final bool isPassword;
   final bool showPassword;
+  final bool readOnly;
   final VoidCallback? onShowPassword;
   final int maxLines;
   final bool isCheckPassword;
@@ -174,7 +176,8 @@ class _InputFormState extends State<InputForm> {
               if (value!.isEmpty) {
                 return 'กรุณากรอกข้อมูล';
               }
-              if (widget.labelText == 'อีเมล') {
+              if (widget.labelText == 'อีเมล' ||
+                  widget.labelText == 'อีเมลใหม่') {
                 if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                     .hasMatch(value)) {
                   return 'รูปแบบอีเมลล์ไม่ถูกต้อง';
@@ -219,7 +222,7 @@ class _InputFormState extends State<InputForm> {
       onTap: widget.labelText == 'วันเดือนปีเกิด'
           ? () => _selectDate(context)
           : null,
-      readOnly: widget.labelText == 'วันเดือนปีเกิด',
+      readOnly: widget.readOnly,
       decoration: InputDecoration(
         prefixIconConstraints: const BoxConstraints(
           minWidth: 50,
