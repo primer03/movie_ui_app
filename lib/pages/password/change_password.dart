@@ -45,6 +45,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    oldPasswordController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+    oldPasswordFocusNode.dispose();
+    newPasswordFocusNode.dispose();
+    confirmPasswordFocusNode.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -97,7 +109,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         type: ToastificationType.success,
                         style: ToastificationStyle.minimal,
                       );
-                      Navigator.pop(context);
+                      logoutAll(context);
                     } else if (state is ChangepasswordFailure) {
                       Navigator.pop(context);
                       showToastification(
