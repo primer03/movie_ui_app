@@ -157,12 +157,12 @@ class _MembershipPageState extends State<MembershipPage> {
                                       Text(
                                         'สมัครสมาชิก VIP สำเร็จ',
                                         style: GoogleFonts.athiti(
-                                            fontSize: 28,
+                                            fontSize: 30,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.black),
                                         textAlign: TextAlign.center,
                                       ),
-                                      const SizedBox(height: 20),
+                                      const SizedBox(height: 15),
                                       ElevatedButton(
                                         onPressed: () {
                                           Navigator.pop(context);
