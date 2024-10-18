@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:bloctest/bloc/changeemail/changeemail_bloc.dart';
 import 'package:bloctest/bloc/changepassword/changepassword_bloc.dart';
 import 'package:bloctest/bloc/lineauth/lineauth_bloc.dart';
@@ -17,6 +20,7 @@ import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/routes/app_router.dart';
+import 'package:bloctest/service/InappPurchaseservice.dart';
 import 'package:bloctest/service/SocketService.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +30,17 @@ import 'package:flutter_line_sdk/flutter_line_sdk.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 // ignore: prefer_typing_uninitialized_variables
 late Box novelBox;
+final GlobalKey<ScaffoldMessengerState> globalScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -50,6 +61,7 @@ void main() async {
   novelBox.delete('ReadLast');
   novelBox.delete('specialData');
   getAppVersion();
+  InAppPurchaseService();
   runApp(MyApp(initialRoute: hasData ? '/main' : '/'));
   WidgetsBinding.instance.addObserver(AppLifecycleObserver());
   FlutterNativeSplash.remove();
@@ -67,16 +79,31 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
       print("App moved to background"); // คือเมื่อ app อยู่ในสถานะที่ถูกปิดไป
       disconnectSocket();
     } else if (state == AppLifecycleState.resumed) {
-      reconnectSocket();
+      bool hasdata = await novelBox.get('user') != null;
+      if (hasdata) {
+        reconnectSocket();
+      }
       print(
           "App moved to foreground"); // คือเมื่อ app อยู่ในสถานะที่ถูกเปิดขึ้นมา
     }
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final String initialRoute;
-  const MyApp({Key? key, required this.initialRoute}) : super(key: key);
+  const MyApp({super.key, required this.initialRoute});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -110,12 +137,14 @@ class MyApp extends StatelessWidget {
         BlocProvider<ChangeemailBloc>(create: (context) => ChangeemailBloc()),
         BlocProvider<ChangepasswordBloc>(
             create: (context) => ChangepasswordBloc()),
-        initialRoute != '/'
+        widget.initialRoute != '/'
             ? BlocProvider<NovelBloc>(
                 create: (context) => NovelBloc()..add(FetchNovels()))
             : BlocProvider<NovelBloc>(create: (context) => NovelBloc()),
       ],
       child: MaterialApp(
+        scaffoldMessengerKey: globalScaffoldMessengerKey,
+        navigatorKey: globalNavigatorKey,
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
