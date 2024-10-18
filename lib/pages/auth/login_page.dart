@@ -284,17 +284,23 @@ class _LoginPageState extends State<LoginPage> {
           text: 'เข้าสู่ระบบด้วย Facebook',
           icon: 'assets/svg/Facebook.svg',
           onPressed: () async {
-            await signOut();
-            // UserCredential? userCredential = await signInWithFacebook();
-            // if (userCredential != null) {
-            //   User user = userCredential.user!;
-            //   // show snack bar
-            //   showToastification(
-            //     context: context,
-            //     message: '${user.displayName} ลงชื่อเข้าใช้แล้ว',
-            //     type: ToastificationType.success,
-            //   );
-            // }
+            showToastification(
+              context: context,
+              message: 'เข้าสู่ระบบด้วย Facebook',
+              type: ToastificationType.success,
+            );
+            await Future.delayed(const Duration(seconds: 2));
+            // await signOut();
+            UserCredential? userCredential = await signInWithFacebook();
+            if (userCredential != null) {
+              User user = userCredential.user!;
+              // show snack bar
+              showToastification(
+                context: context,
+                message: '${user.displayName} ลงชื่อเข้าใช้แล้ว',
+                type: ToastificationType.success,
+              );
+            }
           },
         ),
       ],
