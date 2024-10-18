@@ -34,7 +34,7 @@ void setupSocket() async {
   }
 
   socket = IO.io(
-    'https://pzfbh88v-3002.asse.devtunnels.ms',
+    'https://pzfbh88v-3004.asse.devtunnels.ms',
     IO.OptionBuilder()
         .setTransports(['websocket'])
         .disableAutoConnect()
