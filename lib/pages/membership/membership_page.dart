@@ -155,9 +155,9 @@ class _MembershipPageState extends State<MembershipPage> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        'ชำระเงินเรียบร้อย',
+                                        'สมัครสมาชิก VIP สำเร็จ',
                                         style: GoogleFonts.athiti(
-                                            fontSize: 30,
+                                            fontSize: 28,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.black),
                                         textAlign: TextAlign.center,
