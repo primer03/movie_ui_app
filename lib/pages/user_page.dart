@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
@@ -5,6 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:logger/web.dart';
+import 'package:onepref/onepref.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -106,7 +112,10 @@ class _UserPageState extends State<UserPage> {
                 color: Colors.grey[800],
               ),
               title: 'สมัครสมาชิก VIP',
-              onTap: () {},
+              onTap: () {
+                // buy();
+                Navigator.pushNamed(context, '/membership');
+              },
             ),
             const SizedBox(height: 20),
             Text(
