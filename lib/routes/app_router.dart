@@ -6,6 +6,7 @@ import 'package:bloctest/pages/auth/login_page.dart';
 import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:bloctest/pages/detail/novel_detail_new.dart';
 import 'package:bloctest/pages/email/change_email_page.dart';
+import 'package:bloctest/pages/membership/membership_page.dart';
 import 'package:bloctest/pages/password/change_password.dart';
 import 'package:bloctest/pages/profile/profile_page.dart';
 import 'package:bloctest/pages/reader/reader_page.dart';
@@ -90,6 +91,12 @@ class AppRouter {
       case '/changeEmail':
         return PageTransition(
           child: const ChangeEmailPage(),
+          type: PageTransitionType.rightToLeft,
+          curve: Curves.easeInOut,
+        );
+      case '/membership':
+        return PageTransition(
+          child: const MembershipPage(),
           type: PageTransitionType.rightToLeft,
           curve: Curves.easeInOut,
         );
