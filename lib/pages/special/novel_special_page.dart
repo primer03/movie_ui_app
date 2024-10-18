@@ -207,7 +207,7 @@ class _NovelSpecialPageState extends State<NovelSpecialPage> {
                               top: 0,
                               left: 0,
                               right: 0,
-                              child: Container(
+                              child: SizedBox(
                                 height: 210,
                                 child: CachedNetworkImage(
                                   imageUrl: state
