@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC2ytgxpeI_pjPSOJEDsodIgQNnYhISt4Q',
-    appId: '1:560853758094:android:2c10df563ed6d0ff8c19df',
+    appId: '1:560853758094:android:56990f35ae82bf028c19df',
     messagingSenderId: '560853758094',
     projectId: 'bookfet-e9521',
     storageBucket: 'bookfet-e9521.appspot.com',
@@ -60,12 +60,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBrYKN5xhh0VTfzrdMghsjIWj_97xpntVQ',
-    appId: '1:560853758094:ios:837c525f4444865f8c19df',
+    appId: '1:560853758094:ios:96b6b2c379db8b2c8c19df',
     messagingSenderId: '560853758094',
     projectId: 'bookfet-e9521',
     storageBucket: 'bookfet-e9521.appspot.com',
-    iosClientId: '560853758094-fuc2mmiefdpbk7l86juhpaedlgritdob.apps.googleusercontent.com',
-    iosBundleId: 'com.example.bloctest',
+    androidClientId: '560853758094-nam1vknmtf72bv19ah4qb5to8qoj53t3.apps.googleusercontent.com',
+    iosClientId: '560853758094-vfciqbfqnhav5vlf5lb7ln5r4t4jfbhg.apps.googleusercontent.com',
+    iosBundleId: 'com.bookfet.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -74,6 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '560853758094',
     projectId: 'bookfet-e9521',
     storageBucket: 'bookfet-e9521.appspot.com',
+    androidClientId: '560853758094-nam1vknmtf72bv19ah4qb5to8qoj53t3.apps.googleusercontent.com',
     iosClientId: '560853758094-fuc2mmiefdpbk7l86juhpaedlgritdob.apps.googleusercontent.com',
     iosBundleId: 'com.example.bloctest',
   );
