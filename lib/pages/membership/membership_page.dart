@@ -134,7 +134,92 @@ class _MembershipPageState extends State<MembershipPage> {
                     const SizedBox(height: 45),
                     ElevatedButton(
                       onPressed: () {
-                        buy();
+                        // buy();
+                        showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Stack(
+                              clipBehavior: Clip.none,
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.all(10),
+                                  width: double.infinity,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: Colors.white),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(20, 50, 20, 20),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        'ชำระเงินเรียบร้อย',
+                                        style: GoogleFonts.athiti(
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          overlayColor: Colors.white,
+                                          splashFactory:
+                                              InkRipple.splashFactory,
+                                          backgroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(15),
+                                          child: Text(
+                                            'ปิด',
+                                            style: GoogleFonts.athiti(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                    top: 180,
+                                    child: Stack(
+                                      children: [
+                                        Opacity(
+                                          opacity: 1,
+                                          child: Image.network(
+                                            "https://serverimges.bookfet.com/mascot/1.png",
+                                            width: 200,
+                                            height: 200,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 6,
+                                          left: 10,
+                                          child: Image.network(
+                                            "https://serverimges.bookfet.com/mascot/1.png",
+                                            width: 180,
+                                            height: 180,
+                                          ),
+                                        ),
+                                      ],
+                                    ))
+                              ],
+                            );
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         overlayColor: Colors.white,
