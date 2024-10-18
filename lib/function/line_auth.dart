@@ -96,32 +96,6 @@ Future<void> startLineLogin(BuildContext context) async {
             Navigator.pushNamedAndRemoveUntil(
                 context, '/main', (route) => false);
           }
-
-          // final user = await novelBox.get('user');
-          // await novelBox.put('loginType', 'normal');
-          // await novelBox.put('socialType', 'line');
-          // await novelBox.put('issocial', true);
-          // if (imgUrl != null) {
-          //   await userRepository.updateImageUser(
-          //     image: File(await downloadImage(imgUrl)),
-          //     type: 'social',
-          //   );
-          // }
-          // Logger().i('user: $user');
-          // showToastification(
-          //   context: context,
-          //   message: 'กำลังเข้าสู่ระบบ โปรดรอสักครู่',
-          //   type: ToastificationType.info,
-          //   style: ToastificationStyle.minimal,
-          // );
-          // Navigator.push(context, MaterialPageRoute(builder: (context) {
-          //   return SocialLastRegis(
-          //     displayName: displayname!,
-          //     email: email,
-          //     imgUrl: downloadedImagePath,
-          //     userId: userId!,
-          //   );
-          // }));
         } else {
           showToastification(
             context: context,
@@ -130,39 +104,6 @@ Future<void> startLineLogin(BuildContext context) async {
             style: ToastificationStyle.minimal,
           );
         }
-        // String check = await userRepository.loginCheckSocial(
-        //   email: email,
-        //   password: '',
-        //   identifier: await getDevice(),
-        // );
-        // print('check: $check');
-        // if (check == 'ไม่พบผู้ใช้หรืออีเมลนี้ในระบบ') {
-        //   String downloadedImagePath = '';
-        //   if (imgUrl != null) {
-        //     downloadedImagePath = await downloadImage(imgUrl);
-        //   }
-        //   Navigator.push(context, MaterialPageRoute(builder: (context) {
-        //     return SocialLastRegis(
-        //       displayName: displayname!,
-        //       email: email,
-        //       imgUrl: downloadedImagePath,
-        //       userId: userId!,
-        //     );
-        //   }));
-        // } else if (check == 'เข้าสู่ระบบสำเร็จ') {
-        //   showToastification(
-        //     context: context,
-        //     message: 'กำลังเข้าสู่ระบบ โปรดรอสักครู่',
-        //     type: ToastificationType.info,
-        //     style: ToastificationStyle.minimal,
-        //   );
-        //   await novelBox.put('loginsocial', true);
-        //   await novelBox.put('socialType', 'line');
-        //   BlocProvider.of<NovelBloc>(context).add(FetchNovels());
-        //   await Future.delayed(const Duration(seconds: 2));
-        //   await Future.delayed(const Duration(milliseconds: 500));
-        //   Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
-        // }
       } else {
         showToastification(
           context: context,
