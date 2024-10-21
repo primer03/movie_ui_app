@@ -5,6 +5,7 @@ import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/function/google_auth.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/pages/audio/audio_page.dart';
 import 'package:bloctest/pages/auth/social_last_regis.dart';
 import 'package:bloctest/repositories/user_repository.dart';
 import 'package:bloctest/widgets/InputForm.dart';
@@ -284,23 +285,29 @@ class _LoginPageState extends State<LoginPage> {
           text: 'เข้าสู่ระบบด้วย Facebook',
           icon: 'assets/svg/Facebook.svg',
           onPressed: () async {
-            showToastification(
-              context: context,
-              message: 'เข้าสู่ระบบด้วย Facebook',
-              type: ToastificationType.success,
+            // showToastification(
+            //   context: context,
+            //   message: 'เข้าสู่ระบบด้วย Facebook',
+            //   type: ToastificationType.success,
+            // );
+            // await Future.delayed(const Duration(seconds: 2));
+            // // await signOut();
+            // UserCredential? userCredential = await signInWithFacebook();
+            // if (userCredential != null) {
+            //   User user = userCredential.user!;
+            //   // show snack bar
+            //   showToastification(
+            //     context: context,
+            //     message: '${user.displayName} ลงชื่อเข้าใช้แล้ว',
+            //     type: ToastificationType.success,
+            //   );
+            // }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AudioPage(),
+              ),
             );
-            await Future.delayed(const Duration(seconds: 2));
-            // await signOut();
-            UserCredential? userCredential = await signInWithFacebook();
-            if (userCredential != null) {
-              User user = userCredential.user!;
-              // show snack bar
-              showToastification(
-                context: context,
-                message: '${user.displayName} ลงชื่อเข้าใช้แล้ว',
-                type: ToastificationType.success,
-              );
-            }
           },
         ),
       ],
