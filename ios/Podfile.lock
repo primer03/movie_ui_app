@@ -163,6 +163,9 @@ PODS:
     - TOCropViewController (~> 2.7.4)
   - image_picker_ios (0.0.1):
     - Flutter
+  - in_app_purchase_storekit (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - just_audio (0.0.1):
     - Flutter
   - LineSDKSwift (5.11.1):
@@ -184,13 +187,7 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
-  - purchases_flutter (8.1.5):
-    - Flutter
-    - PurchasesHybridCommon (= 13.5.0)
-  - PurchasesHybridCommon (13.5.0):
-    - RevenueCat (= 5.6.0)
   - RecaptchaInterop (100.0.0)
-  - RevenueCat (5.6.0)
   - screen_brightness_ios (0.1.0):
     - Flutter
   - ScreenProtectorKit (1.3.1)
@@ -235,12 +232,12 @@ DEPENDENCIES:
   - GoogleSignIn
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - in_app_purchase_storekit (from `.symlinks/plugins/in_app_purchase_storekit/darwin`)
   - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - no_screenshot (from `.symlinks/plugins/no_screenshot/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - purchases_flutter (from `.symlinks/plugins/purchases_flutter/ios`)
   - screen_brightness_ios (from `.symlinks/plugins/screen_brightness_ios/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -274,9 +271,7 @@ SPEC REPOS:
     - LineSDKSwift
     - nanopb
     - PromisesObjC
-    - PurchasesHybridCommon
     - RecaptchaInterop
-    - RevenueCat
     - ScreenProtectorKit
     - Toast
     - TOCropViewController
@@ -312,6 +307,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_cropper/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  in_app_purchase_storekit:
+    :path: ".symlinks/plugins/in_app_purchase_storekit/darwin"
   just_audio:
     :path: ".symlinks/plugins/just_audio/ios"
   no_screenshot:
@@ -322,8 +319,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  purchases_flutter:
-    :path: ".symlinks/plugins/purchases_flutter/ios"
   screen_brightness_ios:
     :path: ".symlinks/plugins/screen_brightness_ios/ios"
   share_plus:
@@ -376,6 +371,7 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   image_cropper: 37d40f62177c101ff4c164906d259ea2c3aa70cf
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
+  in_app_purchase_storekit: 8c3b0b3eb1b0f04efbff401c3de6266d4258d433
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   LineSDKSwift: a3396147600cd9f2548fea88f31f49d928384bcb
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -384,10 +380,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: b38a31b46ed1289950680f8e7af42c1673db8ce7
-  PurchasesHybridCommon: 7c6fb07b091588d82180eec2590035f216ffbf55
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
-  RevenueCat: a7117d40c27bc1e8a48e41ca4ea6856209664097
   screen_brightness_ios: 7437207a2a9bc56553aa10f782afecf830b4c4e2
   ScreenProtectorKit: 83a6281b02c7a5902ee6eac4f5045f674e902ae4
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
