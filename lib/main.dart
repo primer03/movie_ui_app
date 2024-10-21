@@ -80,8 +80,17 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
       disconnectSocket();
     } else if (state == AppLifecycleState.resumed) {
       bool hasdata = await novelBox.get('user') != null;
-      if (hasdata) {
-        reconnectSocket();
+      bool? openWebview = await novelBox.get('openWebview');
+      if (openWebview != null) {
+        if (openWebview) {
+          print('openWebview');
+          await novelBox.delete('openWebview');
+          print('delete openWebview');
+        }
+      } else {
+        if (hasdata) {
+          reconnectSocket();
+        }
       }
       print(
           "App moved to foreground"); // คือเมื่อ app อยู่ในสถานะที่ถูกเปิดขึ้นมา
