@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:bloctest/main.dart';
+import 'package:bloctest/models/user_model.dart';
+import 'package:bloctest/pages/audio/audio_page.dart';
+import 'package:bloctest/pages/webview/bookfet_webview.dart';
 import 'package:bloctest/widgets/MembershipCard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +11,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MembershipPage extends StatefulWidget {
   const MembershipPage({super.key});
@@ -20,11 +24,21 @@ class _MembershipPageState extends State<MembershipPage> {
   List<ProductDetails> _products = [];
   static const _variant = {'vip_30_day'};
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  final Uri _url = Uri.parse('https://bookfet.com/');
 
   @override
   void initState() {
     super.initState();
     initStore();
+  }
+
+  Future<void> _launchUrl() async {
+    if (await launchUrl(_url, mode: LaunchMode.externalApplication)) {
+      novelBox.put('openWebview', true);
+      Logger().i('Launched $_url');
+    } else {
+      throw 'Could not launch $_url';
+    }
   }
 
   initStore() async {
@@ -133,93 +147,100 @@ class _MembershipPageState extends State<MembershipPage> {
                     ),
                     const SizedBox(height: 45),
                     ElevatedButton(
-                      onPressed: () {
-                        // buy();
-                        showDialog(
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Stack(
-                              clipBehavior: Clip.none,
-                              alignment: Alignment.center,
-                              children: <Widget>[
-                                Container(
-                                  margin: EdgeInsets.all(10),
-                                  width: double.infinity,
-                                  height: 200,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      color: Colors.white),
-                                  padding:
-                                      const EdgeInsets.fromLTRB(20, 50, 20, 20),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        'สมัครสมาชิก VIP สำเร็จ',
-                                        style: GoogleFonts.athiti(
-                                            fontSize: 30,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 15),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          overlayColor: Colors.white,
-                                          splashFactory:
-                                              InkRipple.splashFactory,
-                                          backgroundColor: Colors.black,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(15),
-                                          child: Text(
-                                            'ปิด',
-                                            style: GoogleFonts.athiti(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Positioned(
-                                    top: 180,
-                                    child: Stack(
-                                      children: [
-                                        Opacity(
-                                          opacity: 1,
-                                          child: Image.network(
-                                            "https://serverimges.bookfet.com/mascot/1.png",
-                                            width: 200,
-                                            height: 200,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 6,
-                                          left: 10,
-                                          child: Image.network(
-                                            "https://serverimges.bookfet.com/mascot/1.png",
-                                            width: 180,
-                                            height: 180,
-                                          ),
-                                        ),
-                                      ],
-                                    ))
-                              ],
-                            );
-                          },
+                      onPressed: () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AudioPage(),
+                          ),
                         );
+                        // await _launchUrl();
+                        // buy();
+                        // showDialog(
+                        //   barrierDismissible: false,
+                        //   context: context,
+                        //   builder: (BuildContext context) {
+                        //     return Stack(
+                        //       clipBehavior: Clip.none,
+                        //       alignment: Alignment.center,
+                        //       children: <Widget>[
+                        //         Container(
+                        //           margin: EdgeInsets.all(10),
+                        //           width: double.infinity,
+                        //           height: 200,
+                        //           decoration: BoxDecoration(
+                        //               borderRadius: BorderRadius.circular(15),
+                        //               color: Colors.white),
+                        //           padding:
+                        //               const EdgeInsets.fromLTRB(20, 50, 20, 20),
+                        //           child: Column(
+                        //             children: [
+                        //               Text(
+                        //                 'สมัครสมาชิก VIP สำเร็จ',
+                        //                 style: GoogleFonts.athiti(
+                        //                     fontSize: 30,
+                        //                     fontWeight: FontWeight.bold,
+                        //                     color: Colors.black),
+                        //                 textAlign: TextAlign.center,
+                        //               ),
+                        //               const SizedBox(height: 15),
+                        //               ElevatedButton(
+                        //                 onPressed: () {
+                        //                   Navigator.pop(context);
+                        //                 },
+                        //                 style: ElevatedButton.styleFrom(
+                        //                   overlayColor: Colors.white,
+                        //                   splashFactory:
+                        //                       InkRipple.splashFactory,
+                        //                   backgroundColor: Colors.black,
+                        //                   shape: RoundedRectangleBorder(
+                        //                     borderRadius:
+                        //                         BorderRadius.circular(10),
+                        //                   ),
+                        //                 ),
+                        //                 child: Padding(
+                        //                   padding: const EdgeInsets.all(15),
+                        //                   child: Text(
+                        //                     'ปิด',
+                        //                     style: GoogleFonts.athiti(
+                        //                       fontSize: 20,
+                        //                       fontWeight: FontWeight.bold,
+                        //                       color: Colors.white,
+                        //                     ),
+                        //                   ),
+                        //                 ),
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //         Positioned(
+                        //             top: 180,
+                        //             child: Stack(
+                        //               children: [
+                        //                 Opacity(
+                        //                   opacity: 1,
+                        //                   child: Image.network(
+                        //                     "https://serverimges.bookfet.com/mascot/1.png",
+                        //                     width: 200,
+                        //                     height: 200,
+                        //                     color: Colors.white,
+                        //                   ),
+                        //                 ),
+                        //                 Positioned(
+                        //                   top: 6,
+                        //                   left: 10,
+                        //                   child: Image.network(
+                        //                     "https://serverimges.bookfet.com/mascot/1.png",
+                        //                     width: 180,
+                        //                     height: 180,
+                        //                   ),
+                        //                 ),
+                        //               ],
+                        //             ))
+                        //       ],
+                        //     );
+                        //   },
+                        // );
                       },
                       style: ElevatedButton.styleFrom(
                         overlayColor: Colors.white,
