@@ -36,8 +36,9 @@ class InAppPurchaseService {
     for (PurchaseDetails purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
         globalScaffoldMessengerKey.currentState!.showSnackBar(
-          SnackBar(content: Text('Pending')),
+          const SnackBar(content: Text('Pending')),
         );
+      } else if (purchaseDetails.status == PurchaseStatus.canceled) {
       } else if (purchaseDetails.status == PurchaseStatus.error) {
         Logger().e('Error ${purchaseDetails.error}');
         globalScaffoldMessengerKey.currentState!.showSnackBar(
