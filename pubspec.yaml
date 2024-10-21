@@ -102,6 +102,10 @@ dependencies:
   in_app_purchase: ^3.2.0
   onepref: ^0.0.17
   in_app_purchase_android: ^0.3.6+10
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.9.0
+  just_audio: ^0.9.41
+  audio_video_progress_bar: ^2.0.3
   # secure_application: ^4.0.1
   # flutter_windowmanager: ^0.2.0
   # flutter_screen_wake: ^1.0.2
