@@ -106,6 +106,9 @@ dependencies:
   webview_flutter: ^4.9.0
   just_audio: ^0.9.41
   audio_video_progress_bar: ^2.0.3
+  flutter_fancy_tree_view: ^1.6.0
+  path_drawing: ^1.0.1
+  comment_tree: ^0.3.0
   # secure_application: ^4.0.1
   # flutter_windowmanager: ^0.2.0
   # flutter_screen_wake: ^1.0.2
