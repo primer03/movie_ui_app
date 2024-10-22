@@ -3,6 +3,8 @@ import 'package:bloctest/bloc/noveldetail/novel_detail_bloc.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/pages/cate/category_page.dart';
 import 'package:bloctest/pages/auth/login_page.dart';
+import 'package:bloctest/pages/comment/comment_all_page.dart';
+import 'package:bloctest/pages/detail/movie_detail.dart';
 import 'package:bloctest/pages/detail/novel_detail.dart';
 import 'package:bloctest/pages/detail/novel_detail_new.dart';
 import 'package:bloctest/pages/email/change_email_page.dart';
@@ -53,6 +55,7 @@ class AppRouter {
             ),
           ),
         );
+      // child: MovieDetail());
       case '/profile':
         return PageTransition(
           type: PageTransitionType.rightToLeft,
@@ -97,6 +100,16 @@ class AppRouter {
       case '/membership':
         return PageTransition(
           child: const MembershipPage(),
+          type: PageTransitionType.rightToLeft,
+          curve: Curves.easeInOut,
+        );
+      case '/allcomment':
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child: CommentAllPage(
+            bookID: args['bookID'],
+            novelEp: args['novelEp'],
+          ),
           type: PageTransitionType.rightToLeft,
           curve: Curves.easeInOut,
         );

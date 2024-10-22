@@ -4,6 +4,7 @@ import 'package:aescryptojs/aescryptojs.dart';
 import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_allsearch_model.dart';
 import 'package:bloctest/models/novel_bookmark_model.dart';
+import 'package:bloctest/models/novel_coment_all_model.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/novel_episode_model.dart';
 import 'package:bloctest/models/novel_model.dart';
@@ -293,6 +294,28 @@ class NovelRepository {
       return result;
     } catch (e) {
       throw Exception('Failed to get bookmark by cate: $e');
+    }
+  }
+
+  Future<Allcoment> getAllComent(String bookID) async {
+    final url = Uri.parse('$_baseUrl/comment/$bookID');
+    String token = novelBox.get('usertoken');
+    try {
+      final response = await _getRequest(url, token: token);
+      // Logger().i('response: ${json.decode(response.body)['data'].runtimeType}');
+      final des = decryptAESCryptoJS(json.decode(response.body)['data'], pass);
+      // print('des: ${json.decode(des)['comment']}');
+      // Logger().i('des: ${json.decode(des)['comment'].length}');
+      // final List<Comment> comments =
+      //     _parseList<Comment>(json.decode(des), Comment.fromJson);
+      // final data = json.decode(json.decode(response.body)['data']);
+      Allcoment allcoment = Allcoment.fromJson(json.decode(des));
+      // Logger().i('comments: $allcoment');
+      Logger().i('comments: ${allcoment.comment?[0].comment}');
+      return allcoment;
+      // novelBox.put('commentData', json.encode(comments));
+    } catch (e) {
+      throw Exception('Failed to get allcoment: $e');
     }
   }
 

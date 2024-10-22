@@ -42,6 +42,36 @@ Future<void> deletePassword() async {
   await storage.delete(key: 'password');
 }
 
+String formatThaiDate(DateTime dateTime) {
+  // List of Thai months
+  const List<String> thaiMonths = [
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม'
+  ];
+
+  // Convert to Buddhist Era (BE)
+  int buddhistYear = dateTime.year + 543;
+
+  // Format time (17:32)
+  String formattedTime = DateFormat('HH:mm').format(dateTime);
+
+  // Build the full date string
+  String formattedDate =
+      '${dateTime.day} ${thaiMonths[dateTime.month - 1]} $buddhistYear $formattedTime';
+
+  return formattedDate;
+}
+
 String abbreviateNumber(num number) {
   if (number.abs() < 1000) return number.toInt().toString();
 

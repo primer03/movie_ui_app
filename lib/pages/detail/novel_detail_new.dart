@@ -7,6 +7,8 @@ import 'package:bloctest/main.dart';
 import 'package:bloctest/models/novel_bookmark_model.dart';
 import 'package:bloctest/models/novel_detail_model.dart';
 import 'package:bloctest/models/user_model.dart';
+import 'package:bloctest/pages/comment/comment_all_page.dart';
+import 'package:bloctest/repositories/novel_repository.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:bloctest/widgets/ContainerSkeltion.dart';
 import 'package:bloctest/widgets/Epview.dart';
@@ -169,6 +171,7 @@ class _NovelDetailNewState extends State<NovelDetailNew>
       body: BlocConsumer<NovelDetailBloc, NovelDetailState>(
         listener: (context, state) {
           if (state is NovelDetailLoaded) {
+            print(state.dataNovel.novel.bookId);
             context
                 .read<NovelrecBloc>()
                 .add(NovelrecLoad(state.dataNovel.novel.btName));
@@ -289,30 +292,33 @@ class _NovelDetailNewState extends State<NovelDetailNew>
           );
         },
       ),
-      // floatingActionButton: isEror
-      //     ? null
-      //     : FloatingActionButton(
-      //         backgroundColor: Colors.red[900],
-      //         foregroundColor: Colors.white,
-      //         elevation: 2,
-      //         onPressed: () async {
-      //           print('Read Last: ${readLast}');
-      //           Navigator.pushNamed(
-      //             context,
-      //             'reader',
-      //             arguments: {
-      //               'bookId': bID,
-      //               'epId': readLast.last['epID'],
-      //               'bookName': '',
-      //               'novelEp': novelEpx,
-      //             },
-      //           );
-      //           // var ReadlastXD = await novelBox.get('ReadLast');
-      //           // print('ReadlastXD: $ReadlastXD');
-      //         },
-      //         tooltip: 'อ่านตอนล่าสุด',
-      //         child: const Icon(Iconsax.book_1),
-      //       ),
+      floatingActionButton: isEror
+          ? null
+          : FloatingActionButton(
+              backgroundColor: Colors.red[900],
+              foregroundColor: Colors.white,
+              elevation: 2,
+              onPressed: () async {
+                // NovelRepository novelRepository = NovelRepository();
+                // var data = await novelRepository.getAllComent(bID);
+                print('bookID: ${novelEpx.runtimeType}');
+                Navigator.pushNamed(
+                  context,
+                  '/allcomment',
+                  arguments: {
+                    'bookID': bID,
+                    'novelEp': novelEpx,
+                  },
+                );
+              },
+              tooltip: 'ความคิดเห็น',
+              child: SvgPicture.asset(
+                'assets/svg/iconmonstr-speech-bubble-27.svg',
+                width: 25,
+                height: 25,
+                color: Colors.white,
+              ),
+            ),
     );
   }
 

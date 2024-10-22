@@ -148,13 +148,13 @@ class _MembershipPageState extends State<MembershipPage> {
                     const SizedBox(height: 45),
                     ElevatedButton(
                       onPressed: () async {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AudioPage(),
-                          ),
-                        );
-                        // await _launchUrl();
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => AudioPage(),
+                        //   ),
+                        // );
+                        await _launchUrl();
                         // buy();
                         // showDialog(
                         //   barrierDismissible: false,
