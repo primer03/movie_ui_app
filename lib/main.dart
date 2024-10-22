@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bloctest/bloc/allcomment/allcomment_bloc.dart';
 import 'package:bloctest/bloc/changeemail/changeemail_bloc.dart';
 import 'package:bloctest/bloc/changepassword/changepassword_bloc.dart';
 import 'package:bloctest/bloc/lineauth/lineauth_bloc.dart';
@@ -144,6 +145,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<ReadnovelBloc>(create: (context) => ReadnovelBloc()),
         BlocProvider<LineauthBloc>(create: (context) => LineauthBloc()),
         BlocProvider<ChangeemailBloc>(create: (context) => ChangeemailBloc()),
+        BlocProvider<AllcommentBloc>(create: (context) => AllcommentBloc()),
         BlocProvider<ChangepasswordBloc>(
             create: (context) => ChangepasswordBloc()),
         widget.initialRoute != '/'
