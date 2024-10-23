@@ -240,10 +240,12 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   void setWindowFlags() async {
+    // คำสั่งเปิดใช้งานการป้องกันหน้าจอ
     SecurityManager.enableSecurity();
   }
 
   void disableWindowFlags() async {
+    // คำสั่งปิดการใช้งานการป้องกันหน้าจอ
     SecurityManager.disableSecurity();
   }
 
