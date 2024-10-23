@@ -25,6 +25,7 @@ import 'package:bloctest/service/InappPurchaseservice.dart';
 import 'package:bloctest/service/SocketService.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_line_sdk/flutter_line_sdk.dart';
 // ignore: depend_on_referenced_packages
@@ -32,8 +33,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 // ignore: prefer_typing_uninitialized_variables
 late Box novelBox;
@@ -68,12 +71,24 @@ void main() async {
   FlutterNativeSplash.remove();
 }
 
+Future<void> disableScreenSecurity() async {
+  try {
+    bool result = await NoScreenshot.instance.screenshotOn();
+    debugPrint('Screenshot On: $result');
+    print('Screen security disablexxxd');
+  } on PlatformException catch (e) {
+    print("Failed to disable screen security: '${e.message}'.");
+  }
+}
+
 class AppLifecycleObserver extends WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.detached) {
       print('close your app');
       disconnectSocket();
+      WakelockPlus.disable();
+      await disableScreenSecurity();
     } else if (state == AppLifecycleState.inactive) {
       print('inactive'); // คือเมื่อ app อยู่ในสถานะที่ไม่ได้ใช้งาน
     } else if (state == AppLifecycleState.paused) {
