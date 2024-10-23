@@ -84,11 +84,6 @@ class _CommentAllPageState extends State<CommentAllPage> {
         body: BlocConsumer<AllcommentBloc, AllcommentState>(
             listener: (context, state) {
           if (state is AllcommentError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-              ),
-            );
           } else if (state is AllcommentLoaded) {
             Logger().i(
                 'จำนวนคอมเม้นท์ ${state.comments.comment![0].uscmImgProfile}');
@@ -127,8 +122,9 @@ class _CommentAllPageState extends State<CommentAllPage> {
                       key: ValueKey(state.comments.comment![index].cmId),
                       margin:
                           EdgeInsets.only(bottom: 20, top: index == 0 ? 20 : 0),
-                      child: CommentTreeWidget<Comment, Comment>(
-                        Comment(
+                      child: CommentTreeWidget<CommentWithDateTime,
+                          CommentWithDateTime>(
+                        CommentWithDateTime(
                             dateAt: null,
                             avatar: 'null',
                             userName: 'null',
@@ -139,7 +135,7 @@ class _CommentAllPageState extends State<CommentAllPage> {
                                 ...state.comments.comment![index].subcomment!
                                     .map((e) {
                                   print('Comment: ${e}');
-                                  return Comment(
+                                  return CommentWithDateTime(
                                     avatar: e['btcs.img_profile'] ??
                                         'https://serverimges.bookfet.com/profile_img/default_profile.jpg',
                                     userName: e['btcs.userName'] ?? '',
@@ -467,10 +463,31 @@ class _CommentAllPageState extends State<CommentAllPage> {
                 ),
               ),
             );
+          } else if (state is AllcommentError) {
+            return Center(
+              child: Text(
+                'ยังไม่มีคอมเม้นท์',
+                style: GoogleFonts.athiti(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
           }
           return const SizedBox();
         }),
       ),
     );
   }
+}
+
+class CommentWithDateTime extends Comment {
+  DateTime? dateAt;
+
+  CommentWithDateTime({
+    required super.avatar,
+    required super.userName,
+    required super.content,
+    required this.dateAt,
+  });
 }
