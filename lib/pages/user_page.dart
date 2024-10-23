@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloctest/function/app_function.dart';
 import 'package:bloctest/main.dart';
+import 'package:bloctest/pages/test_comment.dart';
 import 'package:bloctest/service/BookmarkManager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,6 +12,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:logger/web.dart';
 import 'package:onepref/onepref.dart';
+import 'package:page_transition/page_transition.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -129,7 +131,15 @@ class _UserPageState extends State<UserPage> {
             Listmeneuser(
               icon: SvgPicture.asset('assets/svg/Group_duotone.svg', width: 30),
               title: 'เชิญเพื่อน',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.bottomToTop,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        child: TestComment()));
+              },
             ),
             const SizedBox(height: 20),
             Text(
