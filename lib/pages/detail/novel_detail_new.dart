@@ -159,6 +159,8 @@ class _NovelDetailNewState extends State<NovelDetailNew>
     return Scaffold(
       appBar: isEror
           ? AppBar(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new),
                 onPressed: () {
@@ -179,6 +181,7 @@ class _NovelDetailNewState extends State<NovelDetailNew>
               readLast = state.hisRead ?? [];
               novelEpx = state.dataNovel.novelEp;
               bID = state.dataNovel.novel.bookId;
+              isEror = false;
               Logger().i('readLast: ${state.hisRead}');
               var allEPList = state.dataNovel.novelEp.where((element) {
                 DateTime publishDateTime =
