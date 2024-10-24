@@ -155,20 +155,29 @@ class _MainpageState extends State<Mainpage> {
                             print('state.user.img: ${state.user.img}');
                             print(
                                 'state.user.img: ${state.user.img.split('/').last}');
-                            if (state.user.img.split('/').last ==
-                                'default_profile.jpg') {
-                              final password = await getPassword();
-                              context.read<UserBloc>().add(UserLoginremember(
-                                  user: state.user,
-                                  password: password,
-                                  type: ''));
+                            final isSocial = await novelBox.get('loginsocial');
+                            if (isSocial != null) {
+                              if (state.user.img.split('/').last ==
+                                  'default_profile.jpg') {
+                                final password = await getPassword();
+                                context.read<UserBloc>().add(UserLoginremember(
+                                    user: state.user,
+                                    password: password,
+                                    type: ''));
+                              }
                             }
+
                             setState(() {
                               now = DateTime.now()
                                   .add(const Duration(seconds: 3));
                               print(
                                   '${state.user.img}?time=${now.millisecondsSinceEpoch}');
                             });
+                          } else if (state is UserLoadedProfileFailed) {
+                            print('state: ${state.message}');
+                          } else if (state is UserLoginRemeberFailed) {
+                            Logger().i('state: ${state.message}');
+                            await logoutAll(context);
                           }
                         },
                         builder: (context, state) {
