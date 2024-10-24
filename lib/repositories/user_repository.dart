@@ -35,7 +35,10 @@ class UserRepository {
       final res = json.decode(response.body);
       Logger().i(res);
 
-      if (res['status'] == 'error') throw Exception(res['message']);
+      if (res['status'] == 'error') {
+        throw Exception({'message': res['message'], 'olddevice': null});
+      }
+
       print('datatype: ${res['data'].runtimeType}');
       final tokenData;
       if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
@@ -53,13 +56,83 @@ class UserRepository {
       }
 
       final decodedToken = JwtDecoder.decode(tokenData);
+      Logger().i(tokenData);
       Logger().i(decodedToken);
-
+      if (res['message'] == 'มีการล็อคอินซ้อนอยู่ในเบาว์เซอร์อื่น') {
+        String olddevice = '';
+        await novelBox.put(
+            'useroverlap', json.encode(User.fromJson(decodedToken).toJson()));
+        await novelBox.put('usertoken', tokenData);
+        if (res['data'].runtimeType == String) {
+          olddevice = json.decode(res['data'])['olddevice'];
+        } else {
+          olddevice = res['data']['olddevice'];
+        }
+        throw Exception({'message': res['message'], 'olddevice': olddevice});
+      }
       novelBox.put('usertoken', tokenData);
       savePassword(password);
       return User.fromJson(decodedToken);
     } catch (e) {
-      print('error: ${e}');
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<bool> loginUserCheck({
+    required String email,
+    required String password,
+    required String identifier,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${url}login/member'),
+        body: {'email': email, 'password': password, 'identifier': identifier},
+        headers: {'x-api-key': apiKey, 'x-client-domain': clientDomain},
+      );
+
+      if (response.statusCode != 200) {
+        print('error: ${response.statusCode}');
+      }
+
+      final res = json.decode(response.body);
+      Logger().i(res);
+
+      if (res['status'] == 'error') {
+        throw Exception({'message': res['message'], 'olddevice': null});
+      }
+
+      print('datatype: ${res['data'].runtimeType}');
+      final tokenData;
+      if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
+        if (res['data'].runtimeType == String) {
+          tokenData = json.decode(res['data'])['token'];
+        } else {
+          tokenData = res['data']['token'];
+        }
+      } else {
+        if (res['data'].runtimeType == String) {
+          tokenData = json.decode(res['data'])['token'];
+        } else {
+          tokenData = res['data']['token'];
+        }
+      }
+      final decodedToken = JwtDecoder.decode(tokenData);
+      Logger().i(tokenData);
+      Logger().i(decodedToken);
+      if (res['message'] == 'มีการล็อคอินซ้อนอยู่ในเบาว์เซอร์อื่น') {
+        String olddevice = '';
+
+        if (res['data'].runtimeType == String) {
+          olddevice = json.decode(res['data'])['olddevice'];
+        } else {
+          olddevice = res['data']['olddevice'];
+        }
+        throw Exception({'message': res['message'], 'olddevice': olddevice});
+      }
+      novelBox.put('usertoken', tokenData);
+      savePassword(password);
+      return true;
+    } catch (e) {
       throw Exception(e.toString());
     }
   }
@@ -77,11 +150,11 @@ class UserRepository {
       );
 
       final res = json.decode(response.body);
-      Logger().i(res);
+      Logger().i('res: $res');
 
       // if (res['status'] == 'error') throw Exception(res['message']);
       if (res['status'] == 'error') {
-        return res['message'];
+        throw Exception({'message': res['message'], 'olddevice': null});
       } else {
         final tokenData;
         if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
@@ -90,6 +163,8 @@ class UserRepository {
           } else {
             tokenData = res['data']['token'];
           }
+        } else if (res['message'] == 'มีการล็อคอินซ้อนอยู่ในเบาว์เซอร์อื่น') {
+          throw Exception({'message': res['message'], 'olddevice': null});
         } else {
           if (res['data'].runtimeType == String) {
             tokenData = json.decode(res['data'])['token'];
@@ -97,6 +172,7 @@ class UserRepository {
             tokenData = res['data']['token'];
           }
         }
+
         final decodedToken = JwtDecoder.decode(tokenData);
         Logger().i(decodedToken);
 
@@ -182,11 +258,12 @@ class UserRepository {
 
       if (response.statusCode == 200) {
         final res = json.decode(response.body);
-        Logger().i(res);
+        Logger().i('res: $res');
 
         if (res['status'] == 'error') {
           throw Exception(res['message']);
         }
+
         final tokenData;
         if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
           if (res['data'].runtimeType == String) {
@@ -201,8 +278,20 @@ class UserRepository {
             tokenData = res['data']['token'];
           }
         }
-
         final decodedToken = JwtDecoder.decode(tokenData);
+        if (res['message'] == 'มีการล็อคอินซ้อนอยู่ในเบาว์เซอร์อื่น') {
+          Logger().i('useroverlap: ${User.fromJson(decodedToken).toJson()}');
+          await novelBox.put(
+              'useroverlap', json.encode(User.fromJson(decodedToken).toJson()));
+          await novelBox.put('usertoken', tokenData);
+          String olddevice = '';
+          if (res['data'].runtimeType == String) {
+            olddevice = json.decode(res['data'])['olddevice'];
+          } else {
+            olddevice = res['data']['olddevice'];
+          }
+          throw Exception({'message': res['message'], 'olddevice': olddevice});
+        }
         Logger().i(decodedToken);
         await novelBox.put('usertoken', tokenData);
         // await novelBox.put('loginType', 'social');
@@ -253,6 +342,7 @@ class UserRepository {
         if (res['status'] == 'error') {
           throw Exception(res['message']);
         }
+
         final tokenData;
         if (res['message'] == 'กำลังเข้าสู่ระบบ โปรดรอสักครู่') {
           if (res['data'].runtimeType == String) {
@@ -269,6 +359,18 @@ class UserRepository {
         }
 
         final decodedToken = JwtDecoder.decode(tokenData);
+        if (res['message'] == 'มีการล็อคอินซ้อนอยู่ในเบาว์เซอร์อื่น') {
+          String olddevice = '';
+          await novelBox.put(
+              'useroverlap', json.encode(User.fromJson(decodedToken).toJson()));
+          await novelBox.put('usertoken', tokenData);
+          if (res['data'].runtimeType == String) {
+            olddevice = json.decode(res['data'])['olddevice'];
+          } else {
+            olddevice = res['data']['olddevice'];
+          }
+          throw Exception({'message': res['message'], 'olddevice': olddevice});
+        }
         Logger().i(decodedToken);
         await novelBox.put('usertoken', tokenData);
         // await novelBox.put('loginType', 'social');
@@ -477,6 +579,34 @@ class UserRepository {
     } catch (e) {
       Logger().e('Failed to change email: $e');
       throw Exception('Failed to change email: $e');
+    }
+  }
+
+  Future<bool> logoutUser(String userID) async {
+    final urlx = Uri.parse('${url}logout');
+    final token = novelBox.get('usertoken');
+    Logger().i('token: $token');
+    try {
+      final response = await http.put(
+        urlx,
+        headers: {
+          'x-api-key': apiKey,
+          'x-client-domain': clientDomain,
+          'Authorization': token
+        },
+        body: {'userid': userID},
+      );
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+        Logger().i(res);
+        // if (res['status'] == 'error') {
+        //   throw Exception(res['message']);
+        // }
+        return true;
+      }
+      return false;
+    } catch (e) {
+      throw Exception('Failed to logout: $e');
     }
   }
 
