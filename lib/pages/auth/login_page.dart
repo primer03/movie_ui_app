@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/bloc/user/user_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
+import 'package:bloctest/function/facebook_auth.dart';
 import 'package:bloctest/function/google_auth.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
@@ -16,7 +18,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import 'package:toastification/toastification.dart';
+import 'package:bloctest/models/user_model.dart' as userModel;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -101,11 +105,21 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.pop(context);
         } else if (state is RegisterUserFailed) {
           Navigator.pop(context);
-          showToastification(
-            context: ctx,
-            message: state.message.split(' ')[2],
-            type: ToastificationType.error,
-          );
+          // Logger().e(state.message);
+          // if (state.message.split(' ')[2] == 'รหัสผ่านไม่ถูกต้อง' ||
+          //     state.message.split(' ')[2] == 'ไม่พบผู้ใช้หรืออีเมลนี้ในระบบ') {
+          //   showToastification(
+          //     context: ctx,
+          //     message: state.message.split(' ')[2],
+          //     type: ToastificationType.error,
+          //   );
+          // } else {
+          //   showToastification(
+          //     context: ctx,
+          //     message: 'เกิดข้อผิดพลาด',
+          //     type: ToastificationType.error,
+          //   );
+          // }
         } else if (state is UserLoginRemeberFailed) {
           Navigator.pushNamedAndRemoveUntil(
               context, '/login', (route) => false);
@@ -134,13 +148,155 @@ class _LoginPageState extends State<LoginPage> {
 
   void _handleLoginFailed(BuildContext ctx, UserLoginFailed state) {
     Navigator.pop(context);
-    showToastification(
-      context: ctx,
-      message: state.message.split(' ').last,
-      type: ToastificationType.error,
-      style: ToastificationStyle.flat,
-      icon: Icon(Icons.error, color: Colors.red[800]),
+    Logger().e('error ${state.message}');
+    String rawMessage = state.message.split('Exception: ').last;
+    String formattedMessage = rawMessage
+        .replaceAll('{', '{"')
+        .replaceAll('}', '"}')
+        .replaceAll(': ', '": "')
+        .replaceAll(', ', '", "');
+    Map<String, dynamic> error = {};
+    try {
+      error = json.decode(formattedMessage);
+    } catch (e) {
+      Logger().e('Failed to decode JSON: $e');
+    }
+    if (error['message'] == 'มีการล็อคอินซ้อนอยู่ในเบาว์เซอร์อื่น') {
+      _showDuplicateLoginDialog(ctx);
+    } else {
+      showToastification(
+        context: ctx,
+        message: error['message'] ?? 'เกิดข้อผิดพลาด',
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        icon: Icon(Icons.error, color: Colors.red[800]),
+      );
+    }
+  }
+
+  void _showDuplicateLoginDialog(BuildContext context) {
+    showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (context) => _buildDuplicateLoginDialog(context),
     );
+  }
+
+  Widget _buildDuplicateLoginDialog(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        Container(
+          margin: const EdgeInsets.all(10),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: Colors.white,
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 55, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'มีการล็อคอินซ้อนอยู่ในเบาว์เซอร์อื่น',
+                style: GoogleFonts.athiti(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  decorationColor: Colors.black,
+                  decoration: TextDecoration.none,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 15),
+              _buildLogoutButton(context),
+            ],
+          ),
+        ),
+        _buildMascotImage(),
+      ],
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => _handleLogout(context),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Text(
+          'ออกจากระบบ',
+          style: GoogleFonts.athiti(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMascotImage() {
+    return Positioned(
+      top: 190,
+      child: Stack(
+        children: [
+          Opacity(
+            opacity: 1,
+            child: Image.network(
+              "https://serverimges.bookfet.com/mascot/6.png",
+              width: 200,
+              height: 200,
+              color: Colors.white,
+            ),
+          ),
+          Positioned(
+            top: 6,
+            left: 9,
+            child: Image.network(
+              "https://serverimges.bookfet.com/mascot/6.png",
+              width: 180,
+              height: 180,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    await _handleOverlappingUser();
+    Navigator.pop(context); // ยังจำเป็น เพราะต้องปิด dialog
+
+    showToastification(
+      context: context,
+      message: 'เข้าสู่ระบบใหม่อีกครั้ง',
+      type: ToastificationType.info,
+      style: ToastificationStyle.minimal,
+    );
+  }
+
+  Future<void> _handleOverlappingUser() async {
+    try {
+      UserRepository _userRepository = UserRepository();
+      final userlog = await novelBox.get('useroverlap');
+      if (userlog != null) {
+        final useroverlap = userModel.User.fromJson(json.decode(userlog));
+        await _userRepository.logoutUser(useroverlap.userid);
+        await novelBox.delete('useroverlap');
+        await novelBox.delete('usertoken');
+      } else {
+        Logger().e('useroverlap is null');
+      }
+    } catch (e) {
+      Logger().e('Failed to logout user: $e');
+    }
   }
 
   Widget _buildLoginForm() {
@@ -257,7 +413,8 @@ class _LoginPageState extends State<LoginPage> {
           text: 'เข้าสู่ระบบด้วย Google   ',
           icon: 'assets/svg/Google.svg',
           onPressed: () async {
-            signInWithGoogle(context);
+            final googleAuth = GoogleAuthService();
+            await googleAuth.signInWithGoogle(context);
           },
         ),
         const SizedBox(height: 10),
@@ -292,22 +449,13 @@ class _LoginPageState extends State<LoginPage> {
             // );
             // await Future.delayed(const Duration(seconds: 2));
             // // await signOut();
-            // UserCredential? userCredential = await signInWithFacebook();
-            // if (userCredential != null) {
-            //   User user = userCredential.user!;
-            //   // show snack bar
-            //   showToastification(
-            //     context: context,
-            //     message: '${user.displayName} ลงชื่อเข้าใช้แล้ว',
-            //     type: ToastificationType.success,
-            //   );
-            // }
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AudioPage(),
-              ),
-            );
+            await signInWithFacebook(context);
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => AudioPage(),
+            //   ),
+            // );
           },
         ),
       ],
