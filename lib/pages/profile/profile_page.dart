@@ -197,6 +197,14 @@ class _ProfilePageState extends State<ProfilePage> {
               _twitterController.text = state.user.detail.twitterLink ?? '';
               userImage = state.user.img;
             });
+          } else if (state is UserLoadedProfileFailed) {
+            // Navigator.pop(context);
+            showToastification(
+              context: context,
+              message: 'เกิดข้อผิดพลาด',
+              type: ToastificationType.error,
+              style: ToastificationStyle.minimal,
+            );
           }
         },
         child: SingleChildScrollView(
