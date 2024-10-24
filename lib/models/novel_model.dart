@@ -5,13 +5,13 @@ Welcome welcomeFromJson(String str) => Welcome.fromJson(json.decode(str));
 String welcomeToJson(Welcome data) => json.encode(data.toJson());
 
 class Welcome {
-  List<Promote> promote;
-  List<Recomnovel> recomnovel;
-  List<Cate> cate;
-  List<HitNovel> top10;
-  List<HitNovel> hitNovel;
-  List<List<Columnnovel>> columnnovel;
-  Newnovelupdate newnovelupdate;
+  final List<Promote> promote;
+  final List<Recomnovel> recomnovel;
+  final List<Cate> cate;
+  final List<HitNovel> top10;
+  final List<HitNovel> hitNovel;
+  final List<List<Columnnovel>> columnnovel;
+  final Newnovelupdate newnovelupdate;
 
   Welcome({
     required this.promote,
@@ -51,10 +51,10 @@ class Welcome {
 }
 
 class Cate {
-  int id;
-  String name;
-  String des;
-  String img;
+  final int id;
+  final String name;
+  final String des;
+  final String img;
 
   Cate({
     required this.id,
@@ -79,9 +79,9 @@ class Cate {
 }
 
 class Columnnovel {
-  String colName;
-  int columnId;
-  List<Item> items;
+  final String colName;
+  final int columnId;
+  final List<Item> items;
 
   Columnnovel({
     required this.colName,
@@ -103,21 +103,21 @@ class Columnnovel {
 }
 
 class Item {
-  int id;
-  String bookId;
-  int orderBy;
-  DateTime updateAt;
-  int bclorBy;
-  int allep;
-  int colColId;
-  int colBcorBy;
-  int btcolId;
-  String btcolImg;
-  String btcolBgimg;
-  String btcolName;
-  String btcolTag;
-  int btcolView;
-  End btcolEnd;
+  final int id;
+  final String bookId;
+  final int orderBy;
+  final DateTime updateAt;
+  final int bclorBy;
+  final int allep;
+  final int colColId;
+  final int colBcorBy;
+  final int btcolId;
+  final String btcolImg;
+  final String btcolBgimg;
+  final String btcolName;
+  final String btcolTag;
+  final int btcolView;
+  final End btcolEnd;
 
   Item({
     required this.id,
@@ -179,37 +179,37 @@ enum End { END, NOT_END }
 final endValues = EnumValues({"end": End.END, "not_end": End.NOT_END});
 
 class HitNovel {
-  int id;
-  HitNovelType type;
-  String bookId;
-  String img;
-  String bgimg;
-  String name;
-  String title;
-  String tag;
-  String cat1;
-  String cat2;
-  int rate;
-  String des;
-  DateTime updateAt;
-  DateTime updateEp;
-  Status status;
-  int view;
-  DateTime dateAt;
-  End end;
-  String language;
-  NotiAdd setHit;
-  NotiAdd random;
-  String partnerId;
-  int rating;
-  int? setTop;
-  String copyrightName;
-  String authorName;
-  String transName;
-  int score;
-  NotiAdd setRecomment;
-  NotiAdd notiAdd;
-  int? allep;
+  final int id;
+  final HitNovelType type;
+  final String bookId;
+  final String img;
+  final String bgimg;
+  final String name;
+  final String title;
+  final String tag;
+  final String cat1;
+  final String cat2;
+  final int rate;
+  final String des;
+  final DateTime updateAt;
+  final DateTime updateEp;
+  final Status status;
+  final int view;
+  final DateTime dateAt;
+  final End end;
+  final String language;
+  final NotiAdd setHit;
+  final NotiAdd random;
+  final String partnerId;
+  final int rating;
+  final int? setTop;
+  final String copyrightName;
+  final String? authorName;
+  final String? transName;
+  final int score;
+  final NotiAdd setRecomment;
+  final NotiAdd notiAdd;
+  final int allep;
 
   HitNovel({
     required this.id,
@@ -242,7 +242,7 @@ class HitNovel {
     required this.score,
     required this.setRecomment,
     required this.notiAdd,
-    this.allep,
+    required this.allep,
   });
 
   factory HitNovel.fromJson(Map<String, dynamic> json) => HitNovel(
@@ -328,7 +328,7 @@ enum HitNovelType { MAIN }
 final hitNovelTypeValues = EnumValues({"main": HitNovelType.MAIN});
 
 class Newnovelupdate {
-  List<HitNovel> upnovel;
+  final List<HitNovel> upnovel;
 
   Newnovelupdate({
     required this.upnovel,
@@ -345,13 +345,13 @@ class Newnovelupdate {
 }
 
 class Promote {
-  int id;
-  String img;
-  PromoteType type;
-  String dataVal;
-  DateTime updateAt;
-  String? imgApp;
-  int allep;
+  final int id;
+  final String img;
+  final PromoteType type;
+  final String dataVal;
+  final DateTime updateAt;
+  final String? imgApp;
+  final int allep;
 
   Promote({
     required this.id,
@@ -384,24 +384,27 @@ class Promote {
       };
 }
 
-enum PromoteType { BOOK, NONE }
+enum PromoteType { BOOK, LINK, NONE }
 
-final promoteTypeValues =
-    EnumValues({"book": PromoteType.BOOK, "none": PromoteType.NONE});
+final promoteTypeValues = EnumValues({
+  "book": PromoteType.BOOK,
+  "link": PromoteType.LINK,
+  "none": PromoteType.NONE
+});
 
 class Recomnovel {
-  int id;
-  String bookId;
-  HitNovelType type;
-  String img;
-  String name;
-  String title;
-  String tag;
-  int view;
-  int score;
-  End end;
-  DateTime updateAt;
-  int allep;
+  final int id;
+  final String bookId;
+  final HitNovelType type;
+  final String img;
+  final String name;
+  final String title;
+  final String tag;
+  final int view;
+  final int score;
+  final End end;
+  final DateTime updateAt;
+  final int allep;
 
   Recomnovel({
     required this.id,
