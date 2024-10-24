@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-
 import 'package:bloctest/bloc/lineauth/lineauth_bloc.dart';
 import 'package:bloctest/bloc/novel/novel_bloc.dart';
 import 'package:bloctest/function/app_function.dart';
@@ -173,6 +172,7 @@ class _SocialLastRegisState extends State<SocialLastRegis> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(),
       body: BlocConsumer<LineauthBloc, LineauthState>(
           listener: (context, state) async {
