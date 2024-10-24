@@ -52,7 +52,7 @@ class DataNovel {
 
 class Novel {
   final String img;
-  final String bookId;
+  final String bookId; // Changed to String to support both formats
   final int btId;
   final String btTitle;
   final String btTag;
@@ -79,7 +79,7 @@ class Novel {
 
   factory Novel.fromJson(Map<String, dynamic> json) => Novel(
         img: json["img"],
-        bookId: json["bookID"],
+        bookId: json["bookID"], // Will accept both String and enum string value
         btId: json["bt.id"],
         btTitle: json["bt.title"],
         btTag: json["bt.tag"],
@@ -109,13 +109,13 @@ class Novel {
 class NovelEp {
   final int id;
   final String name;
-  final String bookId;
+  final String bookId; // Changed to String to support both formats
   final String epId;
   final int orderBy;
   final TypeRead typeRead;
   final DateTime publishDate;
   final String publishTime;
-  final Publish publish;
+  final String publish; // Changed to String to support both DateTime and enum
 
   NovelEp({
     required this.id,
@@ -138,7 +138,7 @@ class NovelEp {
         typeRead: typeReadValues.map[json["typeRead"]]!,
         publishDate: DateTime.parse(json["publishDate"]),
         publishTime: json["publishTime"],
-        publish: publishValues.map[json["publish"]]!,
+        publish: json["publish"], // Will handle both formats
       );
 
   Map<String, dynamic> toJson() => {
@@ -151,14 +151,9 @@ class NovelEp {
         "publishDate":
             "${publishDate.year.toString().padLeft(4, '0')}-${publishDate.month.toString().padLeft(2, '0')}-${publishDate.day.toString().padLeft(2, '0')}",
         "publishTime": publishTime,
-        "publish": publishValues.reverse[publish],
+        "publish": publish,
       };
 }
-
-enum Publish { PRIVATE, PUBLISH }
-
-final publishValues =
-    EnumValues({"private": Publish.PRIVATE, "publish": Publish.PUBLISH});
 
 enum TypeRead { COIN, FREE }
 
@@ -175,4 +170,11 @@ class EnumValues<T> {
     reverseMap = map.map((k, v) => MapEntry(v, k));
     return reverseMap;
   }
+}
+
+// Helper extension to check publish status
+extension PublishStatusExtension on String {
+  bool get isPublished => this.toLowerCase() == 'publish';
+  bool get isPrivate => this.toLowerCase() == 'private';
+  DateTime? toDateTime() => DateTime.tryParse(this);
 }
