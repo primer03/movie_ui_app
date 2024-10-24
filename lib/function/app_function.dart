@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:bloctest/bloc/page/page_bloc.dart';
+import 'package:bloctest/function/facebook_auth.dart';
 import 'package:bloctest/function/google_auth.dart';
 import 'package:bloctest/function/line_auth.dart';
 import 'package:bloctest/main.dart';
@@ -18,6 +20,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:toastification/toastification.dart';
@@ -27,6 +30,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:io' show File, Platform;
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
+import 'package:bloctest/models/user_model.dart' as userModel;
 
 const storage = FlutterSecureStorage();
 
@@ -248,58 +252,7 @@ Future<void> getAppVersion() async {
   print('Build Number: $buildNumber');
 }
 
-Future<UserCredential?> signInWithFacebook() async {
-  try {
-    // Trigger the sign-in flow
-    final LoginResult loginResult = await FacebookAuth.instance.login();
-
-    // Check if login was successful
-    if (loginResult.status == LoginStatus.success) {
-      // Create a credential from the access token
-      final OAuthCredential facebookAuthCredential =
-          FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
-
-      // Once signed in, return the UserCredential
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithCredential(facebookAuthCredential);
-
-      // Access the user information
-      User? user = userCredential.user;
-      if (user != null) {
-        print('Login successful! User: ${user.displayName}');
-      } else {
-        print('No user information found');
-      }
-
-      return userCredential;
-    } else if (loginResult.status == LoginStatus.cancelled) {
-      print('Login cancelled by user');
-      return null; // User cancelled the login
-    } else {
-      print('Login failed: ${loginResult.message}');
-      return null;
-    }
-  } catch (e) {
-    print('Error during Facebook sign-in: $e');
-    return null;
-  }
-}
-
-Future<void> signOutFacebook() async {
-  try {
-    // Sign out from Firebase
-    await FirebaseAuth.instance.signOut();
-
-    // Sign out from Facebook
-    await FacebookAuth.instance.logOut();
-
-    print('User successfully logged out');
-  } catch (e) {
-    print('Error during sign out: $e');
-  }
-}
-
-Future<void> logoutAll(BuildContext context) async {
+Future<void> logoutAll(BuildContext context, {bool uniqlog = false}) async {
   disconnectSocket();
   final socialtype = await novelBox.get('socialType');
   if (socialtype != null) {
@@ -307,10 +260,21 @@ Future<void> logoutAll(BuildContext context) async {
     if (socialtype == 'line') {
       await logoutLine();
     } else if (socialtype == 'google') {
-      await signOut();
+      final googleAuth = GoogleAuthService();
+      await googleAuth.signOut();
+    } else if (socialtype == 'facebook') {
+      await signOutFacebook();
     }
   }
   await deletePassword();
+  if (uniqlog) {
+    String? userlog = await novelBox.get('user');
+    if (userlog != null) {
+      final userModel.User user = userModel.User.fromJson(json.decode(userlog));
+      // Logger().i('User ID: ${user.userid}');
+      await UserRepository().logoutUser(user.userid);
+    }
+  }
 
   await novelBox.clear();
   BlocProvider.of<PageBloc>(context).add(const PageChanged(tabIndex: 0));
