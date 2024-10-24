@@ -27,11 +27,13 @@ class NovelRepository {
     final url = Uri.parse('$_baseUrl/Allnovel');
     try {
       final response = await _getRequest(url);
-      // print('response: ${response.body}');
+      print('response: ${response.body}');
+      Logger().i('response: ${response.body}');
 
       final decodedData = _decodeResponse(response);
       return _parseWelcome(decodedData);
     } catch (e) {
+      Logger().e('Failed to load novels: $e');
       throw Exception('Failed to load novels: $e');
     }
   }
@@ -42,12 +44,14 @@ class NovelRepository {
     try {
       final response = await _getRequest(url);
       final decodedData = _decodeResponse(response);
+      Logger().i('decodedData: $decodedData');
       Allsearch allsearch = Allsearch.fromJson(decodedData);
       search = allsearch.searchnovel;
       novelBox.put('cateID', cateID);
       novelBox.put('searchData', json.encode(search));
       return search;
     } catch (e) {
+      Logger().e('Failed to search novels: $e');
       throw Exception('Failed to search novels: $e');
     }
   }
@@ -378,6 +382,7 @@ class NovelRepository {
 
   Future<BookfetNovelRead> getReadNovel(String bookId, String epId) async {
     final url = Uri.parse('$_baseUrl/readnovelep/${bookId}_$epId');
+    Logger().i('url: $url');
     final token = novelBox.get('usertoken');
 
     try {
