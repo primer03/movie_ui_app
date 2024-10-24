@@ -34,6 +34,7 @@ Future getAccessToken() async {
 
 Future<void> startLineLogin(BuildContext context) async {
   try {
+    showLoadingDialog(context);
     final result =
         await LineSDK.instance.login(scopes: ["profile", "openid", "email"]);
     // Navigator.of(context).pop();
@@ -61,6 +62,7 @@ Future<void> startLineLogin(BuildContext context) async {
           firstRegis: true,
         );
         if (check) {
+          Navigator.pop(context);
           final usertokenHive = await novelBox.get('usertoken');
           final user = JwtDecoder.decode(usertokenHive);
 
@@ -80,6 +82,7 @@ Future<void> startLineLogin(BuildContext context) async {
               );
             }));
           } else {
+            await Future.delayed(const Duration(milliseconds: 500));
             showToastification(
               context: context,
               message: 'เข้าสู่ระบบสำเร็จ',
@@ -97,6 +100,7 @@ Future<void> startLineLogin(BuildContext context) async {
                 context, '/main', (route) => false);
           }
         } else {
+          Navigator.pop(context);
           showToastification(
             context: context,
             message: 'เกิดข้อผิดพลาดในการลงทะเบียน',
@@ -105,6 +109,7 @@ Future<void> startLineLogin(BuildContext context) async {
           );
         }
       } else {
+        Navigator.pop(context);
         showToastification(
           context: context,
           message: 'โปรดยืนยันอีเมลกับline ก่อน',
@@ -113,6 +118,7 @@ Future<void> startLineLogin(BuildContext context) async {
         );
       }
     } catch (e) {
+      Navigator.pop(context);
       showToastification(
         context: context,
         message: 'เกิดข้อผิดพลาดในการลงทะเบียน',
@@ -123,6 +129,7 @@ Future<void> startLineLogin(BuildContext context) async {
     // return downloadImage(imgUrl);
   } on PlatformException catch (e) {
     print(e);
+    Navigator.pop(context);
     switch (e.code.toString()) {
       case "CANCEL":
         print("User Cancel the login");
