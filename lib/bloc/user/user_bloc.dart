@@ -42,6 +42,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(UserLoadedProfile(user));
       emit(UserLoginrememberSate(user));
     } catch (e) {
+      Logger().e('errorCXX: $e');
       emit(UserLoadedProfileFailed(e.toString()));
     }
   }
@@ -90,6 +91,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       }
       emit(UserLoginrememberSate(userlogin));
     } catch (e) {
+      Logger().e(e.toString());
       emit(UserLoginRemeberFailed(e.toString()));
     }
   }
