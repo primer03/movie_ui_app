@@ -26,7 +26,7 @@ class BookfetNovelRead {
 class BookfetReadnovel {
   final BookfetNovelBook novelBook;
   final BookfetNovelEp novelEp;
-  final List<BookfetAllep> allep;
+  final List<BookfetNovelEp> allep;
   final BookfetPreviousOrNext previousOrNext;
 
   BookfetReadnovel({
@@ -40,8 +40,8 @@ class BookfetReadnovel {
       BookfetReadnovel(
         novelBook: BookfetNovelBook.fromJson(json["NovelBook"]),
         novelEp: BookfetNovelEp.fromJson(json["NovelEP"]),
-        allep: List<BookfetAllep>.from(
-            json["Allep"].map((x) => BookfetAllep.fromJson(x))),
+        allep: List<BookfetNovelEp>.from(
+            json["Allep"].map((x) => BookfetNovelEp.fromJson(x))),
         previousOrNext: BookfetPreviousOrNext.fromJson(json["PreviousOrNext"]),
       );
 
@@ -53,30 +53,34 @@ class BookfetReadnovel {
       };
 }
 
-class BookfetAllep {
-  final int id;
+class BookfetNovelEp {
+  final int? id;
   final String name;
   final String epId;
-  final int orderBy;
+  final int? orderBy;
   final BookfetTypeRead typeRead;
   final String bookId;
   final DateTime publishDate;
   final String publishTime;
   final BookfetPublish publish;
+  final String? detail;
+  final int? ep;
 
-  BookfetAllep({
-    required this.id,
+  BookfetNovelEp({
+    this.id,
     required this.name,
     required this.epId,
-    required this.orderBy,
+    this.orderBy,
     required this.typeRead,
     required this.bookId,
     required this.publishDate,
     required this.publishTime,
     required this.publish,
+    this.detail,
+    this.ep,
   });
 
-  factory BookfetAllep.fromJson(Map<String, dynamic> json) => BookfetAllep(
+  factory BookfetNovelEp.fromJson(Map<String, dynamic> json) => BookfetNovelEp(
         id: json["id"],
         name: json["name"],
         epId: json["epID"],
@@ -86,6 +90,8 @@ class BookfetAllep {
         publishDate: DateTime.parse(json["publishDate"]),
         publishTime: json["publishTime"],
         publish: bookfetPublishValues.map[json["publish"]]!,
+        detail: json["detail"],
+        ep: json["ep"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -99,18 +105,10 @@ class BookfetAllep {
             "${publishDate.year.toString().padLeft(4, '0')}-${publishDate.month.toString().padLeft(2, '0')}-${publishDate.day.toString().padLeft(2, '0')}",
         "publishTime": publishTime,
         "publish": bookfetPublishValues.reverse[publish],
+        "detail": detail,
+        "ep": ep,
       };
 }
-
-enum BookfetPublish { PUBLISH }
-
-final bookfetPublishValues =
-    BookfetEnumValues({"publish": BookfetPublish.PUBLISH});
-
-enum BookfetTypeRead { COIN, FREE }
-
-final bookfetTypeReadValues = BookfetEnumValues(
-    {"coin": BookfetTypeRead.COIN, "free": BookfetTypeRead.FREE});
 
 class BookfetNovelBook {
   final String type;
@@ -173,72 +171,9 @@ class BookfetNovelBook {
       };
 }
 
-class BookfetNovelEp {
-  // final String epId;
-  // final String bookId;
-  // final String? detail;
-  // final String name;
-  // final int? ep;
-  // final DateTime publishDate;
-  // final String publishTime;
-  // final BookfetPublish publish;
-
-  final int? id;
-  final String name;
-  final String epId;
-  final int? orderBy;
-  final BookfetTypeRead typeRead;
-  final String bookId;
-  final DateTime publishDate;
-  final String publishTime;
-  final BookfetPublish publish;
-  final String? detail;
-  final int? ep;
-
-  BookfetNovelEp({
-    this.id,
-    required this.name,
-    required this.epId,
-    this.orderBy,
-    required this.typeRead,
-    required this.bookId,
-    required this.publishDate,
-    required this.publishTime,
-    required this.publish,
-    this.detail,
-    this.ep,
-  });
-
-  factory BookfetNovelEp.fromJson(Map<String, dynamic> json) => BookfetNovelEp(
-        id: json["id"],
-        epId: json["epID"],
-        orderBy: json["order_by"],
-        typeRead: bookfetTypeReadValues.map[json["typeRead"]]!,
-        bookId: json["bookID"],
-        detail: json["detail"],
-        name: json["name"],
-        ep: json["ep"],
-        publishDate: DateTime.parse(json["publishDate"]),
-        publishTime: json["publishTime"],
-        publish: bookfetPublishValues.map[json["publish"]]!,
-      );
-
-  Map<String, dynamic> toJson() => {
-        "epID": epId,
-        "bookID": bookId,
-        "detail": detail,
-        "name": name,
-        "ep": ep,
-        "publishDate":
-            "${publishDate.year.toString().padLeft(4, '0')}-${publishDate.month.toString().padLeft(2, '0')}-${publishDate.day.toString().padLeft(2, '0')}",
-        "publishTime": publishTime,
-        "publish": bookfetPublishValues.reverse[publish],
-      };
-}
-
 class BookfetPreviousOrNext {
-  final BookfetNovelEp? previous; // Change to nullable
-  final BookfetNovelEp? next; // Change to nullable
+  final BookfetNovelEp? previous;
+  final BookfetNovelEp? next;
 
   BookfetPreviousOrNext({
     required this.previous,
@@ -260,10 +195,15 @@ class BookfetPreviousOrNext {
       };
 }
 
-// enum TypeRead { COIN, FREE }
+enum BookfetPublish { PUBLISH, PRIVATE }
 
-// final typeReadValues =
-//     BookfetEnumValues({"coin": TypeRead.COIN, "free": TypeRead.FREE});
+final bookfetPublishValues = BookfetEnumValues(
+    {"publish": BookfetPublish.PUBLISH, "private": BookfetPublish.PRIVATE});
+
+enum BookfetTypeRead { COIN, FREE }
+
+final bookfetTypeReadValues = BookfetEnumValues(
+    {"coin": BookfetTypeRead.COIN, "free": BookfetTypeRead.FREE});
 
 class BookfetEnumValues<T> {
   Map<String, T> map;
